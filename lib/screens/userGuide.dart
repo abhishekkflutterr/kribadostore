@@ -24,7 +24,6 @@ class _ScaffoldExampleState extends State<ScaffoldExample> {
   void initState() {
     super.initState();
     _checkInitialConnectivity();
-    _subscription = _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
   }
 
   @override
@@ -34,8 +33,7 @@ class _ScaffoldExampleState extends State<ScaffoldExample> {
   }
 
   Future<void> _checkInitialConnectivity() async {
-    var connectivityResult = await _connectivity.checkConnectivity();
-    _updateConnectionStatus(connectivityResult);
+
   }
 
   void _updateConnectionStatus(ConnectivityResult result) {

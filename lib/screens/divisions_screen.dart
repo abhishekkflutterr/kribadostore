@@ -14,7 +14,7 @@ import 'package:kribadostore/models/FilterByDateCountResponse.dart';
 import 'package:kribadostore/screens/camp_list_screen.dart';
 import 'package:kribadostore/services/s3upload.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:install_plugin/install_plugin.dart';
+// import 'package:install_plugin/install_plugin.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
@@ -955,7 +955,7 @@ class _DivisionsScreenState extends State<DivisionsScreen> {
 
   void showUpdateDialog(BuildContext context, String newVersion) {
     showDialog(
-      barrierDismissible: false,
+      barrierDismissible: true,
       context: context,
       builder: (context) {
         return WillPopScope(
@@ -1159,31 +1159,31 @@ class _DivisionsScreenState extends State<DivisionsScreen> {
 
 
         // Install the APK using the Install Plugin
-        await InstallPlugin.installApk(filePath).catchError((error) {
-          print('Error installing APK: $error');
-
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error installing APK: $error'),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }).then((_) async {
-          // Delete the APK file after installation
-          if (await file.exists()) {
-            try {
-              await file.delete();
-              print('APK file deleted: $filePath');
-            } catch (e) {
-              print('Error deleting APK file: $e');
-            }
-          }
-        });
-      } else {
-        setState(() {
-          _loading = false;
-        });
+      //   await InstallPlugin.installApk(filePath).catchError((error) {
+      //     print('Error installing APK: $error');
+      //
+      //
+      //     ScaffoldMessenger.of(context).showSnackBar(
+      //       SnackBar(
+      //         content: Text('Error installing APK: $error'),
+      //         duration: const Duration(seconds: 2),
+      //       ),
+      //     );
+      //   }).then((_) async {
+      //     // Delete the APK file after installation
+      //     if (await file.exists()) {
+      //       try {
+      //         await file.delete();
+      //         print('APK file deleted: $filePath');
+      //       } catch (e) {
+      //         print('Error deleting APK file: $e');
+      //       }
+      //     }
+      //   });
+      // } else {
+      //   setState(() {
+      //     _loading = false;
+      //   });
 
 
         ScaffoldMessenger.of(context).showSnackBar(

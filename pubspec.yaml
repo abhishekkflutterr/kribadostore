@@ -51,10 +51,10 @@ dependencies:
 
   devicelocale: ^0.7.0
   aws_client: ^0.4.1
-  geolocator: ^7.7.1
+  geolocator: ^11.0.0
   crypto: ^3.0.3
   permission_handler: ^11.3.1
-  connectivity_plus: ^3.0.6
+  connectivity_plus: ^6.0.3
   shared_preferences: ^2.2.2
   fluttertoast: ^8.2.12
 
@@ -69,7 +69,6 @@ dependencies:
   system_info_plus: ^0.0.5
   system_info: ^1.0.1
   device_info_plus: ^9.1.1
-  connection_network_type: ^0.0.1
   flutter_file_downloader: ^2.0.0
 
 
@@ -93,7 +92,7 @@ dependencies:
   pdf: ^3.10.7
   open_file: ^3.3.2
   file_picker: ^8.1.2
-  install_plugin: ^2.1.0
+#  install_plugin: ^2.1.0
 
 
 dev_dependencies:

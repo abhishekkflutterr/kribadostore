@@ -191,8 +191,6 @@ class _CustomAppBarWithSyncState extends State<CustomAppBarWithSync> {
       DataSingleton().download_btn = "";
       DataSingleton().download_print_btn = "";
       DataSingleton().drConsentText = "";
-      DataSingleton().doctorSpecialtyDropDown = null;
-
       // DataSingleton().ptConsentText = "";
       performLogout();
     } else if (value == 'Switch') {
@@ -235,7 +233,6 @@ class _CustomAppBarWithSyncState extends State<CustomAppBarWithSync> {
       DataSingleton().top_logo = null;
       DataSingleton().Disclaimer = null;
       DataSingleton().font_size = 16.0;
-      DataSingleton().addDoctorBtn = false;
       // Default logout logic
       print('Logging out...');
       Get.offAll(LoginScreen());

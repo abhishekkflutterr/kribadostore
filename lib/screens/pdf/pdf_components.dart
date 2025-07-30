@@ -18,16 +18,16 @@ import 'package:pdf/widgets.dart' as pw;
 class PdfComponents {
   dynamic ttf;
   dynamic doc;
-  double titleFontSize = 22;
-  double subtitleFontSize = 18;
-  double disclaimerFontSize = 18;
+  double titleFontSize = 25;
+  double subtitleFontSize = 20;
+  double disclaimerFontSize = 20;
   Directory? directory;
   Uint8List? bottomLogo;
   Uint8List? topLogo;
   Uint8List? selectedImageAnswer;
-  
+
   String versionShortform = "";
-  
+
   String appVersion = "";
 
   Future<void> initializePdf() async {
@@ -79,20 +79,29 @@ class PdfComponents {
     await initializePdf();
     await initializeSingleTonLogos();
 
-       String checkPlatformAPPVersion = Platform.version;
+    String checkPlatformAPPVersion = Platform.version;
     print('checkkkkkkkkkkkk $checkPlatformAPPVersion');
 
-    if(checkPlatformAPPVersion.contains("android")){
+    if (checkPlatformAPPVersion.contains("android")) {
       versionShortform = "A";
-    }else{
+    } else {
       versionShortform = "I";
     }
 
-
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-     appVersion = packageInfo.version;
+    appVersion = packageInfo.version;
 
-    List<pw.Text> doctorAndPatient = await addDocAndPatientInfo();
+    // Defensive null check for addDocAndPatientInfo
+    List<pw.Text> doctorAndPatient = [];
+    try {
+      final docPatient = await addDocAndPatientInfo();
+      if (docPatient != null) {
+        doctorAndPatient = docPatient;
+      }
+    } catch (e) {
+      print("Error in addDocAndPatientInfo: $e");
+    }
+
     List<pw.Text> referenceAndDisclaimer = await disclaimerAndReference();
     List<pw.Text> scoreAndInterpreation =
         await scoreAndInterpreatation(score, interpretation);
@@ -162,16 +171,15 @@ class PdfComponents {
                   ),
                 ),
 
-                     pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.end,
-            children: [
-              pw.Text(
-                'v.$versionShortform-$appVersion',
-                style: pw.TextStyle(font: ttf),
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.end,
+                children: [
+                  pw.Text(
+                    'v.$versionShortform-$appVersion',
+                    style: pw.TextStyle(font: ttf),
+                  ),
+                ],
               ),
-            ],
-          ),
-
             ],
           );
         },
@@ -199,7 +207,7 @@ class PdfComponents {
 
       String path = directory!.path;
       String myFile =
-          '$path/${DataSingleton().Patient_name}_${DataSingleton().getCurrentDateTimeInIST()}.pdf';
+          '$path/${DataSingleton().pat_name}_${DataSingleton().getCurrentDateTimeInIST()}.pdf';
       final file = File(myFile);
 
       await file.writeAsBytes(await doc.save());

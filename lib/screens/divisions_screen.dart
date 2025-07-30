@@ -276,7 +276,7 @@ class _DivisionsScreenState extends State<DivisionsScreen> {
 
           for (int i=0; i<divisionsoff1[0].meta.length;i++) {
 
-            print('djsdjskdjskdjcnzmnzmcnzcmus ${divisionsoff1[0].meta[i].key} ${divisionsoff1[0].meta[i].value}');
+            print('djsdjskdjskdjcnzmnzmcnzcmus ${divisionsoff1[0].meta[i].key}');
 
             if (divisionsoff1[0].meta[i].key == "CAMP_PLAN" && divisionsoff1[0].meta[i].value == "True") {
               DataSingleton().camp_plan = true;
@@ -295,28 +295,6 @@ class _DivisionsScreenState extends State<DivisionsScreen> {
 
             if(divisionsoff1[0].meta[i].key == "CAMP_WITH_SENIOR") {
               DataSingleton().CampWithSeniorDropDown = "true";
-            }
-
-            if(divisionsoff1[0].meta[i].key == "DOCTOR_SPECIALITY_DROPDOWN_OPTIONS") {
-              DataSingleton().doctorSpecialtyDropDown = divisionsoff1[0].meta[i].value;
-            }
-
-            if(divisionsoff1[0].meta[i].key == "ADD_DOCTOR" && divisionsoff1[0].meta[i].value == "True") {
-              print('ietietueitueitueituetie');
-              DataSingleton().addDoctorBtn = true;
-            }else {
-              DataSingleton().addDoctorBtn = false;
-            }
-
-            // ✅ New logic: Store glucose range
-            if (divisionsoff1[0].meta[i].key == "PATIENT_GLUCOSE_RANGE") {
-              DataSingleton().patientGlucoseRange = divisionsoff1[0].meta[i].value; // e.g., "60-300"
-              print("Stored glucose range: ${divisionsoff1[0].meta[i].value}");
-            }
-
-            if (divisionsoff1[0].meta[i].key == "PATIENT_URIC_ACID_RANGE") {
-              DataSingleton().patientUricRange = divisionsoff1[0].meta[i].value; // e.g., "60-300"
-              print("Stored uricAcid range: ${divisionsoff1[0].meta[i].value}");
             }
 
 
@@ -345,10 +323,8 @@ class _DivisionsScreenState extends State<DivisionsScreen> {
             });
 
             String jsonstringmap = json.encode(_doctor1);
-            print('eueitueitjkfjskfs ${DataSingleton().addDoctorBtn}');
 
-              DataSingleton().displayAddDoctorbtn = false;
-
+            DataSingleton().displayAddDoctorbtn = false;
             DataSingleton().clearDoctor = true;
 
             _insertDataIntoDatabase(doctor['sc_code'], doctor['name'], doctor['speciality'],
@@ -955,7 +931,7 @@ class _DivisionsScreenState extends State<DivisionsScreen> {
 
   void showUpdateDialog(BuildContext context, String newVersion) {
     showDialog(
-      barrierDismissible: true,
+      barrierDismissible: false,
       context: context,
       builder: (context) {
         return WillPopScope(
@@ -1159,31 +1135,31 @@ class _DivisionsScreenState extends State<DivisionsScreen> {
 
 
         // Install the APK using the Install Plugin
-      //   await InstallPlugin.installApk(filePath).catchError((error) {
-      //     print('Error installing APK: $error');
-      //
-      //
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(
-      //         content: Text('Error installing APK: $error'),
-      //         duration: const Duration(seconds: 2),
-      //       ),
-      //     );
-      //   }).then((_) async {
-      //     // Delete the APK file after installation
-      //     if (await file.exists()) {
-      //       try {
-      //         await file.delete();
-      //         print('APK file deleted: $filePath');
-      //       } catch (e) {
-      //         print('Error deleting APK file: $e');
-      //       }
-      //     }
-      //   });
-      // } else {
-      //   setState(() {
-      //     _loading = false;
-      //   });
+     /*   await InstallPlugin.installApk(filePath).catchError((error) {
+          print('Error installing APK: $error');
+
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error installing APK: $error'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }).then((_) async {
+          // Delete the APK file after installation
+          if (await file.exists()) {
+            try {
+              await file.delete();
+              print('APK file deleted: $filePath');
+            } catch (e) {
+              print('Error deleting APK file: $e');
+            }
+          }
+        });*/
+      } else {
+        setState(() {
+          _loading = false;
+        });
 
 
         ScaffoldMessenger.of(context).showSnackBar(

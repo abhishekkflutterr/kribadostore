@@ -395,11 +395,6 @@ class DatabaseHelper {
     return await db.query('themes');
   }
 
-  Future<List<Map<String, dynamic>>> getDoctors() async {
-    final Database db = await _database;
-    return await db.query('doctors');
-  }
-
   Future<List<Map<String, dynamic>>> getMetaData() async {
     final Database db = await _database;
     return await db.query('metadata');

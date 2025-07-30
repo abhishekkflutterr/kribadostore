@@ -80,8 +80,6 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> with Widg
 
     super.initState();
 
-    print('ietietueiueiueitueite ${DataSingleton().addDoctorBtn}');
-
    String doctorCode = Get.arguments?['doctorCode'] ?? '';
     String  doctorName = Get.arguments?['doctorName'] ?? '';
 
@@ -99,7 +97,6 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> with Widg
 
     _databaseHelper = DatabaseHelper.instance;
     _databaseHelper!.getAlldoctors();
-    _databaseHelper!.getDoctors();
     getLastSyncedTime();
 
     //String last_sync_date_time= getLastSyncedTime() as String;
@@ -227,10 +224,6 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> with Widg
     await _databaseHelper.getAllcamps();
     final List<Map<String, dynamic>> usersData =
     await _databaseHelper.getAllusers();
-
-    final List<Map<String, dynamic>> getDoc =
-    await _databaseHelper.getDoctors();
-    print('amankaDoctorlist $getDoc');
 
     // print('jxfhdjfndjfnc $usersData');
     var campId = '';
@@ -790,45 +783,33 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> with Widg
               ],
             ),
           ),
-            Positioned(
-              bottom: 100,
-              left: 0,
-              right: 0,
-              child: Builder(
-                builder: (context) {
-                  final displayBtn = DataSingleton().displayAddDoctorbtn;
-                  final addBtn = DataSingleton().addDoctorBtn;
-
-                  print('displayAddDoctorbtn: $displayBtn');
-                  print('addDoctorBtn: $addBtn');
-
-                  final shouldShow = displayBtn == true || (displayBtn == false && addBtn == true);
-
-                  return shouldShow
-                      ? Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: CustomElevatedButton(
-                        onPressed: () {
-                          Get.to(DoctorDetailsScreen());
-                        },
-                        text: 'Add Doctor',
-                        icon: Icon(Icons.add_circle_outline),
-                        horizontalPadding: 16,
-                        backgroundColor: Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  )
-                      : SizedBox.shrink();
-                },
+          Positioned(
+            bottom: 100,
+            left: 0,
+            right: 0,
+            child: DataSingleton().displayAddDoctorbtn == true
+                ? Align(
+              alignment: Alignment.bottomRight,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: CustomElevatedButton(
+                  onPressed: () {
+                   /* Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => DoctorDetailsScreen()),
+                    );*/
+                    Get.to(DoctorDetailsScreen());
+                  },
+                  text: 'Add Doctor',
+                  icon: Icon(Icons.add_circle_outline),
+                  horizontalPadding: 16,
+                  backgroundColor: Theme.of(context).primaryColor,
+                ),
               ),
-            ),
-
-
-
-
-            Positioned(
+            )
+                : Container(),
+          ),
+          Positioned(
             bottom: 20,
             left: 0,
             right: 0,

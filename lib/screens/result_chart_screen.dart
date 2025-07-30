@@ -1743,7 +1743,6 @@ class _ResultChartScreenState extends State<ResultChartScreen> {
                   DataSingleton().print_btn = "";
                   DataSingleton().download_btn = "";
                   DataSingleton().download_print_btn = "";
-                  DataSingleton().addDoctorBtn = false;
                   performLogout();
                 },
               )

@@ -4,31 +4,34 @@ import 'package:kribadostore/screens/pdf/pdf_components.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 Future<List<pw.Text>> addDocAndPatientInfo() async {
-  String? patientName = DataSingleton().Patient_name;
-  String? age = DataSingleton().Patient_age;
-  String? gender = DataSingleton().Patient_gender;
+  String? patientName = DataSingleton().pat_name;
+  String? age = DataSingleton().pat_age;
+  String? gender = DataSingleton().pat_gender;
   String? doctor = DataSingleton().doc_name;
+
+  print(
+      'addDocAndPatientInfo: doctor from DataSingleton = $doctor'); // Debug print
 
   String patientInfo = "", doctorInfo = "";
 
-  if (patientName!.isNotEmpty) {
+  if (patientName != null && patientName.isNotEmpty) {
     patientInfo += 'Name: ${patientName.toString().capitalize}\n';
   }
 
-  if (age != null) {
+  if (age != null && age.isNotEmpty) {
     patientInfo += 'Age: $age\n';
   }
 
-  if (gender != null) {
+  if (gender != null && gender.isNotEmpty) {
     patientInfo += 'Gender: ${gender.toString().capitalize}\n';
   }
 
-  if (doctor != null) {
+  if (doctor != null && doctor.isNotEmpty) {
     doctorInfo += 'Name: $doctor\n';
   }
 
   List<pw.Text> patinetAndDoctor = [
-    if (doctor != null) ...[
+    if (doctorInfo.isNotEmpty) ...[
       //Doctor Information
       pw.Text(
         "Doctor Information",
@@ -47,7 +50,7 @@ Future<List<pw.Text>> addDocAndPatientInfo() async {
       ),
     ],
 
-    if (patientInfo != null || patientInfo.isNotEmpty) ...[
+    if (patientInfo.isNotEmpty) ...[
       pw.Text(
         "\nPatient Information",
         style: pw.TextStyle(

@@ -36,7 +36,7 @@ import '../custom_widgets/text_field.dart';
 class LoginController extends GetxController {
   List<Division> divisionsoff = <Division>[].obs;
   NetworkHelper networkHelper = NetworkHelper();
-  String sr_no="";
+  String sr_no = "";
 
   final S3Upload s3Upload = S3Upload();
 
@@ -101,7 +101,8 @@ class LoginController extends GetxController {
     _isLoading.value = value;
   }
 
-  Future<void> ForgotPasswordlogin(BuildContext context,String username, String email) async {
+  Future<void> ForgotPasswordlogin(
+      BuildContext context, String username, String email) async {
     try {
       setLoading(true); // Set loading state to true
 
@@ -117,36 +118,28 @@ class LoginController extends GetxController {
         return;
       }
 
-      print('@@## '+username);
-      print('@@## '+email);
+      print('@@## ' + username);
+      print('@@## ' + email);
 
       http.Response response = await http.post(
         Uri.parse('${baseurl}/forgetPassword'),
-        body: {'username': username,'email':email},
+        body: {'username': username, 'email': email},
       );
 
-      print('@@## '+response.statusCode.toString());
+      print('@@## ' + response.statusCode.toString());
       if (response.statusCode == 200) {
         setLoading(false); // Set loading state to false after successful login
 
-
         // Parse the response body into your model
         LoginResponse userLoginResponse =
-        LoginResponse.fromJson(json.decode(response.body));
+            LoginResponse.fromJson(json.decode(response.body));
 
-
-        setLoginErrorMessage(
-            userLoginResponse.message);
-
-
-
+        setLoginErrorMessage(userLoginResponse.message);
       } else {
         LoginResponse userLoginResponse =
-        LoginResponse.fromJson(json.decode(response.body));
+            LoginResponse.fromJson(json.decode(response.body));
 
-
-        setLoginErrorMessage(
-            userLoginResponse.message);
+        setLoginErrorMessage(userLoginResponse.message);
 
         setLoading(false); // Set loading state to false after failed login
       }
@@ -169,40 +162,37 @@ class LoginController extends GetxController {
     return null; // If platform is not Android or iOS
   }
 
-  Future<void> CheckDeviceOrPOS(BuildContext context,String email, String pass) async {
+  Future<void> CheckDeviceOrPOS(
+      BuildContext context, String email, String pass) async {
     try {
-
       String? deviceName = await getDeviceName();
 
-      if (["Alps Q1", "Alps JICAI Q1", "Q1", "JICAI Q2","Z91"].contains(deviceName)) {
+      if (["Alps Q1", "Alps JICAI Q1", "Q1", "JICAI Q2", "Z91"]
+          .contains(deviceName)) {
         print('@@##SNOhere');
         final prefs = await SharedPreferences.getInstance();
-        String? sno=  prefs.getString('device_serial_number');
-
+        String? sno = prefs.getString('device_serial_number');
 
         // Line 37
 
-        print('@@##SNO '+sno.toString());
+        print('@@##SNO ' + sno.toString());
 
-        if(sno==null || sno.isEmpty){
-          showDialogDeviceSerialNo(context, email,  pass);
-        }else{
-          CheckPasswordloginWithSerialNo(context,email, pass,sno.toString());
-
+        if (sno == null || sno.isEmpty) {
+          showDialogDeviceSerialNo(context, email, pass);
+        } else {
+          CheckPasswordloginWithSerialNo(context, email, pass, sno.toString());
         }
-
-
-      }else{
-        CheckPasswordlogin(context,email,pass);
+      } else {
+        CheckPasswordlogin(context, email, pass);
       }
-
-
     } catch (e) {
       print(e.toString());
       setLoading(false); // Set loading state to false after failed login
     }
   }
-  Future<void> CheckPasswordlogin(BuildContext context,String email, String pass) async {
+
+  Future<void> CheckPasswordlogin(
+      BuildContext context, String email, String pass) async {
     try {
       setLoading(true); // Set loading state to true
 
@@ -217,7 +207,6 @@ class LoginController extends GetxController {
 
         return;
       }
-
 
       http.Response response = await http.post(
         Uri.parse('${baseurl}/check_username'),
@@ -227,19 +216,15 @@ class LoginController extends GetxController {
       if (response.statusCode == 200) {
         setLoading(false); // Set loading state to false after successful login
 
-
         // Parse the response body into your model
         CheckPassword userLoginResponse =
-        CheckPassword.fromJson(json.decode(response.body));
+            CheckPassword.fromJson(json.decode(response.body));
 
-
-        if(userLoginResponse.hasPassword==1){
+        if (userLoginResponse.hasPassword == 1) {
           showDialogWithFields(context);
-        }else{
-          login(email, pass,context);
+        } else {
+          login(email, pass, context);
         }
-
-
       } else {
         setLoginErrorMessage(
             'Authentication failed ! Please check your login credentials');
@@ -251,7 +236,9 @@ class LoginController extends GetxController {
       setLoading(false); // Set loading state to false after failed login
     }
   }
-  Future<void> CheckPasswordloginWithSerialNo(BuildContext context,String email, String pass,String srno) async {
+
+  Future<void> CheckPasswordloginWithSerialNo(
+      BuildContext context, String email, String pass, String srno) async {
     try {
       setLoading(true); // Set loading state to true
 
@@ -267,32 +254,25 @@ class LoginController extends GetxController {
         return;
       }
 
-
       http.Response response = await http.post(
         Uri.parse('${baseurl}/check_username'),
-        body: {'username': email,"type":"device",
-          "serial_no":srno},
+        body: {'username': email, "type": "device", "serial_no": srno},
       );
 
       if (response.statusCode == 200) {
         setLoading(false); // Set loading state to false after successful login
 
-
         // Parse the response body into your model
         CheckPassword userLoginResponse =
-        CheckPassword.fromJson(json.decode(response.body));
+            CheckPassword.fromJson(json.decode(response.body));
 
-        sr_no=srno;
+        sr_no = srno;
 
-        if(userLoginResponse.hasPassword==1){
+        if (userLoginResponse.hasPassword == 1) {
           showDialogWithFields(context);
-        }else{
-          CheckPasswordlogin(context,email,pass);
+        } else {
+          CheckPasswordlogin(context, email, pass);
         }
-
-
-
-
       } else {
         setLoginErrorMessage(
             'Authentication failed ! Please check your login credentials');
@@ -305,7 +285,7 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<void> login(String email, String pass,BuildContext context) async {
+  Future<void> login(String email, String pass, BuildContext context) async {
     try {
       setLoading(true); // Set loading state to true
 
@@ -326,7 +306,7 @@ class LoginController extends GetxController {
         body: {'username': email, 'password': pass},
       );
 
-      print('@@## statusCode'+response.statusCode.toString());
+      print('@@## statusCode' + response.statusCode.toString());
 
       if (response.statusCode == 200) {
         setLoading(false); // Set loading state to false after successful login
@@ -336,7 +316,7 @@ class LoginController extends GetxController {
 
         // Parse the response body into your model
         LoginResponse userLoginResponse =
-        LoginResponse.fromJson(json.decode(response.body));
+            LoginResponse.fromJson(json.decode(response.body));
 
         Get.find<LoginController>().setUserLoginResponse(userLoginResponse);
         Get.find<LoginController>().updateUserLoginResponse(userLoginResponse);
@@ -346,9 +326,9 @@ class LoginController extends GetxController {
         String userName = userLoginResponse.data.user.name;
         String img = userLoginResponse.data.user.divisions.length.toString();
 
-
         print('@@@@@@@@logintime  mrid ${userLoginResponse.data.user.mrId}');
-        print('@@@@@@@@logintime empcode ${userLoginResponse.data.user.empCode}');
+        print(
+            '@@@@@@@@logintime empcode ${userLoginResponse.data.user.empCode}');
 
         //set to shared prefs login creds
         final prefs = await SharedPreferences.getInstance();
@@ -357,11 +337,15 @@ class LoginController extends GetxController {
         await prefs.setString('token', userLoginResponse.data.token);
         await prefs.setString('username', userLoginResponse.data.user.username);
         await prefs.setString('name', userLoginResponse.data.user.name);
-        await prefs.setString('lastLogin', '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}');
+        await prefs.setString('lastLogin',
+            '${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}');
         await prefs.setString('version_code', 'v1.0');
-        await prefs.setString('loginjson', '${DataSingleton().userLoginOffline}');
-        await prefs.setString('mr_id', '${userLoginResponse.data.user.empCode}');
-        await prefs.setString('subscriber_id', '${userLoginResponse.data.user.mrId}');
+        await prefs.setString(
+            'loginjson', '${DataSingleton().userLoginOffline}');
+        await prefs.setString(
+            'mr_id', '${userLoginResponse.data.user.empCode}');
+        await prefs.setString(
+            'subscriber_id', '${userLoginResponse.data.user.mrId}');
 
         //set value initially for last sync
 
@@ -369,16 +353,11 @@ class LoginController extends GetxController {
         await prefs.setString('lastSync', syncedNow);
 
         await autoLoginapiandINsert(context);
-
-
       } else {
-
         LoginResponse userLoginResponse =
-        LoginResponse.fromJson(json.decode(response.body));
+            LoginResponse.fromJson(json.decode(response.body));
 
-
-        setLoginErrorMessage(
-            userLoginResponse.message);
+        setLoginErrorMessage(userLoginResponse.message);
 
         setLoading(false); // Set loading state to false after failed login
       }
@@ -433,13 +412,10 @@ class LoginController extends GetxController {
         Get.snackbar('success', 'Brand Prescriptions Added Successfully',
             snackPosition: SnackPosition.BOTTOM);
         Navigator.pop(context);
-      }
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         print('Session expired');
         showAlertDialog(context);
-      }
-
-      else {
+      } else {
         CustomSnackbar.showErrorSnackbar(title: 'Failed', message: 'Failed');
       }
     } catch (e) {
@@ -447,7 +423,8 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<void> SendCampWithSenior(BuildContext context, String campId, String doctorId, String seniorDesignation) async {
+  Future<void> SendCampWithSenior(BuildContext context, String campId,
+      String doctorId, String seniorDesignation) async {
     try {
       setLoading(true); // Set loading state to true
 
@@ -489,7 +466,6 @@ class LoginController extends GetxController {
       );
 
       if (response.statusCode == 200) {
-
         // print('campwithseniorrrrrrrr ${response.body}');
         // Decode response body
         var responseData = jsonDecode(response.body);
@@ -503,12 +479,12 @@ class LoginController extends GetxController {
           backgroundColor: Colors.green,
           textColor: Colors.white,
         );
-
       } else if (response.statusCode == 401) {
         print('Session expired');
         showAlertDialog(context);
       } else {
-        CustomSnackbar.showErrorSnackbar(title: 'Failed', message: 'Failed ! (Camp with Senior)');
+        CustomSnackbar.showErrorSnackbar(
+            title: 'Failed', message: 'Failed ! (Camp with Senior)');
       }
     } catch (e) {
       print("Error: ${e.toString()}");
@@ -542,7 +518,7 @@ class LoginController extends GetxController {
     if (response.statusCode == 200) {
       print('@@##&& 1');
       LoginResponse userLoginResponse =
-      LoginResponse.fromJson(json.decode(response.body));
+          LoginResponse.fromJson(json.decode(response.body));
 
       Get.find<LoginController>().setUserLoginResponse(userLoginResponse);
       Get.find<LoginController>().updateUserLoginResponse(userLoginResponse);
@@ -552,16 +528,15 @@ class LoginController extends GetxController {
 
       // Assuming response.body.toString() contains the JSON data
       Map<String, dynamic> responseData = json.decode(response.body.toString());
-      String status  = responseData['status'];
-      String message  = responseData['message'];
+      String status = responseData['status'];
+      String message = responseData['message'];
       await prefs.setString('status', status);
       await prefs.setString('message', message);
-
 
       Map<String, dynamic>? userData = responseData['data']['user'];
       List<dynamic> divisions = userData?['divisions'] ?? [];
       Map<String, dynamic> formattedDivisions =
-      {}; // Use a map instead of a list
+          {}; // Use a map instead of a list
 
       int? divisionIntId;
 
@@ -625,6 +600,10 @@ class LoginController extends GetxController {
           // Include any other fields that are required in the specific format
         },
       };
+
+      DataSingleton().meta = metaList;
+
+      print("metaList ${metaList}");
 
       // print('Formatted Response: ${json.encode(formattedResponse)}');
       // DataSingleton().brands=divisionDetailsResponse.data.brands;
@@ -691,20 +670,19 @@ class LoginController extends GetxController {
         // print("Data section not found in the response.");
       }
 
-
       DataSingleton().userLoginOffline = response.body.toString();
 
       List<Map<String, dynamic>> resources =
-      await _databaseHelper!.getAllDivisiondetail();
+          await _databaseHelper!.getAllDivisiondetail();
 
       for (var resource in resources) {
         if (resource.containsKey('division_detail') &&
             resource['division_detail'] != null) {
           Map<String, dynamic> divisionDetail =
-          json.decode(resource['division_detail']);
+              json.decode(resource['division_detail']);
 
           List<Division> divisionsoff1 = (divisionDetail['data']['user']
-          ['divisions'] as List<dynamic>)
+                  ['divisions'] as List<dynamic>)
               .map((dynamic divisionData) => Division.fromJson(divisionData))
               .toList();
 
@@ -719,20 +697,17 @@ class LoginController extends GetxController {
       //     resp: response.body.toString(),
       //   ),
       // );
-    } else if (response.statusCode == 400){
+    } else if (response.statusCode == 400) {
       Map<String, dynamic> responseData = json.decode(response.body.toString());
-      String status  = responseData['status'];
-      String message  = responseData['message'];
+      String status = responseData['status'];
+      String message = responseData['message'];
       await prefs.setString('status', status);
       await prefs.setString('message', message);
       DataSingleton().status = true;
-
-    }
-    else if (response.statusCode == 401) {
+    } else if (response.statusCode == 401) {
       print('Session expired');
       showAlertDialog(context);
     }
-
   }
 
   Future<void> autoLoginapiandINsert(BuildContext context) async {
@@ -744,7 +719,8 @@ class LoginController extends GetxController {
     final username = prefs.getString('username');
     final user_id = prefs.getString('user_id');
 
-    DataSingleton().device_serial_number=prefs.getString('device_serial_number');
+    DataSingleton().device_serial_number =
+        prefs.getString('device_serial_number');
 
     var headers = {
       'Accept': 'application/json',
@@ -760,7 +736,7 @@ class LoginController extends GetxController {
     if (response.statusCode == 200) {
       print('@@##&& 1');
       LoginResponse userLoginResponse =
-      LoginResponse.fromJson(json.decode(response.body));
+          LoginResponse.fromJson(json.decode(response.body));
 
       Get.find<LoginController>().setUserLoginResponse(userLoginResponse);
       Get.find<LoginController>().updateUserLoginResponse(userLoginResponse);
@@ -772,8 +748,11 @@ class LoginController extends GetxController {
       Map<String, dynamic> responseData = json.decode(response.body.toString());
       Map<String, dynamic>? userData = responseData['data']['user'];
       List<dynamic> divisions = userData?['divisions'] ?? [];
+      for (var division in divisions) {
+        print('Division: $division');
+      }
       Map<String, dynamic> formattedDivisions =
-      {}; // Use a map instead of a list
+          {}; // Use a map instead of a list
 
       int? divisionIntId;
 
@@ -871,29 +850,22 @@ class LoginController extends GetxController {
 
       Get.off(const ScaffoldExample());
 
-
       setLoading(false);
-    }
-
-    else if (response.statusCode == 401) {
+    } else if (response.statusCode == 401) {
       print('Session expired');
       showAlertDialog(context);
-    }
-
-    else {
+    } else {
       setLoading(false);
     }
   }
 
-
   showAlertDialog(BuildContext context) {
-
     print('@@@@@@@calledtimesalertsession');
 
     // set up the button
     Widget okButton = TextButton(
       child: Text("OK"),
-      onPressed: () { },
+      onPressed: () {},
     );
 
     // set up the AlertDialog
@@ -910,7 +882,6 @@ class LoginController extends GetxController {
         style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
       ),
       actions: [
-
         Align(
           alignment: Alignment.bottomRight,
           child: CustomElevatedButton(
@@ -922,12 +893,10 @@ class LoginController extends GetxController {
               DataSingleton().font_size = 16.0;
               DataSingleton().drConsentText = "";
 
-              if(DataSingleton().clearDoctor==true){
+              if (DataSingleton().clearDoctor == true) {
                 print('@@@@@@@@@@clearsdoctorrrr');
                 await _databaseHelper!.clearDoctorsTable();
               }
-
-
 
               // DataSingleton().displayAddDoctorbtn = true;
 
@@ -957,9 +926,6 @@ class LoginController extends GetxController {
       },
     );
   }
-
-
-
 
   Future<FilterByDateCountResponse?> RetrieveCampCount(BuildContext context,
       DateRangeFilterCount prescriptions, String divisionId) async {
@@ -1011,13 +977,10 @@ class LoginController extends GetxController {
             snackPosition: SnackPosition.BOTTOM);
 
         return FilterByDateCountResponse.fromJson(json.decode(responseString));
-      }
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         print('Session expired');
         showAlertDialog(context);
-      }
-
-      else {
+      } else {
         CustomSnackbar.showErrorSnackbar(title: 'Failed', message: 'Failed');
       }
     } catch (e) {
@@ -1066,14 +1029,10 @@ class LoginController extends GetxController {
         print('fjskfjkfjsfksjfkscmzxk $exists');
         if (exists == 1) {
           await _databaseHelper?.updateCampPlanDetail(jsonEncode(responseBody));
-
-        }else {
-          await _databaseHelper?.insertCampPlanDetail(CampPlanData(camp_plan_data: responseBody));
+        } else {
+          await _databaseHelper?.insertCampPlanDetail(
+              CampPlanData(camp_plan_data: responseBody));
         }
-
-
-
-
 
         // Extract status and message from the response
         String status = jsonResponse['status'];
@@ -1081,18 +1040,13 @@ class LoginController extends GetxController {
 
         setLoading(false); // Set loading state to false after successful login
         return PlannedCampsResponse.fromJson(jsonResponse);
-      }
-
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         print('Session expired');
         showAlertDialog(context1);
-      }
-
-      else {
+      } else {
         // Convert StreamedResponse to a Response by reading its stream
         final responseBody = await response.stream.bytesToString();
         final jsonResponse = json.decode(responseBody);
-
       }
     } catch (e) {
       print(e.toString());
@@ -1124,7 +1078,7 @@ class LoginController extends GetxController {
         'Authorization': 'Bearer $token'
       };
       var request =
-      http.Request('POST', Uri.parse('${baseurl}/camp_plan/$divisonId'));
+          http.Request('POST', Uri.parse('${baseurl}/camp_plan/$divisonId'));
       request.body = camplan.toJson();
       request.headers.addAll(headers1);
 
@@ -1146,14 +1100,10 @@ class LoginController extends GetxController {
         );
 
         Get.off(CampListScreen());
-      }
-
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         print('Session expired');
         showAlertDialog(context);
-
-      }
-      else {
+      } else {
         final responseBody = await response.stream.bytesToString();
         final jsonResponse = json.decode(responseBody);
 
@@ -1195,7 +1145,7 @@ class LoginController extends GetxController {
         'Authorization': 'Bearer $token'
       };
       var request =
-      http.Request('POST', Uri.parse('${baseurl}/camp_execute/$divisonId'));
+          http.Request('POST', Uri.parse('${baseurl}/camp_execute/$divisonId'));
       request.body = executeCamp.toJson();
       request.headers.addAll(headers1);
 
@@ -1215,14 +1165,10 @@ class LoginController extends GetxController {
             backgroundColor: Colors.white,
             textColor: Colors.black,
             toastLength: Toast.LENGTH_LONG);
-
-      }
-      else if (response.statusCode == 401) {
+      } else if (response.statusCode == 401) {
         print('Session expired');
         showAlertDialog(context);
-      }
-
-      else {
+      } else {
         // Convert StreamedResponse to a Response by reading its stream
         final responseBody = await response.stream.bytesToString();
         final jsonResponse = json.decode(responseBody);
@@ -1240,7 +1186,6 @@ class LoginController extends GetxController {
     }
   }
 
-
   //register
   var companies = <Map<String, dynamic>>[].obs; // Store list of company maps
   Future<void> getCompanies() async {
@@ -1252,7 +1197,8 @@ class LoginController extends GetxController {
 
         // Extract "data" from response
         if (jsonResponse.containsKey("data") && jsonResponse["data"] is List) {
-          companies.value = List<Map<String, dynamic>>.from(jsonResponse["data"]);
+          companies.value =
+              List<Map<String, dynamic>>.from(jsonResponse["data"]);
         } else {
           throw Exception("Invalid response format");
         }
@@ -1261,16 +1207,15 @@ class LoginController extends GetxController {
       }
     } catch (e) {
       print("Error fetching companies: $e");
-    } finally {
-    }
+    } finally {}
   }
 
   Future<Map<String, dynamic>> fetchDataWithHeaders(
-      String url,
-      Map<String, String> headers, {
-        String method = 'GET',
-        Map<String, String>? queryParams, // Allow optional query parameters
-      }) async {
+    String url,
+    Map<String, String> headers, {
+    String method = 'GET',
+    Map<String, String>? queryParams, // Allow optional query parameters
+  }) async {
     try {
       Uri uri = Uri.parse(url);
       if (queryParams != null && queryParams.isNotEmpty) {
@@ -1286,7 +1231,8 @@ class LoginController extends GetxController {
         final responseData = await response.stream.bytesToString();
         return jsonDecode(responseData) as Map<String, dynamic>;
       } else {
-        throw Exception('Failed to fetch data. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to fetch data. Status code: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Error during request: $e');
@@ -1301,11 +1247,13 @@ class LoginController extends GetxController {
     Map<String, String> queryParams = {'company_id': companyId};
 
     try {
-      final data = await fetchDataWithHeaders(baseUrl, headers, queryParams: queryParams);
+      final data = await fetchDataWithHeaders(baseUrl, headers,
+          queryParams: queryParams);
       print('detailssdataaaaa $data'); // Log the full response
 
       if (data != null && data['status'] == 'success' && data['data'] is List) {
-        List<Map<String, dynamic>> mappedData = (data['data'] as List<dynamic>).map((item) {
+        List<Map<String, dynamic>> mappedData =
+            (data['data'] as List<dynamic>).map((item) {
           return {
             'id': item['id'] ?? 'No ID',
             'name': item['name'] ?? 'No Name',
@@ -1323,8 +1271,8 @@ class LoginController extends GetxController {
     }
   }
 
-  Future<Map<String, dynamic>?> postDataWithHeaders(
-      String url, Map<String, String> headers, Map<String, dynamic> body) async {
+  Future<Map<String, dynamic>?> postDataWithHeaders(String url,
+      Map<String, String> headers, Map<String, dynamic> body) async {
     try {
       final response = await http.post(
         Uri.parse(url),
@@ -1343,14 +1291,15 @@ class LoginController extends GetxController {
         if (errorResponse.containsKey("errors")) {
           errorMessage = errorResponse["errors"]
               .values
-              .map((errorList) => errorList.join(", ")) // Join multiple errors if any
+              .map((errorList) =>
+                  errorList.join(", ")) // Join multiple errors if any
               .join("\n"); // Join multiple fields if any
         } else if (errorResponse.containsKey("message")) {
           errorMessage = errorResponse["message"];
         }
 
         // Display error message in Snackbar
-        Get.snackbar("Error", errorMessage,colorText: Colors.black,snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar("Error", errorMessage, colorText: Colors.black);
 
         print("Error: ${response.statusCode}, $errorMessage");
         return {'status': 'error', 'message': errorMessage};
@@ -1375,22 +1324,20 @@ class LoginController extends GetxController {
 
       if (response != null && response['status'] == 'success') {
         print('registeration success done.');
-        String successMessage = response['message'] ?? "Registration successful";
-        Get.snackbar("Success", successMessage, snackPosition: SnackPosition.BOTTOM);
-        Get.offAll(LoginScreen());
+        String successMessage =
+            response['message'] ?? "Registration successful";
+        Get.snackbar("Success", successMessage,
+            snackPosition: SnackPosition.TOP);
       } else {
         String errorMessage = response?['message'] ?? "Something went wrong";
-        Get.snackbar("Error", errorMessage, snackPosition: SnackPosition.BOTTOM);
+        Get.snackbar("Error", errorMessage, snackPosition: SnackPosition.TOP);
       }
     } catch (e) {
       print("Error in registerUser API: $e");
-      Get.snackbar("Error", "Failed to register user", snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar("Error", "Failed to register user",
+          snackPosition: SnackPosition.TOP);
     }
   }
-
-
-
-
 
   void openDialog() {
     Get.dialog(
@@ -1407,9 +1354,8 @@ class LoginController extends GetxController {
     );
   }
 
-  void showDialogDeviceSerialNo(BuildContext context,String email, String pass) {
-
-
+  void showDialogDeviceSerialNo(
+      BuildContext context, String email, String pass) {
     showDialog(
       context: context,
       builder: (_) {
@@ -1425,37 +1371,34 @@ class LoginController extends GetxController {
               color: Colors.blue,
             ),
           ),
-          content: SingleChildScrollView(child: Column(
+          content: SingleChildScrollView(
+              child: Column(
             children: [
               CustomTextField(
                 controller: serialNoController,
                 hintText: 'Serial Number.',
                 keyboardType: TextInputType.text,
                 prefixIcon: Icons.person,
-
               ),
-
             ],
           )),
           actions: [
             TextButton(
               onPressed: () async {
-
                 // Send them to your email maybe?
-                if(serialNoController.text.toString().trim().isEmpty){
+                if (serialNoController.text.toString().trim().isEmpty) {
                   CustomSnackbar.showErrorSnackbar(
                     title: 'Serial Number is Require',
                     message: 'Please Enter Serial Number.',
                   );
-                }else{
+                } else {
                   final prefs = await SharedPreferences.getInstance();
                   //  await prefs.setString('device_serial_number', serialNoController.text.trim().toString());
 
-                  CheckPasswordloginWithSerialNo(context,email, pass,serialNoController.text.trim().toString());
+                  CheckPasswordloginWithSerialNo(context, email, pass,
+                      serialNoController.text.trim().toString());
                   Navigator.pop(context);
                 }
-
-
               },
               child: Text('Verify'),
             ),
@@ -1464,9 +1407,8 @@ class LoginController extends GetxController {
       },
     );
   }
+
   void showDialogWithFields(BuildContext context) {
-
-
     showDialog(
       context: context,
       builder: (_) {
@@ -1482,7 +1424,8 @@ class LoginController extends GetxController {
               color: Colors.blue,
             ),
           ),
-          content: SingleChildScrollView(child: Column(
+          content: SingleChildScrollView(
+              child: Column(
             children: [
               CustomTextField(
                 obscureText: true,
@@ -1490,7 +1433,6 @@ class LoginController extends GetxController {
                 hintText: 'Password',
                 keyboardType: TextInputType.text,
                 prefixIcon: Icons.person,
-
               ),
               Align(
                 alignment: Alignment.centerRight,
@@ -1498,7 +1440,6 @@ class LoginController extends GetxController {
                   onPressed: () {
                     Navigator.pop(context);
                     showDialogForgotPassword(context);
-
                   },
                   child: const Text('Forget Password?'),
                 ),
@@ -1512,16 +1453,15 @@ class LoginController extends GetxController {
             ),
             TextButton(
               onPressed: () {
-
                 // Send them to your email maybe?
-                if(passwordController.text.toString().trim().isEmpty){
+                if (passwordController.text.toString().trim().isEmpty) {
                   CustomSnackbar.showErrorSnackbar(
                     title: 'Password is Require',
                     message: 'Please Enter Password.',
                   );
-                }else{
-
-                  login(emailText.text.toString().trim(), passwordController.text.toString().trim(),context);
+                } else {
+                  login(emailText.text.toString().trim(),
+                      passwordController.text.toString().trim(), context);
                   Navigator.pop(context);
                 }
 
@@ -1534,8 +1474,8 @@ class LoginController extends GetxController {
       },
     );
   }
-  void showDialogForgotPassword(BuildContext context) {
 
+  void showDialogForgotPassword(BuildContext context) {
     showDialog(
       context: context,
       builder: (_) {
@@ -1550,16 +1490,15 @@ class LoginController extends GetxController {
               color: Colors.blue,
             ),
           ),
-          content: SingleChildScrollView(child: Column(
+          content: SingleChildScrollView(
+              child: Column(
             children: [
               CustomTextField(
                 controller: emailController,
                 hintText: 'Email',
                 keyboardType: TextInputType.text,
                 prefixIcon: Icons.person,
-
               ),
-
             ],
           )),
           actions: [
@@ -1569,16 +1508,15 @@ class LoginController extends GetxController {
             ),
             TextButton(
               onPressed: () {
-
                 // Send them to your email maybe?
-                if(emailController.text.toString().trim().isEmpty){
+                if (emailController.text.toString().trim().isEmpty) {
                   CustomSnackbar.showErrorSnackbar(
                     title: 'Email is Require',
                     message: 'Please Enter Email.',
                   );
-                }else{
-
-                  ForgotPasswordlogin(context,emailText.text.toString().trim(), emailController.text.toString().trim());
+                } else {
+                  ForgotPasswordlogin(context, emailText.text.toString().trim(),
+                      emailController.text.toString().trim());
                   Navigator.pop(context);
                 }
 
@@ -1591,5 +1529,4 @@ class LoginController extends GetxController {
       },
     );
   }
-
 }

@@ -84,18 +84,7 @@ class _result_screenState extends State<result_screen> {
 
   int printcount = 0; // Track print count in the session
 
-  var i_download_btn;
-
-  String Ginterpretation = "";
-  double uricAcid = 0;
-  String glucoseint = "";
-  String gender="";
-  String uricAcidint = "";
-  double glucose = 0;
-
-  String uricAcidFinalLine='';
-
-  String glucoseFinalLine=''; // Variable to hold the doctor's name
+  var i_download_btn; // Variable to hold the doctor's name
 
   get data_name => null;
 
@@ -117,7 +106,7 @@ class _result_screenState extends State<result_screen> {
   var firstanswer;
 
   String? selectedDesignation;
-  final List<String> designations = ["SELF","ABM", "RBM", "ZBM",];
+  final List<String> designations = ["ABM", "RBM", "ZBM"];
   String campSenior = "";
 
   List<Map<String, dynamic>> campsData = [];
@@ -133,7 +122,7 @@ class _result_screenState extends State<result_screen> {
       items = [];
     });
     final List<BluetoothInfo> listResult =
-    await PrintBluetoothThermal.pairedBluetooths;
+        await PrintBluetoothThermal.pairedBluetooths;
 
     setState(() {
       _progress = false;
@@ -141,13 +130,13 @@ class _result_screenState extends State<result_screen> {
 
     if (listResult.isEmpty) {
       _msj =
-      "There are no bluetooths linked, go to settings and link the printer";
+          "There are no bluetooths linked, go to settings and link the printer";
     } else {
       _msj = "Touch an item in the list to connect";
     }
 
     setState(
-          () {
+      () {
         items = listResult;
       },
     );
@@ -204,8 +193,8 @@ class _result_screenState extends State<result_screen> {
     campsData = await _databaseHelper.getAllcamps();
     // print('campssdatas33333uploaddd $campsData');
     for (final doctor in campsData) {
-      campidFromDb = doctor['camp_id'];
-      dridFromDb = doctor['dr_id'];
+       campidFromDb = doctor['camp_id'];
+       dridFromDb = doctor['dr_id'];
       // print('fhsfshfkshjsfhwujjs $campidFromDb  $dridFromDb');
     }
   }
@@ -223,7 +212,7 @@ class _result_screenState extends State<result_screen> {
   Future<void> setPrefforEndCamp() async {
     String campid = dataSingleton
         .generateMd5(
-        "${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}_${DataSingleton().dr_id}_${DataSingleton().scale_name}_${DataSingleton().division_id}_${DataSingleton().subscriber_id}")
+            "${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}_${DataSingleton().dr_id}_${DataSingleton().scale_name}_${DataSingleton().division_id}_${DataSingleton().subscriber_id}")
         .toString();
 
     //doctorInfo =dataSingleton.generateMd5('${doc_name}${doc_code}${divisionIdNumeric}').toString();
@@ -241,68 +230,7 @@ class _result_screenState extends State<result_screen> {
     await prefs.setString('campid', campid);
     await prefs.setString('doctorInfo', doctorInfo);
     await prefs.setInt('divisonid', divison_id);
-
-
-    //code for osteofit
-    print("patient_details${DataSingleton().patient_data}");
-    var patientData = DataSingleton().patient_data;
-    print("patientData $patientData");
-
-    String uricAcidStr = jsonDecode(patientData)['PATIENT_URIC_ACID'];
-    String glucoseStr = jsonDecode(patientData)['PATIENT_GLUCOSE'];
-
-// Convert to double and get absolute values
-    uricAcid = (double.tryParse(uricAcidStr) ?? 0.0).abs();
-    glucose = (double.tryParse(glucoseStr) ?? 0.0).abs();
-
-    print("Uric Acid (abs): $uricAcid");
-    print("Glucose (abs): $glucose");
-
-
-    print("Patient Gender  ${widget.Patient_gender}");
-// Store the value in a variable
-    String gender = widget.Patient_gender ?? "";
-// Print the stored value
-    print("Patient Gender: $gender");
-
-// Store it in a local variable
-    print("gender:- $gender");
-    if (gender == "male") {
-      if (uricAcid >= 3.5 && uricAcid <= 7.2) {
-        uricAcidint = "3.5-7.2mg/dL, Normal";
-      } else if (uricAcid > 7.2) {
-        uricAcidint = ">7.2mg/dL, Hyperuricemia";
-      }
-    } else if (gender == "female") {
-      if (uricAcid >= 2.6 && uricAcid <= 6.0) {
-        uricAcidint = "2.6-6.0mg/dL, Normal";
-      } else if (uricAcid >6.0) {
-        uricAcidint = ">6.0mg/dL, Hyperuricemia";
-      }
-    }
-
-
-
-    print("GlucoseInterpretation $glucoseint");
-    print("Glucose: $glucose");
-    if (glucose >=70 && glucose <=140) {
-      glucoseint = "70-140mg/dL, Normal";
-    } else if (glucose >= 141 && glucose <=199) {
-      glucoseint = "141-199mg/dL, Pre-diabetes";
-    } else if (glucose >= 200) {
-      glucoseint = ">=200mg/dL, Diabetes";
-    }
-
-    print("GlucoseInterpretation $glucoseint");
-    // Uric Acid: $uricAcid mg/dL\t\t\t$uricAcidint
-    // Glucose: $glucose mg/dL\t\t\t$glucoseint
-    uricAcidFinalLine = 'Uric Acid: $uricAcid mg/dL\n$uricAcidint';
-    glucoseFinalLine = 'Glucose: $glucose mg/dL\n$glucoseint';
-    DataSingleton().uricAcidFinalLine = uricAcidFinalLine;
-    DataSingleton().glucoseFinalLine = glucoseFinalLine;
-
   }
-
 
   Future<void> fetchButtons() async {
     List<Map<String, dynamic>> themes = await _databaseHelper!.getButtons();
@@ -323,13 +251,13 @@ class _result_screenState extends State<result_screen> {
 
   Future<void> fetchDoctors() async {
     final List<Map<String, dynamic>> doctors =
-    await _databaseHelper.getAlldoctors();
+        await _databaseHelper.getAlldoctors();
 
     print(' docotrs result screen  $doctors');
 
     if (doctors.isNotEmpty) {
       String docName = doctors.first[
-      'doc_name']; // Extracting doc_name property from the first doctor
+          'doc_name']; // Extracting doc_name property from the first doctor
       // print('Doctor Name: $docName');
 
       // Update the doctorName variable with the fetched doctor's name
@@ -356,7 +284,7 @@ class _result_screenState extends State<result_screen> {
 
 
     final List<Map<String, dynamic>> resourcesDataOffline =
-    await _databaseHelper.getAllresources();
+        await _databaseHelper.getAllresources();
 
     // print('result screen  $resourcesDataOffline');
 
@@ -369,7 +297,7 @@ class _result_screenState extends State<result_screen> {
       Map<String, dynamic> jsonData = jsonDecode(scalesList);
 
       String disclaimer = jsonData['data']['meta'].firstWhere(
-              (meta) => meta['key'] == 'DISCLAIMER',
+          (meta) => meta['key'] == 'DISCLAIMER',
           orElse: () => {'value': 'No Disclaimer'})['value'];
 
       // print('Disclaimer: $disclaimer');
@@ -437,10 +365,10 @@ class _result_screenState extends State<result_screen> {
 
     buttonLabels = ['New Patient', 'Print']; // Include 'Print' by default
     buttonActions = [
-          () {
+      () {
         Get.off(const PatientsDetailsScreen());
       },
-          () async {
+      () async {
         String? mac = await SharedprefHelper.getUserData("printer");
         if (mac != null && mac.isNotEmpty) {
           Get.to(PrintScreen(
@@ -514,7 +442,7 @@ class _result_screenState extends State<result_screen> {
     }
 
     if (DataSingleton().scale_id == "ASCVD.risk.kribado" ||
-        DataSingleton().scale_id == "ASCVD.risk.estimator.kribado" ||DataSingleton().scale_id == "LipidProfileCustom.kribado") {
+        DataSingleton().scale_id == "ASCVD.risk.estimator.kribado") {
       // print("Inside ASCVD.risk.kribado condition");
       // print("widget.Score before appending: ${widget.Score}");
 
@@ -546,8 +474,6 @@ class _result_screenState extends State<result_screen> {
     DataSingleton().Patient_name = widget.Patient_name;
     DataSingleton().Patient_age = widget.Patient_age;
     DataSingleton().Patient_gender = widget.Patient_gender;
-
-
 
     // late String Test_Name, Scale_Name, Score, Interpretation,Patient_name,Patient_age,Patient_gender;
 
@@ -632,37 +558,6 @@ class _result_screenState extends State<result_screen> {
                               ),
                             ],
                           ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Column(
-                            children: [
-                              if (DataSingleton().scale_id == "Short.Womac.kribado" || DataSingleton().scale_id == "FRAX.osteocalc.kribado")
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      uricAcidFinalLine,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      textAlign: TextAlign.start,
-                                    ),
-                                    const SizedBox(height: 5),
-                                    Text(
-                                      glucoseFinalLine,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      textAlign: TextAlign.start,
-                                    ),
-                                  ],
-                                ),
-                            ],
-                          )
-
                         ],
                       ),
                     ),
@@ -804,7 +699,7 @@ class _result_screenState extends State<result_screen> {
                                         'Acid Reflux Score: ${DataSingleton().reflux_score_only}'),
                                     Text(
                                         'Dyspeptic Symptom Score: ${DataSingleton().dyspeptic_score_only}'
-                                            '\n'),
+                                        '\n'),
                                   ],
                                 ),
                               ),
@@ -852,33 +747,30 @@ class _result_screenState extends State<result_screen> {
                             // Add patient information
                             const SizedBox(height: 10),
 
-                            scale_id == "Short.Womac.kribado" ? Text('Note: Kindly consult your doctor for further medication.',style: TextStyle(fontSize: 10,
-                              color: Theme.of(context).textTheme.bodyMedium?.color,),) : Container() ,
-
                             scale_id == "ASCVD.Custom.kribado" || scale_id == "HbA1c.kribado" ?
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center, // Centers the row's children horizontally
-                              children: [
-                                // First Text
-                                Text(
-                                  '$firstquestion',
-                                  style: TextStyle(
-                                    fontSize: 15,
+                                    children: [
+                                      // First Text
+                                      Text(
+                                        '$firstquestion',
+                                        style: TextStyle(
+                                          fontSize: 15,
                                     color: Theme.of(context).textTheme.bodyMedium?.color,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
                                 SizedBox(width: 10), // Optional spacing between the two Text widgets
-                                // Second Text
-                                Text(
-                                  '${DataSingleton().hbA1c}', // Replace with your second text variable
-                                  style: TextStyle(
-                                    fontSize: 15,
+                                      // Second Text
+                                      Text(
+                                        '${DataSingleton().hbA1c}', // Replace with your second text variable
+                                        style: TextStyle(
+                                          fontSize: 15,
                                     color: Theme.of(context).textTheme.bodyMedium?.color,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ],
                             ): Container()
 
 
@@ -896,12 +788,12 @@ class _result_screenState extends State<result_screen> {
                       DataSingleton().EndCampBtn.toLowerCase().trim(),
                     ],
                     buttonActions: [
-                          () => Get.off(
+                      () => Get.off(
                           const PatientsDetailsScreen()), // Action 1: Navigate to PatientsDetailsScreen
 
                       // Declare printcount outside the function if you want to persist it across calls.
 
-                          () async {
+                      () async {
                         String? deviceName = await getDeviceName();
 
                         if (kDebugMode) {
@@ -918,9 +810,9 @@ class _result_screenState extends State<result_screen> {
                           "Z91"
                         ].contains(deviceName)) {
                           bool isBluetoothEnabled =
-                          await PrintBluetoothThermal.bluetoothEnabled;
+                              await PrintBluetoothThermal.bluetoothEnabled;
                           int batteryLevel =
-                          await PrintBluetoothThermal.batteryLevel;
+                              await PrintBluetoothThermal.batteryLevel;
 
                           // Check Bluetooth and battery status early
                           if (!isBluetoothEnabled) {
@@ -938,7 +830,7 @@ class _result_screenState extends State<result_screen> {
                           }
 
                           String? bluetoothmac =
-                          await SharedprefHelper.getUserData("printer");
+                              await SharedprefHelper.getUserData("printer");
 
                           if (bluetoothmac == null || bluetoothmac.isEmpty) {
                             String printerType = deviceName == "Z91"
@@ -951,7 +843,7 @@ class _result_screenState extends State<result_screen> {
                           }
                         } else {
                           String? mac =
-                          await SharedprefHelper.getUserData("printer");
+                              await SharedprefHelper.getUserData("printer");
                           Get.to(PrintScreen(
                               automaticprint: mac != null && mac.isNotEmpty));
                         }
@@ -959,7 +851,7 @@ class _result_screenState extends State<result_screen> {
 
                       // Action 2: Printer handling based on device name
 
-                          () {
+                      () {
                         try {
                           PdfComponents pdfComponents = PdfComponents();
                           pdfComponents.downloadPdf(
@@ -971,7 +863,7 @@ class _result_screenState extends State<result_screen> {
                         }
                       }, // Action 3: Placeholder for another action (printing screen)
 
-                          () => Get.to(
+                      () => Get.to(
                           const BrandsPrescription()), // Action 4: Navigate to BrandsPrescription
                     ],
                     buttonColors: const [
@@ -1132,12 +1024,12 @@ class _result_screenState extends State<result_screen> {
         'This is a customized service by Indigital Technologies LLP...';
     final Directory? directory;
     final ByteData fontData =
-    await rootBundle.load('fonts/Quicksand-Regular.ttf');
+        await rootBundle.load('fonts/Quicksand-Regular.ttf');
     final ttf = pw.Font.ttf(fontData);
 
     // Define base64 string for the image (for demo purposes)
     String? base64String =
-    DataSingleton().bottom_logo?.replaceAll("data:image/png;base64,", "");
+        DataSingleton().bottom_logo?.replaceAll("data:image/png;base64,", "");
 
 
     String? base64StringTopLogo =
@@ -1153,12 +1045,12 @@ class _result_screenState extends State<result_screen> {
 
     // Convert base64 string to Uint8List (bytes)
     Uint8List? imageBytes =
-    base64String != null ? base64Decode(base64String) : null;
+        base64String != null ? base64Decode(base64String) : null;
 
 
     // Convert base64 string to Uint8List (bytes) - its for top logo
     Uint8List? imageBytesTopLogo =
-    base64StringTopLogo != null ? base64Decode(base64StringTopLogo) : null;
+        base64StringTopLogo != null ? base64Decode(base64StringTopLogo) : null;
 
 
     //setting up optionselectedLogo
@@ -1168,9 +1060,9 @@ class _result_screenState extends State<result_screen> {
     if(DataSingleton().option_selected_logo !=null){
 
       String base64String1 = DataSingleton().option_selected_logo?.replaceAll(
-        "data:image/png;base64,",
-        "",
-      ) ??
+                "data:image/png;base64,",
+                "",
+              ) ??
           "";
       Uint8List bytesImg = base64.decode(base64String1);
 
@@ -1178,7 +1070,7 @@ class _result_screenState extends State<result_screen> {
     }
 
     String? pName = (widget.Patient_name != null &&
-        widget.Patient_name.isNotEmpty)
+            widget.Patient_name.isNotEmpty)
         ? "Name : ${widget.Patient_name[0].toUpperCase()}${widget.Patient_name.substring(1)}"
         : '';
 
@@ -1203,17 +1095,17 @@ class _result_screenState extends State<result_screen> {
                   if (imageBytesTopLogo != null)
                     if (imageBytesTopLogo != null && imageBytesTopLogo.isNotEmpty)
                       pw.Center(
-                        child: pw.Image(pw.MemoryImage(imageBytesTopLogo!),
-                            fit: pw.BoxFit.contain,width: 300,height: 300),
-                      ),
+                    child: pw.Image(pw.MemoryImage(imageBytesTopLogo!),
+                        fit: pw.BoxFit.contain,width: 300,height: 300),
+                            ),
 
                   pw.SizedBox(height: 30),
 
                   pw.Text(
                     "Doctor Information",
                     style: pw.TextStyle(
-                        fontWeight: pw.FontWeight.bold,
-                        font: ttf,
+                      fontWeight: pw.FontWeight.bold,
+                      font: ttf,
                         fontSize: 25),
                   ),
                   pw.SizedBox(height: 5),
@@ -1459,46 +1351,46 @@ your quality of life.
         // Define the option to statement mapping
         Map<String, String> optionStatementMap = {
           "Suburban":
-          "Suburban areas might offer a balance between urban pollution and green spaces. However, depending on proximity to highways or industrial zones, symptoms could be influenced by pollution levels. Seasonal changes in pollen counts can also impact symptoms.",
+              "Suburban areas might offer a balance between urban pollution and green spaces. However, depending on proximity to highways or industrial zones, symptoms could be influenced by pollution levels. Seasonal changes in pollen counts can also impact symptoms.",
           "Village":
-          "Living in a rural or village setting often exposes individuals to a variety of allergens like pollen, dust, and agricultural chemicals. Such environments may lead to increased respiratory symptoms, particularly if you are sensitive to outdoor allergens or pollutants.",
+              "Living in a rural or village setting often exposes individuals to a variety of allergens like pollen, dust, and agricultural chemicals. Such environments may lead to increased respiratory symptoms, particularly if you are sensitive to outdoor allergens or pollutants.",
           "Urban":
-          "Urban settings typically expose individuals to higher levels of pollution, including vehicle emissions and industrial pollutants. These can aggravate symptoms, especially in people with pre-existing respiratory conditions. Urban dwellers may experience more consistent symptoms due to ongoing exposure to environmental irritants.",
+              "Urban settings typically expose individuals to higher levels of pollution, including vehicle emissions and industrial pollutants. These can aggravate symptoms, especially in people with pre-existing respiratory conditions. Urban dwellers may experience more consistent symptoms due to ongoing exposure to environmental irritants.",
           "Winter":
-          "In winter, symptoms may worsen due to cold air, increased indoor heating, and reduced ventilation, which can concentrate indoor allergens like dust mites. People sensitive to cold or indoor allergens may notice an increase in respiratory or allergic symptoms during this season.",
+              "In winter, symptoms may worsen due to cold air, increased indoor heating, and reduced ventilation, which can concentrate indoor allergens like dust mites. People sensitive to cold or indoor allergens may notice an increase in respiratory or allergic symptoms during this season.",
           "Summer":
-          "Summer often brings high pollen counts, which can trigger allergies and worsen respiratory conditions. Heat and humidity can also exacerbate symptoms in individuals sensitive to these factors.",
+              "Summer often brings high pollen counts, which can trigger allergies and worsen respiratory conditions. Heat and humidity can also exacerbate symptoms in individuals sensitive to these factors.",
           "Rainy":
-          "Rainy seasons may increase mold growth and dampness, leading to higher exposure to mold spores and damp environments. This can worsen symptoms, particularly for individuals with mold allergies or asthma.",
+              "Rainy seasons may increase mold growth and dampness, leading to higher exposure to mold spores and damp environments. This can worsen symptoms, particularly for individuals with mold allergies or asthma.",
           "Every Morning":
-          "Morning symptoms could be due to overnight accumulation of indoor allergens such as dust mites or poor air quality due to closed windows. These symptoms may also relate to the body natural cortisol rhythm, which is lower in the morning, potentially worsening inflammation.",
+              "Morning symptoms could be due to overnight accumulation of indoor allergens such as dust mites or poor air quality due to closed windows. These symptoms may also relate to the body natural cortisol rhythm, which is lower in the morning, potentially worsening inflammation.",
           "Mid-day":
-          "Mid-day symptoms may be associated with outdoor activities and exposure to allergens like pollen or pollution. The body exposure to allergens during the day can lead to a peak in symptoms.",
+              "Mid-day symptoms may be associated with outdoor activities and exposure to allergens like pollen or pollution. The body exposure to allergens during the day can lead to a peak in symptoms.",
           "Late Evening":
-          "Evening symptoms may arise from a combination of daily exposure to allergens and the body circadian rhythm. Fatigue and reduced activity in the evening might also make symptoms more noticeable.",
+              "Evening symptoms may arise from a combination of daily exposure to allergens and the body circadian rhythm. Fatigue and reduced activity in the evening might also make symptoms more noticeable.",
           "Mid Night":
-          "Midnight symptoms can be particularly troubling and might be related to lying down, which can exacerbate respiratory conditions like asthma. Indoor allergens like dust mites in bedding or the concentration of allergens in poorly ventilated rooms could contribute to these symptoms.",
+              "Midnight symptoms can be particularly troubling and might be related to lying down, which can exacerbate respiratory conditions like asthma. Indoor allergens like dust mites in bedding or the concentration of allergens in poorly ventilated rooms could contribute to these symptoms.",
           "Market Place/Street Vendor":
-          "Working in open markets exposes individuals to various pollutants, including dust, vehicle emissions, and possibly agricultural products. Such environments can exacerbate symptoms, particularly for those sensitive to outdoor allergens or pollutants.",
+              "Working in open markets exposes individuals to various pollutants, including dust, vehicle emissions, and possibly agricultural products. Such environments can exacerbate symptoms, particularly for those sensitive to outdoor allergens or pollutants.",
           "Agriculture":
-          "Agricultural work often involves exposure to dust, pollen, pesticides, and other airborne particles. These can significantly aggravate symptoms, especially respiratory or skin-related conditions.",
+              "Agricultural work often involves exposure to dust, pollen, pesticides, and other airborne particles. These can significantly aggravate symptoms, especially respiratory or skin-related conditions.",
           "Industry":
-          "Industrial environments might expose workers to chemicals, dust, and fumes, which can trigger or worsen respiratory symptoms and other allergic reactions.",
+              "Industrial environments might expose workers to chemicals, dust, and fumes, which can trigger or worsen respiratory symptoms and other allergic reactions.",
           "Office/School":
-          "While typically more controlled, office and school environments can still harbor indoor allergens like dust, mold, and dander, especially in poorly ventilated or damp areas. Symptoms might be less severe but could still persist due to prolonged indoor exposure.",
+              "While typically more controlled, office and school environments can still harbor indoor allergens like dust, mold, and dander, especially in poorly ventilated or damp areas. Symptoms might be less severe but could still persist due to prolonged indoor exposure.",
           "Pets":
-          "Exposure to pets can lead to allergic reactions, particularly if you're sensitive to pet dander. This can worsen respiratory symptoms or skin reactions, especially if pets are allowed in sleeping areas.",
+              "Exposure to pets can lead to allergic reactions, particularly if you're sensitive to pet dander. This can worsen respiratory symptoms or skin reactions, especially if pets are allowed in sleeping areas.",
           "Dust":
-          "Dust exposure is a common trigger for allergic reactions, including asthma and allergic rhinitis. Symptoms might be more severe in environments with poor air quality and frequent dust accumulation.",
+              "Dust exposure is a common trigger for allergic reactions, including asthma and allergic rhinitis. Symptoms might be more severe in environments with poor air quality and frequent dust accumulation.",
           "Insects":
-          "Insect exposure, particularly to cockroaches or dust mites, can exacerbate allergic reactions. Insect allergens can be potent triggers, especially in urban or poorly maintained environments.",
+              "Insect exposure, particularly to cockroaches or dust mites, can exacerbate allergic reactions. Insect allergens can be potent triggers, especially in urban or poorly maintained environments.",
           "Dampened walls":
-          "Damp walls are often associated with mold growth, which can significantly aggravate respiratory conditions like asthma. Long-term exposure to damp environments can lead to chronic symptoms and even the development of respiratory issues in previously healthy individuals.",
+              "Damp walls are often associated with mold growth, which can significantly aggravate respiratory conditions like asthma. Long-term exposure to damp environments can lead to chronic symptoms and even the development of respiratory issues in previously healthy individuals.",
         };
 
         // Replace selected option with corresponding statement
         List<Map<String, dynamic>> finalResponses =
-        filteredResponses.map((response) {
+            filteredResponses.map((response) {
           String? answer = response['answer'];
           String? statement = optionStatementMap[answer];
           if (statement != null) {
@@ -1524,8 +1416,8 @@ your quality of life.
                     pw.Text(
                       "Screening Report :",
                       style: pw.TextStyle(
-                          fontWeight: pw.FontWeight.bold,
-                          font: ttf,
+                        fontWeight: pw.FontWeight.bold,
+                        font: ttf,
                           fontSize: 25),
                     ),
                     pw.SizedBox(height: 5),
@@ -1535,30 +1427,30 @@ your quality of life.
                   pw.Wrap(
                     children: finalResponses
                         .sublist(
-                        i,
-                        (i + itemsPerPage <= totalItems)
-                            ? i + itemsPerPage
-                            : totalItems) // Adjust the range to make sure the last item is included
+                            i,
+                            (i + itemsPerPage <= totalItems)
+                                ? i + itemsPerPage
+                                : totalItems) // Adjust the range to make sure the last item is included
                         .map((question) => pw.Container(
-                      padding:
-                      const pw.EdgeInsets.symmetric(vertical: 5),
-                      child: pw.Column(
-                        crossAxisAlignment: pw.CrossAxisAlignment.start,
-                        children: [
-                          pw.Text(
-                            "Q${questionNumber++}: ${question['title']}", // Display question number
-                            style:
-                            pw.TextStyle(font: ttf, fontSize: 20),
-                          ),
-                          pw.Text(
-                            "A: ${question['answer'].toString().trim()}",
-                            style:
-                            pw.TextStyle(font: ttf, fontSize: 20),
-                          ),
-                          pw.SizedBox(height: 5),
-                        ],
-                      ),
-                    ))
+                              padding:
+                                  const pw.EdgeInsets.symmetric(vertical: 5),
+                              child: pw.Column(
+                                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                                children: [
+                                  pw.Text(
+                                    "Q${questionNumber++}: ${question['title']}", // Display question number
+                                    style:
+                                        pw.TextStyle(font: ttf, fontSize: 20),
+                                  ),
+                                  pw.Text(
+                                    "A: ${question['answer'].toString().trim()}",
+                                    style:
+                                        pw.TextStyle(font: ttf, fontSize: 20),
+                                  ),
+                                  pw.SizedBox(height: 5),
+                                ],
+                              ),
+                            ))
                         .toList(),
                   ),
                 ];
@@ -1714,7 +1606,7 @@ your quality of life.
     try {
       // Attempt to find the printer from the items list
       final BluetoothInfo targetPrinter = items.firstWhere(
-            (item) => item.name.toLowerCase() == printername,
+        (item) => item.name.toLowerCase() == printername,
         orElse: () => throw Exception("Printer not found"),
       );
 
@@ -1735,7 +1627,7 @@ your quality of life.
     return showDialog<void>(
       context: context,
       barrierDismissible:
-      false, // Prevent closing by tapping outside the dialog
+          false, // Prevent closing by tapping outside the dialog
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Error'),
@@ -1775,5 +1667,11 @@ your quality of life.
       Navigator.of(dialogContext).pop(); // Close only the dialog on failure
     }
   }
+
+
+
 }
+
+
+
 

@@ -28,7 +28,8 @@ class PrintScreen extends StatefulWidget {
   _PrintChartScreenState createState() => _PrintChartScreenState();
 }
 
-class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObserver{
+class _PrintChartScreenState extends State<PrintScreen>
+    with WidgetsBindingObserver {
   bool connected = false;
 
   List<BluetoothInfo> items = [];
@@ -46,7 +47,7 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
   bool defaultPrint = false;
 
   bool _disconnectTimerActive =
-  false; // Flag to track if the disconnect timer is active
+      false; // Flag to track if the disconnect timer is active
 
   int count = 0;
 
@@ -61,6 +62,11 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
 
   PermissionStatus? status = PermissionStatus.denied; // Declare globally
 
+  // --- DUMMY DATA FOR LOCAL TESTING OF TICKET SECTIONS ---
+  // Each entry represents a different ticket with a different order
+
+  // -------------------------------------------------------
+
   @override
   void initState() {
     super.initState();
@@ -74,9 +80,10 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
 
     if (Platform.isIOS) {
       if (widget.automaticprint) {
+        print("comiing in IOS automatic print");
         _retrieveAndConnectPrinter();
-
-        Future.delayed(const Duration(seconds: 8), () {
+        print("comiing in IOS automatic print after retrieve and connect");
+        Future.delayed(const Duration(seconds: 10), () {
           _retrieveAndPrint();
         });
       }
@@ -94,7 +101,7 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
           print("Comes in If Block");
           printTicket1();
           if (scale_id.toString().contains("Regional")) {
-            Future.delayed(const Duration(milliseconds: 1500), () {
+            Future.delayed(const Duration(milliseconds: 2800), () {
               setState(() {
                 // Navigator.of(context).pop();
               });
@@ -129,6 +136,7 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
     if (mac != null && mac.isNotEmpty) {
       try {
         await connect(mac); // Await the connect method as well
+        print("Connected to printer with MAC: $mac");
       } catch (e) {
         defaultPrint = false;
         print("Not Connected Due to $e");
@@ -145,7 +153,6 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
     await checkPermission(Permission.bluetoothConnect);
     await checkPermission(Permission.bluetoothScan);
     isCheckingPermission = false; // ✅ Reset flag after checking
-
   }
 
   Future<void> checkPermission(Permission permission) async {
@@ -198,19 +205,17 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
     }
 
     setState(
-          () {},
+      () {},
     );
   }
 
   Future<void> getBluetoots() async {
     setState(() {
-
-
       _progress = true;
       items = [];
     });
     final List<BluetoothInfo> listResult =
-    await PrintBluetoothThermal.pairedBluetooths;
+        await PrintBluetoothThermal.pairedBluetooths;
 
     setState(() {
       _progress = false;
@@ -218,13 +223,13 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
 
     if (listResult.isEmpty) {
       _msj =
-      "There are no bluetooths linked, go to settings and link the printer";
+          "There are no bluetooths linked, go to settings and link the printer";
     } else {
       _msj = "Touch an item in the list to connect";
     }
 
     setState(
-          () {
+      () {
         items = listResult;
       },
     );
@@ -239,7 +244,7 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
 
     try {
       final bool result =
-      await PrintBluetoothThermal.connect(macPrinterAddress: mac);
+          await PrintBluetoothThermal.connect(macPrinterAddress: mac);
       if (result) {
         setState(() {
           connected = true;
@@ -297,39 +302,6 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
     }
   }
 
-  Future<void> printTest() async {
-    try {
-      bool conexionStatus = await PrintBluetoothThermal.connectionStatus;
-
-      if (conexionStatus) {
-        // Ensure the printer is connected before printing
-        if (!connected) {
-          if (_printerMacAddress != null) {
-            // If not connected, reconnect to the previously connected printer
-            await connect(_printerMacAddress!);
-          } else {
-            if (kDebugMode) {
-              print("No previous printer MAC address found.");
-            }
-            return;
-          }
-        }
-        if (Platform.isAndroid || Platform.isIOS) {
-          List<int> ticket = await testTicket();
-          await PrintBluetoothThermal.writeBytes(ticket);
-        }
-      } else {
-        if (kDebugMode) {
-          print("Printer is not connected.");
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        print("Error in printTest: $e");
-      }
-    }
-  }
-
   Future<void> clearCache() async {
     try {
       // Get the temporary directory
@@ -352,691 +324,6 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
     } catch (e) {
       print("Error clearing cache: $e");
     }
-  }
-
-  Future<List<int>> testTicket() async {
-    List<int> bytes = [];
-    // Using default profile
-    final profile = await CapabilityProfile.load();
-    final generator = Generator(
-        optionprinttype == "58 mm" ? PaperSize.mm58 : PaperSize.mm80, profile);
-    //bytes += generator.setGlobalFont(PosFontType.fontA);
-    bytes += generator.reset();
-
-    String base64String = DataSingleton().top_logo?.replaceAll(
-      "data:image/png;base64,",
-      "",
-    ) ??
-        "";
-
-    if (DataSingleton().top_logo != null) {
-      bytesImg = base64.decode(base64String);
-      image = img.decodeImage(bytesImg);
-
-      if (Platform.isIOS) {
-        final resizedImage = img.copyResize(
-          image!,
-          width: image!.width ~/ 1.6,
-          height: image!.height ~/ 1.8,
-          interpolation: img.Interpolation.linear,
-        );
-        final bytesimg = Uint8List.fromList(
-          img.encodeJpg(
-            resizedImage,
-          ),
-        );
-        image = img.decodeImage(
-          bytesimg,
-        );
-      }
-
-      if (Platform.isAndroid) {
-        final resizedImage = img.copyResize(
-          image!,
-          width: 300,
-          height: 80,
-          interpolation: img.Interpolation.cubic,
-        );
-        final bytesimg = Uint8List.fromList(
-          img.encodeJpg(
-            resizedImage,
-          ),
-        );
-        image = img.decodeImage(
-          bytesimg,
-        );
-      }
-      //Using `ESC *`
-      if (image != null) {
-        // bytes += generator.image(image);
-        bytes += generator.imageRaster(image!);
-      }
-    }
-
-    if (DataSingleton().doc_name != null) {
-      // Capitalize the first letter
-      String doctorName = DataSingleton().doc_name!;
-      String capitalizedDocName =
-          '${(DataSingleton().doc_name ?? doctorName).substring(0, 1).toUpperCase()}${(DataSingleton().doc_name ?? doctorName).substring(1)}';
-
-      bytes += generator.feed(2);
-
-      if (kDebugMode) {
-        print('@@### before$capitalizedDocName');
-      }
-
-      if (capitalizedDocName.startsWith("dr") ||
-          capitalizedDocName.startsWith("dr.") ||
-          capitalizedDocName.startsWith("dr. ") ||
-          capitalizedDocName.startsWith("DR") ||
-          capitalizedDocName.startsWith("DR.") ||
-          capitalizedDocName.startsWith("DR. ")) {
-        capitalizedDocName = "Dr. $capitalizedDocName";
-      }
-
-      if (kDebugMode) {
-        print('@@### after$capitalizedDocName');
-      }
-      bytes += generator.text(
-        "Doctor Name - $capitalizedDocName",
-        styles: const PosStyles(align: PosAlign.center, bold: false),
-      );
-    }
-
-    bytes += generator.text(
-      '- - - - - - - - - - - - - - - - ',
-      styles: const PosStyles(
-        align: PosAlign.center,
-        bold: true,
-      ),
-    );
-
-    bytes += generator.text(
-      "Patient Information",
-      styles: const PosStyles(align: PosAlign.center, bold: false),
-    );
-
-    String? patientName, age, gender;
-
-    // String capitalizedPatientName =
-    //     '${(DataSingleton().Patient_name ?? patientName).substring(0, 1).toUpperCase()}${(DataSingleton().Patient_name ?? patientName).substring(1)}';
-    //
-    // String capitalizedGender =
-    //     '${(DataSingleton().Patient_gender ?? gender).substring(0, 1).toUpperCase()}${(DataSingleton().Patient_gender ?? gender).substring(1)}';
-
-    if (DataSingleton().Patient_name != null &&
-        DataSingleton().Patient_name!.isNotEmpty) {
-      patientName =
-      '${(DataSingleton().Patient_name ?? patientName)?.substring(0, 1).toUpperCase()}${(DataSingleton().Patient_name ?? patientName)?.substring(1)}';
-    }
-
-    if (DataSingleton().Patient_gender != null &&
-        DataSingleton().Patient_gender!.isNotEmpty) {
-      gender =
-      '${(DataSingleton().Patient_gender ?? gender)?.substring(0, 1).toUpperCase()}${(DataSingleton().Patient_gender ?? gender)?.substring(1)}';
-    }
-
-    age = DataSingleton().Patient_age;
-    String patientInfo = "";
-
-    // Check if patient name is not null before adding to patientInfo
-    if (patientName != null && patientName!.isNotEmpty) {
-      patientInfo += '\nName: $patientName';
-    }
-
-    // Check if patient age is not null before adding to patientInfo
-    if (age != null) {
-      patientInfo += '\nAge: $age';
-    }
-
-    // Check if patient gender is not null before adding to patientInfo
-    if (gender != null) {
-      patientInfo += '\nGender: $gender\n';
-      if (kDebugMode) {
-        print("Gender$gender");
-      }
-    }
-
-    // Only add Uric Acid and Glucose info for specific scale IDs
-    if (scale_id == "Short.Womac.kribado" || scale_id == "FRAX.osteocalc.kribado") {
-      if (DataSingleton().uricAcidFinalLine != null) {
-        patientInfo += '\n${DataSingleton().uricAcidFinalLine}';
-      }
-      patientInfo += '\n'; // Add final newline
-      if (DataSingleton().glucoseFinalLine.isNotEmpty) {
-        patientInfo += '\n${DataSingleton().glucoseFinalLine}';
-      }
-    }
-
-    patientInfo += '\n'; // Add final newline
-
-    if (patientInfo.isNotEmpty) {
-      bytes += generator.text(
-        patientInfo,
-        styles: const PosStyles(align: PosAlign.center, bold: false),
-      );
-    }
-
-    if (patientInfo.isNotEmpty) {
-      bytes += generator.text(
-        '- - - - - - - - - - - - - - - - ',
-        styles: const PosStyles(align: PosAlign.center, bold: true),
-      );
-    }
-    if (DataSingleton().scale_id == "HbA1c.kribado") {
-      bytes += generator.text(
-        '',
-        styles: const PosStyles(
-          align: PosAlign.center,
-          bold: true,
-        ),
-      );
-    }else{
-
-      if (DataSingleton().scale_id == "FRAX.osteocalc.kribado") {
-        bytes += generator.text(
-          '${DataSingleton().Scale_Name}' '\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-            bold: true,
-            fontType: PosFontType.fontB,
-          ),
-        );
-      }else {
-        bytes += generator.text(
-          '${DataSingleton().Scale_Name}' '\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-            bold: true,
-            fontType: PosFontType.fontA,
-          ),
-        );
-      }
-
-
-
-    }
-
-    if (scale_id.contains("WOMAC.kribado")) {
-      bytes += generator.text(
-        'Score:' " ${DataSingleton().TotalScore} " ' out of 96\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-      bytes += generator.text(
-        'Pain Score:' " ${DataSingleton().score1to5}" ' out of 20\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-      bytes += generator.text(
-        'Stiffness Score:' " ${DataSingleton().score6and7}" ' out of 8\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-      bytes += generator.text(
-        'Physical Functional Difficulty Score:'
-            " ${DataSingleton().scoreBeyond7}"
-            ' out of 68\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-    } else {
-      if (DataSingleton().scale_id != "FSSG.Nepali.Regional.kribado" && DataSingleton().scale_id != "HbA1c.kribado") {
-        if(DataSingleton().scale_id == "FRAX.osteocalc.kribado"){
-          bytes += generator.text(
-            '${DataSingleton().fraxHeader}: ' "${DataSingleton().Score}" '\n',
-            styles: const PosStyles(align: PosAlign.center, bold: true),
-          );
-        } else if(DataSingleton().scale_id == "BP.Monitoring.kribado"){
-          bytes += generator.text(
-            '',
-            styles: const PosStyles(align: PosAlign.center, bold: true),
-          );
-        }
-        else {
-          bytes += generator.text(
-            'Score: ' "${DataSingleton().Score}" '\n',
-            styles: const PosStyles(align: PosAlign.center, bold: true),
-          );
-        }
-
-      }
-    }
-    if (DataSingleton().scale_id == "HbA1c.kribado") {
-    }
-    if (DataSingleton().scale_id == "FSSG.Regional.kribado") {
-      bytes += generator.text(
-        "Acid Reflux Score: ${DataSingleton().reflux_score_only}",
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-
-      bytes += generator.text(
-        "Dyspeptic Symptom Score: ${DataSingleton().dyspeptic_score_only}" '\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-    }
-    if (DataSingleton().scale_id == "FSSG.Nepali.Regional.kribado") {
-      bytes += generator.text(
-        "Acid Reflux Score: ${DataSingleton().reflux_score_only}",
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-
-      bytes += generator.text(
-        "Dyspeptic Symptom Score: ${DataSingleton().dyspeptic_score_only}" '\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-    }
-
-    if (DataSingleton().scale_id == "FSSG.Bangladesh.kribado") {
-      bytes += generator.text(
-        "Acid Reflux Score: ${DataSingleton().reflux_score_only}",
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-
-      bytes += generator.text(
-        "Dyspeptic Symptom Score: ${DataSingleton().dyspeptic_score_only}" '\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-    }
-
-    if (DataSingleton().scale_id == "ASCVD.risk.kribado" ||
-        DataSingleton().scale_id == "ASCVD.risk.estimator.kribado" || DataSingleton().scale_id == "LipidProfileCustom.kribado") {
-      bytes += generator.text(
-        "(Calculated Risk)" '\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-    }
-
-    String base64String1 = DataSingleton().option_selected_logo?.replaceAll(
-      "data:image/png;base64,",
-      "",
-    ) ??
-        "";
-
-    if (DataSingleton().option_selected_logo != null &&
-        DataSingleton().option_selected_logo!.isNotEmpty) {
-      bytesImg = base64.decode(base64String1);
-      img.Image? image = img.decodeImage(bytesImg);
-
-      if (Platform.isIOS) {
-        final resizedImage = img.copyResize(
-          image!,
-          width: image.width ~/ 1.5,
-          height: image.height ~/ 1.6,
-          interpolation: img.Interpolation.linear,
-        );
-        final bytesimg = Uint8List.fromList(
-          img.encodeJpg(
-            resizedImage,
-          ),
-        );
-        image = img.decodeImage(
-          bytesimg,
-        );
-      }
-
-      if (Platform.isAndroid) {
-        final resizedImage = img.copyResize(
-          image!,
-          width: 300,
-          height: 300,
-          interpolation: img.Interpolation.cubic,
-        );
-        final bytesimg = Uint8List.fromList(
-          img.encodeJpg(
-            resizedImage,
-          ),
-        );
-        image = img.decodeImage(
-          bytesimg,
-        );
-      }
-
-      if (image != null) {
-        bytes += generator.imageRaster(
-          image,
-        );
-        bytes += generator.feed(2);
-      }
-    }
-    if (DataSingleton().scale_id == "HbA1c.kribado") {
-      bytes += generator.text(
-        "${DataSingleton().Interpretation}",
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-    }
-
-    if (DataSingleton().scale_id == "Short.Womac.kribado") {
-      bytes += generator.text(
-        "${DataSingleton().Interpretation}",
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-
-      bytes += generator.feed(2);
-
-
-      bytes += generator.text(
-        "Note: Kindly consult your doctor for further medication.",
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-    }
-
-
-    else{
-      bytes += generator.text(
-        "${DataSingleton().Interpretation}" '\n',
-        styles: const PosStyles(
-          align: PosAlign.center,
-        ),
-      );
-    }
-
-
-    if (DataSingleton().questionAndAnswers == "True") {
-      // scale inputs array
-      List<dynamic> inputsScale = DataSingleton().inputs;
-      print('jsfsjfsncxnczzz $inputsScale');
-
-      // Create a map of question_id to title
-      Map<int, String> questionTitleMap = {};
-      for (var input in inputsScale) {
-        questionTitleMap[input['id']] = input['title'];
-      }
-
-      print("fisjfkxcmxkveiejfisfjs $questionTitleMap");
-
-      // Fetch data from DataSingleton
-      List<Map<String, dynamic>> questions = DataSingleton().resultDataformat;
-
-      // Transform responses to replace question_id with title
-      List<Map<String, dynamic>> transformedResponses = [];
-
-      List questions1 = [
-        "Incomplete Emptying",
-        "Frequency",
-        "Intermittency",
-        "Urgency",
-        "Weak Stream",
-        "Straining",
-        "Nocturia",
-        "QOL Impact"
-      ];
-
-      int i = 0;
-      for (var response in questions) {
-        int questionId = response['question_id'];
-        String? title = questionTitleMap[questionId];
-
-        if (DataSingleton().scale_id == "IPSSCustom.kribado") {
-          transformedResponses.add({
-            'title': questions1[i],
-            'score': response['score'],
-            'answer': response['answer']
-          });
-          i++;
-        } else {
-          transformedResponses.add({
-            'title': title,
-            'score': response['score'],
-            'answer': response['answer']
-          });
-        }
-      }
-
-      if (DataSingleton().childQuestion != null &&
-          DataSingleton().childQuestion!.isNotEmpty) {
-        List<Map<String, dynamic>> transformedResponsesforChild = [];
-
-        // First, add the main questions to transformedResponses
-        for (var response in questions) {
-          int questionId = response['question_id'];
-          String? title = questionTitleMap[questionId];
-          transformedResponsesforChild.add({
-            'title': title,
-            'score': response['score'],
-            'answer': response['answer']
-          });
-        }
-
-        // Change only the title of the second object if it exists
-        if (transformedResponsesforChild.length > 1) {
-          transformedResponsesforChild[1]['title'] =
-              DataSingleton().childQuestion;
-        }
-
-        num a = 1;
-        print(
-            'jdfjdfjcmxcxmcxmcmxmxm ${DataSingleton().tranformedRepsonsesParentChild}');
-        // Iterate through the list of questions
-        for (var question in transformedResponsesforChild) {
-          String questionId = question['title'];
-          String answer = question['answer'];
-          double? numericAnswer = double.tryParse(answer.toString());
-
-          a;
-          // Print each question_id and answer on a new line
-          bytes += generator.text(
-            'Q$a: $questionId',
-            styles: const PosStyles(align: PosAlign.left),
-          );
-
-          bytes += generator.text(
-            formatDecimal(numericAnswer!),
-            styles: const PosStyles(align: PosAlign.left),
-          );
-
-        }
-      } else if (DataSingleton().scale_id == "HbA1c.kribado") {
-        if (transformedResponses.isNotEmpty) {
-
-          transformedResponses = transformedResponses.sublist(0, 1);
-          print('Transformed Responses print: $transformedResponses');
-          var firstQuestion = transformedResponses[0];
-          String questionTitle = firstQuestion['title'];
-          String answer = firstQuestion['answer'];
-
-          bytes += generator.text(
-            '$questionTitle',
-            styles: const PosStyles(align: PosAlign.center),
-          );
-
-          bytes += generator.text(
-            '$answer',
-            styles: const PosStyles(align: PosAlign.center),
-          );
-
-          print('Transformed Responses (after slicing): $transformedResponses');
-        }
-      } else if (DataSingleton().scale_id == "ASCVD.Custom.kribado") {
-        if (transformedResponses.isNotEmpty) {
-
-          transformedResponses = transformedResponses.sublist(0, 1);
-          print('Transformed Responses print: $transformedResponses');
-          var firstQuestion = transformedResponses[0];
-          String questionTitle = firstQuestion['title'];
-          String answer = firstQuestion['answer'];
-
-          bytes += generator.text(
-            '$questionTitle',
-            styles: const PosStyles(align: PosAlign.center),
-          );
-
-          bytes += generator.text(
-            '$answer',
-            styles: const PosStyles(align: PosAlign.center),
-          );
-
-          print('Transformed Responses (after slicing): $transformedResponses');
-        }
-      } else {
-        num a = 0;
-// Iterate through the list of questions
-        for (var question in transformedResponses) {
-          String questionId = question['title'];
-          String answer = question['answer'].toString();
-          double? numericAnswer = double.tryParse(answer);
-
-          a++;
-          // Print question title with a line break after
-          bytes += generator.text(
-            'Q$a: $questionId',
-            styles: const PosStyles(align: PosAlign.left),
-          );
-
-          // Print answer with "Ans:" prefix
-          bytes += generator.text(
-            'Ans: ${numericAnswer != null ? formatDecimal(numericAnswer) : answer}\n',
-            styles: const PosStyles(align: PosAlign.left),
-          );
-        }
-      }
-    }
-
-    if (DataSingleton().scale_id == "Asthma.kribado" ||
-        DataSingleton().scale_id == "COPD.kribado" ||
-        DataSingleton().scale_id == "VAS.kribado") {
-      bytes += generator.text(
-        'Interpretation:',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-    }
-
-    if (DataSingleton().scale_id == "Asthma.kribado") {
-      bytes += generator.feed(2);
-
-      bytes += generator.text(
-        '- Total score: 0-20',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-
-      bytes += generator.text(
-        '- <4: Less likelihood of Asthma',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-      bytes += generator.text(
-        '- >=4: Asthma',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-
-      bytes += generator.feed(1);
-    }
-
-    if (DataSingleton().scale_id == "COPD.kribado") {
-      bytes += generator.feed(2);
-
-      bytes += generator.text(
-        '- 0-10 Low: Indicates mild to minimal impact of COPD on daily life.',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-
-      bytes += generator.text(
-        '- 11-20 Medium: Suggests a moderate impact of COPD on daily life.',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-      bytes += generator.text(
-        '- 21-30 High: Indicates a high impact of COPD on daily life.',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-      bytes += generator.text(
-        '- 31-40 Very high: Suggests a very high impact of COPD on daily life.',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-
-      bytes += generator.feed(1);
-    }
-
-    if (DataSingleton().scale_id == "VAS.kribado") {
-      bytes += generator.feed(2);
-
-      bytes += generator.text(
-        '- 50 points and above: Uncontrolled Allergic Rhinitis.',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-
-      bytes += generator.text(
-        '- 20 to 49 points: Partially controlled Allergic Rhinitis.',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-      bytes += generator.text(
-        '- Below 20 points: Well-controlled Allergic Rhinitis.',
-        styles: const PosStyles(
-          align: PosAlign.left,
-        ),
-      );
-
-      bytes += generator.feed(1);
-    }
-
-    bytes += generator.text(
-      '- - - - - - - - - - - - - - - - ',
-      styles: const PosStyles(
-        align: PosAlign.center,
-        bold: true,
-      ),
-    );
-    bytes += generator.feed(1);
-
-    if (DataSingleton().References != null &&
-        DataSingleton().References!.isNotEmpty) {
-      bytes += generator.text(
-        'Reference : \n' "${DataSingleton().References}",
-        styles: const PosStyles(
-          align: PosAlign.left,
-          fontType: PosFontType.fontB,
-        ),
-      );
-    }
-
-    // final disclaimer = DataSingleton()?.Disclaimer ?? 'This is a customized service by Indigital Technologies LLP Although, great care has been taken in compiling and checking the information given in this service to ensure it is accurate, the author/s, the printer/s, the publisher/s and their servant/s or agent/s and purchaser/s shall not be responsible or in any way liable for any errors, omissions or inaccuracies whether arising from negligence or otherwise howsoever or due diligence of copyrights or for any consequences arising there from. In spite of best efforts the information in this service may become outdated over time. Indigital Technologies LLP accepts no liability for the completeness or use of the information contained in this service or its update.';
-
-    print("njgeigjzkzkczc ${DataSingleton().questionAndAnswers}");
-
-    //bytes += generator.cut();
-    return bytes;
   }
 
   Future<void> regionalPrintFirstTicket() async {
@@ -1071,9 +358,9 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
         );
       }
     } else {
-      Future.delayed(const Duration(milliseconds: 4000), () {
+      Future.delayed(const Duration(milliseconds: 9500), () {
         setState(
-              () {
+          () {
             Navigator.of(context).pop();
           },
         );
@@ -1081,19 +368,109 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
     }
   }
 
+  Future<List<int>> generateBasicTicket() async {
+    final Map<String, int>? headerSectionOrder =
+        DataSingleton().headerSectionOrder;
+    List<int> bytes = [];
+    final profile = await CapabilityProfile.load();
+    final generator = Generator(
+      optionprinttype == "58 mm" ? PaperSize.mm58 : PaperSize.mm80,
+      profile,
+    );
+    bytes += generator.reset();
+
+    // Sort sections by order
+    final sortedSections = headerSectionOrder!.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+
+    for (var section in sortedSections) {
+      switch (section.key) {
+        case "TOP_LOGO":
+          final topLogo = DataSingleton().top_logo;
+          if (topLogo != null) {
+            final base64String =
+                topLogo.replaceAll("data:image/png;base64,", "");
+            final bytesImg = base64.decode(base64String);
+            img.Image? image = img.decodeImage(bytesImg);
+
+            if (Platform.isIOS) {
+              final resized = img.copyResize(image!,
+                  width: image.width ~/ 1.5,
+                  height: image.height ~/ 1.6,
+                  interpolation: img.Interpolation.linear);
+              image =
+                  img.decodeImage(Uint8List.fromList(img.encodeJpg(resized)));
+            } else if (Platform.isAndroid) {
+              final resized = img.copyResize(image!, width: 300, height: 80);
+              image =
+                  img.decodeImage(Uint8List.fromList(img.encodeJpg(resized)));
+            }
+
+            if (image != null) {
+              Platform.isIOS
+                  ? bytes += generator.image(image)
+                  : bytes += generator.image(image);
+            }
+          }
+          break;
+
+        case "DOCTOR_NAME":
+          String? docName = DataSingleton().doc_name;
+          if (docName != null && docName.isNotEmpty) {
+            String name =
+                docName[0].toUpperCase() + docName.substring(1).toLowerCase();
+            if (!name.toLowerCase().startsWith("dr.")) {
+              name = "Dr. $name";
+            }
+            bytes += generator.feed(2);
+            bytes += generator.text("Doctor Name - $name",
+                styles: const PosStyles(align: PosAlign.center));
+          }
+          break;
+
+        case "PATIENT_DETAILS":
+          final name = DataSingleton().pat_name;
+          final age = DataSingleton().pat_age;
+          final gender = DataSingleton().pat_gender;
+
+          String info = "";
+          if (name != null && name.isNotEmpty) info += '\nName: $name';
+          if (age != null && age.isNotEmpty) info += '\nAge: $age';
+          if (gender != null && gender.isNotEmpty)
+            info += '\nGender: $gender\n';
+
+          if (info.isNotEmpty) {
+            bytes += generator.text('- - - - - - - - - - - - - - - - ',
+                styles: const PosStyles(align: PosAlign.center));
+            bytes += generator.text("Patient Information",
+                styles: const PosStyles(align: PosAlign.center));
+            bytes += generator.text(info,
+                styles: const PosStyles(align: PosAlign.center));
+            bytes += generator.text('- - - - - - - - - - - - - - - - ',
+                styles: const PosStyles(align: PosAlign.center));
+          }
+          break;
+      }
+    }
+
+    return bytes;
+  }
+
   Future<void> printTicket1() async {
     try {
       isPrintComplete = false;
+
+      showPrintingDialog(context);
       bool? result;
       if (Platform.isIOS) {
         if (scale_id.toString().contains('Regional')) {
           // This likely prints the second ticket
           regionalPrintFirstTicket();
-          Future.delayed(const Duration(milliseconds: 1000), () {
+          Future.delayed(const Duration(milliseconds: 1600), () {
             regionalPrintsecondTicketIOS();
           });
 
-          Future.delayed(const Duration(milliseconds: 3000), () {
+          Future.delayed(const Duration(milliseconds: 800), () {
             setState(() {
               if (second_ticket) {
                 printBottomTicket();
@@ -1116,6 +493,7 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
         }
       } else if (Platform.isAndroid) {
         if (scale_id.toString().contains('Regional')) {
+          print("Comes in Android Regional Print");
           List<int> ticket1 = await generateBasicTicket();
           // Print the basic ticket
           bool result = await PrintBluetoothThermal.writeBytes(ticket1);
@@ -1131,7 +509,7 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
                 Future.delayed(const Duration(milliseconds: 1000), () async {
                   List<int> ticket3 = await printBottomBanner();
                   bool result3 =
-                  await PrintBluetoothThermal.writeBytes(ticket3);
+                      await PrintBluetoothThermal.writeBytes(ticket3);
                 });
 
                 if (kDebugMode) {
@@ -1169,526 +547,409 @@ class _PrintChartScreenState extends State<PrintScreen> with WidgetsBindingObser
       } else {
         isPrintComplete = true;
       }
+
+      Navigator.of(context).pop();
     } catch (e) {
+      Navigator.of(context).pop();
       if (kDebugMode) {
         print("E Strig$e");
       }
     }
   }
 
-  Future<List<int>> generateBasicTicket() async {
+  Future<List<int>> testTicket() async {
     List<int> bytes = [];
-    // Using default profile
     final profile = await CapabilityProfile.load();
     final generator = Generator(
         optionprinttype == "58 mm" ? PaperSize.mm58 : PaperSize.mm80, profile);
     bytes += generator.reset();
 
-    // Add top logo if available
-    String base64String = DataSingleton().top_logo?.replaceAll(
-      "data:image/png;base64,",
-      "",
-    ) ??
-        "";
+    final headerOrder = DataSingleton().headerSectionOrder ?? {};
+    final detailOrder = DataSingleton().detailSectionOrder ?? {};
+    final questionAnsFormting = DataSingleton().questionAnsFormting ?? {};
 
-    if (DataSingleton().top_logo != null) {
-      bytesImg = base64.decode(base64String);
-      image = img.decodeImage(bytesImg);
+    final Map<String, Future<void> Function()> allSections = {
+      "TOP_LOGO": () async {
+        final base64String = DataSingleton()
+                .top_logo
+                ?.replaceAll("data:image/png;base64,", "") ??
+            "";
+        if (base64String.isNotEmpty) {
+          Uint8List bytesImg = base64.decode(base64String);
+          img.Image? image = img.decodeImage(bytesImg);
+          if (image != null) {
+            if (Platform.isIOS) {
+              image = img.decodeImage(Uint8List.fromList(img.encodeJpg(
+                img.copyResize(image,
+                    width: image.width ~/ 1.6,
+                    height: image.height ~/ 1.8,
+                    interpolation: img.Interpolation.linear),
+              )));
+            } else {
+              image = img.decodeImage(Uint8List.fromList(img.encodeJpg(
+                img.copyResize(image,
+                    width: 300,
+                    height: 80,
+                    interpolation: img.Interpolation.cubic),
+              )));
+            }
+            if (image != null) bytes += generator.image(image);
+          }
+        }
+      },
+      "DOCTOR_NAME": () async {
+        String? name = DataSingleton().doc_name;
+        if (name != null && name.isNotEmpty) {
+          name = name[0].toUpperCase() + name.substring(1);
+          if (!name.toLowerCase().startsWith("dr.")) name = "Dr. $name";
+          bytes += generator.feed(2);
+          bytes += generator.text("Doctor Name - $name",
+              styles: const PosStyles(align: PosAlign.center));
+        }
+      },
+      "PATIENT_DETAILS": () async {
+        String? name = DataSingleton().pat_name;
+        String? age = DataSingleton().pat_age;
+        String? gender = DataSingleton().pat_gender;
+        String info = "";
+        if (name != null && name.isNotEmpty)
+          info += "\nName: ${name[0].toUpperCase()}${name.substring(1)}";
+        if (age != null) info += "\nAge: $age";
+        if (gender != null && gender.isNotEmpty)
+          info +=
+              "\nGender: ${gender[0].toUpperCase()}${gender.substring(1)}\n";
 
-      if (Platform.isIOS) {
-        final resizedImage = img.copyResize(
-          image!,
-          width: image!.width ~/ 1.6,
-          height: image!.height ~/ 1.6,
-          interpolation: img.Interpolation.linear,
-        );
-        final bytesimg = Uint8List.fromList(
-          img.encodeJpg(
-            resizedImage,
-          ),
-        );
-        image = img.decodeImage(
-          bytesimg,
-        );
-      } else if (Platform.isAndroid) {
-        final resizedImage = img.copyResize(
-          image!,
-          width: 300,
-          height: 80,
-          interpolation: img.Interpolation.cubic,
-        );
-        final bytesimg = Uint8List.fromList(
-          img.encodeJpg(
-            resizedImage,
-          ),
-        );
-        image = img.decodeImage(
-          bytesimg,
-        );
-      }
-      if (image != null) {
-        bytes += generator.imageRaster(image!);
-      }
+        if (info.isNotEmpty) {
+          bytes += generator.text("- - - - - - - - - - - - - - - -",
+              styles: const PosStyles(align: PosAlign.center));
+          bytes += generator.text("Patient Information",
+              styles: const PosStyles(align: PosAlign.center));
+          bytes += generator.text(info,
+              styles: const PosStyles(align: PosAlign.center));
+          bytes += generator.text("- - - - - - - - - - - - - - - -",
+              styles: const PosStyles(align: PosAlign.center));
+        }
+      },
+      "RegionalImage": () async {
+        if (scale_id.toString().contains('Regional')) {
+          ui.Image image = await generateBitmapFromText(
+            "${DataSingleton().scale_name}\n"
+            "Score: ${DataSingleton().Score}\n"
+            "${DataSingleton().Interpretation}\n\n",
+            fontSize: 80.0,
+            textColor: Colors.black,
+            backgroundColor: Colors.white,
+            width: 400,
+            height: 300,
+          );
+          final byteData =
+              await image.toByteData(format: ui.ImageByteFormat.png);
+          final Uint8List imageBytes = byteData!.buffer.asUint8List();
+          img.Image? image3 = img.decodeImage(imageBytes);
+
+          if (_bitmap != null) {
+            image3 = img.decodeImage(_bitmap!);
+          }
+
+          final resizedImage = img.copyResize(
+            image3!,
+            width: 300,
+            height: Platform.isIOS ? 210 : 300,
+            interpolation: Platform.isIOS
+                ? img.Interpolation.linear
+                : img.Interpolation.cubic,
+          );
+          final bytesimg = Uint8List.fromList(img.encodeJpg(resizedImage));
+          final rasterImage = img.decodeImage(bytesimg);
+
+          if (rasterImage != null) {
+            Platform.isIOS
+                ? bytes += generator.image(rasterImage)
+                : bytes += generator.image(rasterImage);
+          }
+        }
+      },
+      "Scale_Name": () async {
+        bytes += generator.text("${DataSingleton().scale_name}\n",
+            styles: const PosStyles(
+                align: PosAlign.center,
+                bold: true,
+                fontType: PosFontType.fontA));
+      },
+      "Score": () async {
+        bytes += generator.text("Score: ${DataSingleton().Score}\n",
+            styles: const PosStyles(
+                align: PosAlign.center,
+                bold: true,
+                fontType: PosFontType.fontA));
+      },
+      "Interpretation": () async {
+        bytes += generator.text("${DataSingleton().Interpretation}\n",
+            styles: const PosStyles(align: PosAlign.center));
+      },
+      "QuestionsAnswer": () async {
+        if (DataSingleton().questionAndAnswers == "True") {
+          final inputs = DataSingleton().inputs;
+          final responses = DataSingleton().resultDataformat;
+
+          final titleMap = {for (var item in inputs) item['id']: item['title']};
+
+          int i = 1;
+          for (var r in responses) {
+            final title = titleMap[r['question_id']] ?? '';
+            final answer = r['answer'];
+            final qSymbol = questionAnsFormting["question_symbol"] == "Q1"
+                ? "Q$i."
+                : questionAnsFormting["question_symbol"] == "1"
+                    ? "$i."
+                    : questionAnsFormting["question_symbol"] ?? '';
+            final aSymbol = questionAnsFormting["answer_symbol"] ?? "Ans:-";
+
+            bytes += generator.text("$qSymbol $title",
+                styles: const PosStyles(align: PosAlign.left));
+            bytes += generator.text("$aSymbol $answer\n",
+                styles: const PosStyles(align: PosAlign.left));
+
+            i++;
+          }
+        }
+      },
+      "SelectedOptionImage": () async {
+        final base64String = DataSingleton()
+                .option_selected_logo
+                ?.replaceAll("data:image/png;base64,", "") ??
+            "";
+        if (base64String.isNotEmpty) {
+          final bytesImg = base64.decode(base64String);
+          img.Image? image = img.decodeImage(bytesImg);
+
+          if (image != null) {
+            if (Platform.isIOS) {
+              image = img.decodeImage(Uint8List.fromList(img.encodeJpg(
+                img.copyResize(image,
+                    width: image.width ~/ 1.5,
+                    height: image.height ~/ 1.6,
+                    interpolation: img.Interpolation.linear),
+              )));
+            } else {
+              image = img.decodeImage(Uint8List.fromList(img.encodeJpg(
+                img.copyResize(image,
+                    width: 300,
+                    height: 300,
+                    interpolation: img.Interpolation.cubic),
+              )));
+            }
+
+            if (image != null) {
+              bytes += Platform.isIOS
+                  ? generator.image(image)
+                  : generator.image(image);
+              bytes += generator.feed(2);
+            }
+          }
+        }
+      },
+      "Reference": () async {
+        if (DataSingleton().References != null &&
+            DataSingleton().References!.isNotEmpty) {
+          bytes += generator.text("Reference : \n${DataSingleton().References}",
+              styles: const PosStyles(
+                  align: PosAlign.left, fontType: PosFontType.fontB));
+        }
+      },
+    };
+
+    final combinedOrder = <String, int>{};
+    combinedOrder.addAll(headerOrder);
+    detailOrder.forEach((key, value) => combinedOrder[key] = value + 100);
+
+    final sortedKeys = combinedOrder.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
+
+    for (final section in sortedKeys) {
+      final func = allSections[section.key];
+      if (func != null) await func();
     }
 
-    if (DataSingleton().doc_name != null) {
-      String docName = DataSingleton().doc_name!;
-      String capitalizedDocName =
-          docName[0].toUpperCase() + docName.substring(1).toLowerCase();
-
-      bytes += generator.feed(2);
-
-      if (capitalizedDocName.startsWith("dr") &&
-          capitalizedDocName.startsWith("DR") &&
-          capitalizedDocName.startsWith("dr.") &&
-          capitalizedDocName.startsWith("DR.")) {
-        capitalizedDocName = "Dr. $capitalizedDocName";
-      }
-
-      bytes += generator.text(
-        "Doctor Name - $capitalizedDocName",
-        styles: const PosStyles(align: PosAlign.center, bold: false),
-      );
-    }
-
-    bytes += generator.text(
-      '- - - - - - - - - - - - - - - - ',
-      styles: const PosStyles(
-        align: PosAlign.center,
-        bold: true,
-      ),
-    );
-
-    bytes += generator.text(
-      "Patient Information",
-      styles: const PosStyles(align: PosAlign.center, bold: false),
-    );
-
-    String? patientName, age, gender;
-
-    patientName = DataSingleton().Patient_name;
-    age = DataSingleton().Patient_age;
-    gender = DataSingleton().Patient_gender;
-    String patientInfo = "";
-
-    if (patientName!.isNotEmpty) {
-      patientInfo += '\nName: $patientName';
-    }
-
-    if (age != null) {
-      patientInfo += '\nAge: $age';
-    }
-
-    if (gender != null) {
-      patientInfo += '\nGender: $gender\n';
-      if (kDebugMode) {
-        print("Gender$gender");
-      }
-    }
-
-    
-       // Only add Uric Acid and Glucose info for specific scale IDs
-    if (scale_id == "Short.Womac.kribado" || scale_id == "FRAX.osteocalc.kribado") {
-
-      print("Uric Acid Final Line: ${DataSingleton().uricAcidFinalLine}");
-      if (DataSingleton().uricAcidFinalLine != null) {
-        print('Uric Acid Final Line is not null');
-        patientInfo += '\n${DataSingleton().uricAcidFinalLine}';
-      }
-      patientInfo += '\n'; // Add final newline
-      if (DataSingleton().glucoseFinalLine.isNotEmpty) {
-        patientInfo += '\n${DataSingleton().glucoseFinalLine}';
-      }
-      print("Patient Info: $patientInfo");
-    }
-
-    if (patientInfo.isNotEmpty) {
-      bytes += generator.text(
-        patientInfo,
-        styles: const PosStyles(align: PosAlign.center, bold: false),
-      );
-    }
-
-  
-
-
-print("Patient Info 1: $patientInfo");
-
-    if (patientInfo.isNotEmpty) {
-      bytes += generator.text(
-        '- - - - - - - - - - - - - - - - ',
-        styles: const PosStyles(align: PosAlign.center, bold: true),
-      );
-    }
-
+    bytes += generator.feed(1);
+    bytes += generator.text('======================================',
+        styles: const PosStyles(align: PosAlign.center, bold: true));
     return bytes;
   }
 
   Future<List<int>> generateDetailedTicket() async {
+    final Map<String, int>? detailSectionOrder =
+        DataSingleton().detailSectionOrder;
+    final Map<String, String>? questionAnsFormting =
+        DataSingleton().questionAnsFormting;
+
     List<int> bytes = [];
     final profile = await CapabilityProfile.load();
     final generator = Generator(
-        optionprinttype == "58 mm" ? PaperSize.mm58 : PaperSize.mm80, profile);
+      optionprinttype == "58 mm" ? PaperSize.mm58 : PaperSize.mm80,
+      profile,
+    );
 
-    // Add additional content based on scale_id
-    if (scale_id.toString().contains('Regional')) {
-      ui.Image image = await generateBitmapFromText(
-        "${DataSingleton().scale_name.toString()}\n"
-            "${DataSingleton().Score.toString()}\n"
-            "${DataSingleton().Interpretation.toString()}\n\n",
-        fontSize: 80.0,
-        textColor: Colors.black,
-        backgroundColor: Colors.white,
-        width: 400,
-        height: 300, // Adjust height as needed
-      );
+    Map<String, FutureOr<void> Function()> sections = {
+      "RegionalImage": () async {
+        if (!scale_id.toString().contains('Regional')) return;
 
-      final ByteData? byteData =
-      await image.toByteData(format: ui.ImageByteFormat.png);
-      final Uint8List imageBytes = byteData!.buffer.asUint8List();
-      // Uint8List bytesImg = data.buffer.asUint8List();
-      img.Image? image3 = img.decodeImage(imageBytes);
-
-      if (_bitmap != null) {
-        image3 = img.decodeImage(_bitmap!);
-      } else {
-        image3 = img.decodeImage(imageBytes);
-      }
-
-      final resizedImage;
-      if (Platform.isIOS) {
-        resizedImage = img.copyResize(
-          image3!,
-          width: 300,
-          height: 210,
-          interpolation: img.Interpolation.linear,
-        );
-      } else {
-        resizedImage = img.copyResize(
-          image3!,
-          width: 300,
+        ui.Image image = await generateBitmapFromText(
+          "${DataSingleton().scale_name}\n"
+          "Score: ${DataSingleton().Score}\n"
+          "${DataSingleton().Interpretation}\n\n",
+          fontSize: 80.0,
+          textColor: Colors.black,
+          backgroundColor: Colors.white,
+          width: 400,
           height: 300,
-          interpolation: img.Interpolation.cubic,
         );
-      }
 
-      final bytesimg = Uint8List.fromList(
-        img.encodeJpg(
-          resizedImage,
-        ),
-      );
-      image3 = img.decodeImage(
-        bytesimg,
-      );
-      if (image3 != null) {
-        bytes += generator.imageRaster(image3);
-      }
-    } else {
-      if (scale_id.contains("WOMAC.kribado")) {
-        bytes += generator.text(
-          'Score:' " ${DataSingleton().TotalScore} " ' out of 96\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-        bytes += generator.text(
-          'Pain Score:' " ${DataSingleton().score1to5}" ' out of 20\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-        bytes += generator.text(
-          'Stiffness Score:' " ${DataSingleton().score6and7}" ' out of 8\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-        bytes += generator.text(
-          'Physical Functional Difficulty Score:'
-              " ${DataSingleton().scoreBeyond7}"
-              ' out of 68\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-      } else if (DataSingleton().scale_id!.contains("ASCVD.Custom.kribado")) {
-        List<dynamic> inputsScale = DataSingleton().inputs;
-        print('jsfsjfsncxnczzz $inputsScale');
+        final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+        final Uint8List imageBytes = byteData!.buffer.asUint8List();
+        img.Image? image3 = img.decodeImage(imageBytes);
 
-        // Create a map of question_id to title
-        Map<int, String> questionTitleMap = {};
-        for (var input in inputsScale) {
-          questionTitleMap[input['id']] = input['title'];
+        if (_bitmap != null) {
+          image3 = img.decodeImage(_bitmap!);
         }
 
-        print("fisjfkxcmxkveiejfisfjs $questionTitleMap");
+        final resizedImage = img.copyResize(
+          image3!,
+          width: 300,
+          height: Platform.isIOS ? 210 : 300,
+          interpolation: Platform.isIOS
+              ? img.Interpolation.cubic
+              : img.Interpolation.cubic,
+        );
 
-        // Fetch data from DataSingleton
-        List<Map<String, dynamic>> questions = DataSingleton().resultDataformat;
+        final bytesimg = Uint8List.fromList(img.encodeJpg(resizedImage));
+        final rasterImage = img.decodeImage(bytesimg);
 
-        // Transform responses to replace question_id with title
-        List<Map<String, dynamic>> transformedResponses = [];
+        if (rasterImage != null) {
+          Platform.isIOS
+              ? bytes += generator.image(
+                  rasterImage,
+                )
+              : bytes += generator.image(rasterImage);
+        }
+      },
+      "Scale_Name": () async {
+        if (scale_id.toString().contains('Regional')) return;
+        bytes += generator.text(
+          '${DataSingleton().scale_name}\n',
+          styles: const PosStyles(
+              align: PosAlign.center, bold: true, fontType: PosFontType.fontA),
+        );
+      },
+      "Score": () async {
+        if (!scale_id.toString().contains('Regional')) {
+          bytes += generator.text(
+            'Score: ${DataSingleton().Score}\n',
+            styles: const PosStyles(
+                align: PosAlign.center,
+                bold: true,
+                fontType: PosFontType.fontA),
+          );
+        }
+      },
+      "Interpretation": () async {
+        if (scale_id.toString().contains('Regional')) return;
 
-        List questions1 = [
-          "Incomplete Emptying",
-          "Frequency",
-          "Intermittency",
-          "Urgency",
-          "Weak Stream",
-          "Straining",
-          "Nocturia",
-          "QOL Impact"
-        ];
+        bytes += generator.text(
+          '${DataSingleton().Interpretation}\n',
+          styles: const PosStyles(align: PosAlign.center),
+        );
+      },
+      "Reference": () async {
+        if (DataSingleton().References != null &&
+            DataSingleton().References!.isNotEmpty) {
+          bytes += generator.text(
+            'Reference : \n' "${DataSingleton().References}",
+            styles: const PosStyles(
+              align: PosAlign.left,
+              fontType: PosFontType.fontB,
+            ),
+          );
+        }
+      },
+      "QuestionsAnswer": () async {
+        if (DataSingleton().questionAndAnswers == "True") {
+          List<dynamic> inputsScale = DataSingleton().inputs;
+          Map<int, String> questionTitleMap = {
+            for (var input in inputsScale) input['id']: input['title']
+          };
+          List<Map<String, dynamic>> questions =
+              DataSingleton().resultDataformat;
 
-        int i = 0;
-        for (var response in questions) {
-          int questionId = response['question_id'];
-          String? title = questionTitleMap[questionId];
+          int a = 0;
+          for (var response in questions) {
+            String? title = questionTitleMap[response['question_id']];
+            String answer = response['answer'];
+            a++;
 
-          if (DataSingleton().scale_id == "IPSSCustom.kribado") {
-            transformedResponses.add({
-              'title': questions1[i],
-              'score': response['score'],
-              'answer': response['answer']
-            });
-          } else {
-            transformedResponses.add({
-              'title': title,
-              'score': response['score'],
-              'answer': response['answer']
-            });
+            // Determine question symbol format
+            String symbol;
+            if (questionAnsFormting?["question_symbol"] == "Q1") {
+              symbol = "Q$a.";
+            } else if (questionAnsFormting?["question_symbol"] == "1") {
+              symbol = "$a.";
+            } else {
+              symbol = questionAnsFormting?["question_symbol"] ?? "";
+            }
+
+            // Answer label
+            String answerSymbol =
+                questionAnsFormting?["answer_symbol"] ?? "Ans:-";
+
+            bytes += generator.text(
+              "$symbol $title\n$answerSymbol $answer\n",
+              styles: const PosStyles(align: PosAlign.left),
+            );
           }
         }
-        if (transformedResponses.isNotEmpty) {
-          transformedResponses = transformedResponses.sublist(0, 1);
-          print('Transformed Responses print: $transformedResponses');
-          var firstQuestion = transformedResponses[0];
-          String questionTitle = firstQuestion['title'];
-          String answer = firstQuestion['answer'];
+      },
+      "SelectedOptionImage": () async {
+        if (DataSingleton().option_selected_logo != null &&
+            DataSingleton().option_selected_logo!.isNotEmpty) {
+          String base64String = DataSingleton()
+              .option_selected_logo!
+              .replaceAll("data:image/png;base64,", "");
+          Uint8List bytesImg = base64.decode(base64String);
+          img.Image? image = img.decodeImage(bytesImg);
 
-          bytes += generator.text(
-            '${DataSingleton().Test_Name}\n\nScore: ${DataSingleton().Score} ',
-            styles: const PosStyles(align: PosAlign.center, bold: true),
-          );
-
-          bytes += generator.feed(2);
-
-
-          bytes += generator.text(
-            "${DataSingleton().Interpretation}",
-            styles: const PosStyles(
-              align: PosAlign.center,
-            ),
-          );
-
-          bytes += generator.feed(2);
-
-          bytes += generator.text(
-            '$questionTitle\n${DataSingleton().hbA1c}',
-            styles: const PosStyles(align: PosAlign.center, bold: true),
-          );
-
-          bytes += generator.text(
-            '- - - - - - - - - - - - - - - - ',
-            styles: const PosStyles(
-              align: PosAlign.center,
-              bold: true,
-            ),
-          );
-        }
-      } else {
-        bytes += generator.text(
-          '${DataSingleton().Scale_Name}' '\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-            bold: true,
-          ),
-        );
-        if (DataSingleton().scale_id != "FSSG.Nepali.Regional.kribado") {
-          bytes += generator.text(
-            'Score: ' "${DataSingleton().Score}" '\n',
-            styles: const PosStyles(
-              align: PosAlign.center,
-              bold: true,
-            ),
-          );
-        }
-      }
-
-      if (DataSingleton().scale_id == "FSSG.Regional.kribado") {
-        bytes += generator.text(
-          "Acid Reflux Score: ${DataSingleton().reflux_score_only}",
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-
-        bytes += generator.text(
-          "Dyspeptic Symptom Score: ${DataSingleton().dyspeptic_score_only}"
-              '\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-      }
-
-      if (DataSingleton().scale_id == "FSSG.Nepali.Regional.kribado") {
-        bytes += generator.text(
-          "Acid Reflux Score: ${DataSingleton().reflux_score_only}",
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-
-        bytes += generator.text(
-          "Dyspeptic Symptom Score: ${DataSingleton().dyspeptic_score_only}"
-              '\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-      }
-
-      if (DataSingleton().scale_id == "ASCVD.risk.kribado" ||
-          DataSingleton().scale_id == "ASCVD.risk.estimator.kribado" || DataSingleton().scale_id == "LipidProfileCustom.kribado") {
-        bytes += generator.text(
-          "(Calculated Risk)" '\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-      }
-
-      if (DataSingleton().option_selected_logo != null &&
-          DataSingleton().option_selected_logo!.isNotEmpty) {
-        // Add top logo if available
-        String base64String = DataSingleton().option_selected_logo?.replaceAll(
-          "data:image/png;base64,",
-          "",
-        ) ??
-            "";
-        print("Base64 string: $base64String");
-        bytesImg = base64.decode(base64String);
-        image = img.decodeImage(bytesImg);
-
-        if (Platform.isIOS) {
-          final resizedImage = img.copyResize(
-            image!,
-            width: 250,
-            height: 250,
-            interpolation: img.Interpolation.linear,
-          );
-          final bytesimg = Uint8List.fromList(
-            img.encodeJpg(
-              resizedImage,
-            ),
-          );
-          image = img.decodeImage(
-            bytesimg,
-          );
-        } else if (Platform.isAndroid) {
           final resizedImage = img.copyResize(
             image!,
             width: 300,
             height: 300,
-            interpolation: img.Interpolation.cubic,
+            interpolation: img.Interpolation.linear,
           );
-          final bytesimg = Uint8List.fromList(
-            img.encodeJpg(
-              resizedImage,
-            ),
-          );
-          image = img.decodeImage(
-            bytesimg,
-          );
+          image =
+              img.decodeImage(Uint8List.fromList(img.encodeJpg(resizedImage)));
+
+          if (image != null) {
+            bytes += generator.image(image);
+          }
         }
-        if (image != null) {
-          bytes += generator.imageRaster(image!);
-        }
-        print("Base64 string: $bytes");
-      }
+      },
+    };
 
-      if (!DataSingleton().scale_id!.contains("ASCVD.Custom.kribado")) {
-        bytes += generator.text(
-          "${DataSingleton().Interpretation}" '\n',
-          styles: const PosStyles(
-            align: PosAlign.center,
-          ),
-        );
-      }
+    final sortedKeys = detailSectionOrder!.entries.toList()
+      ..sort((a, b) => a.value.compareTo(b.value));
 
-      if (DataSingleton().questionAndAnswers == "True" &&
-          !DataSingleton().scale_id!.contains("ASCVD.Custom.kribado")) {
-        List<dynamic> inputsScale = DataSingleton().inputs;
-
-        Map<int, String> questionTitleMap = {};
-        for (var input in inputsScale) {
-          questionTitleMap[input['id']] = input['title'];
-        }
-
-        List<Map<String, dynamic>> questions = DataSingleton().resultDataformat;
-
-        List<Map<String, dynamic>> transformedResponses = [];
-        for (var response in questions) {
-          int questionId = response['question_id'];
-          String? title = questionTitleMap[questionId];
-          transformedResponses.add({
-            'title': title,
-            'score': response['score'],
-            'answer': response['answer']
-          });
-        }
-
-        num a = 0;
-        for (var question in transformedResponses) {
-          String questionId = question['title'];
-          String answer = question['answer'];
-        double? numericAnswer = double.tryParse(answer);
-
-          a++;
-          // Print question title with a line break after
-          bytes += generator.text(
-            'Q$a: $questionId',
-            styles: const PosStyles(align: PosAlign.left),
-          );
-
-          // Print answer with "Ans:" prefix
-          bytes += generator.text(
-            'Ans: ${numericAnswer != null ? formatDecimal(numericAnswer) : answer}\n',
-            styles: const PosStyles(align: PosAlign.left),
-          );
-        }
+    for (final entry in sortedKeys) {
+      final sectionFunction = sections[entry.key];
+      if (sectionFunction != null) {
+        await sectionFunction();
       }
     }
 
+    // Divider and footer
     bytes += generator.text(
-      '- - - - - - - - - - - - - - - - ',
-      styles: const PosStyles(
-        align: PosAlign.center,
-        bold: true,
-      ),
+      '===================================',
+      styles: const PosStyles(align: PosAlign.center, bold: true),
     );
 
     bytes += generator.feed(1);
-
-    if (DataSingleton().References != null &&
-        DataSingleton().References!.isNotEmpty) {
-      bytes += generator.text(
-        'Reference : \n' "${DataSingleton().References}",
-        styles: const PosStyles(
-          align: PosAlign.left,
-          fontType: PosFontType.fontB,
-        ),
-      );
-
-      if (Platform.isIOS) {
-        bytes += generator.feed(1);
-      }
-    }
-
-    // final disclaimer = DataSingleton()?.Disclaimer ?? 'This is a customized service by Indigital Technologies LLP Although, great care has been taken in compiling and checking the information given in this service to ensure it is accurate, the author/s, the printer/s, the publisher/s and their servant/s or agent/s and purchaser/s shall not be responsible or in any way liable for any errors, omissions or inaccuracies whether arising from negligence or otherwise howsoever or due diligence of copyrights or for any consequences arising there from. In spite of best efforts the information in this service may become outdated over time. Indigital Technologies LLP accepts no liability for the completeness or use of the information contained in this service or its update.';
-
-    print("njgeigjzkzkczc ${DataSingleton().questionAndAnswers}");
 
     setState(() {
       second_ticket = true;
@@ -1707,18 +968,13 @@ print("Patient Info 1: $patientInfo");
     await disconnect();
   }
 
-
-
   bool isCheckingPermission = false; // ✅ Prevents continuous calls
-
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-
       if (Platform.isAndroid) {
-
         if (!isCheckingPermission) {
           isCheckingPermission = true;
           checkPermissions();
@@ -1726,7 +982,6 @@ print("Patient Info 1: $patientInfo");
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -1738,474 +993,477 @@ print("Patient Info 1: $patientInfo");
         destinationScreen: null,
         showKebabMenu: false,
         pageNavigationTime:
-        "${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}",
+            "${DateTime.now().day}-${DateTime.now().month}-${DateTime.now().year}",
       ),
       body: widget.automaticprint
           ? isPrintComplete ?? true
-          ? Center(
-        child: Image.asset(
-          "assets/printing.gif",
-        ),
-      )
-          : Column(
-        children: <Widget>[
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(
-                10.0,
-              ),
-              child: Text(
-                'Select Printer',
-                style: TextStyle(
-                    fontSize: 20,
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        items[index].name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
+              ? Center(
+                  child: Image.asset(
+                    "assets/printing.gif",
+                  ),
+                )
+              : Column(
+                  children: <Widget>[
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(
+                          10.0,
+                        ),
+                        child: Text(
+                          'Select Printer',
+                          style: TextStyle(
+                              fontSize: 20,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.bold),
                         ),
                       ),
-                      Text(items[index].macAdress,
-                          style: const TextStyle(
-                            fontSize: 10,
-                          )),
-                    ],
-                  ),
-                  trailing: (selectedIndex == (index))
-                      ? const Icon(Icons.check,
-                      color: Colors.green) // Check mark icon
-                      : null,
-                  onTap: isConnectionComplete
-                      ? () async {
-                    if (connected) {
-                      await disconnect();
-                    }
-                    await SharedprefHelper.deleteUserData(
-                        "printer");
+                    ),
+                    const SizedBox(height: 10),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: items.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return ListTile(
+                            title: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  items[index].name,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                Text(items[index].macAdress,
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                    )),
+                              ],
+                            ),
+                            trailing: (selectedIndex == (index))
+                                ? const Icon(Icons.check,
+                                    color: Colors.green) // Check mark icon
+                                : null,
+                            onTap: isConnectionComplete
+                                ? () async {
+                                    if (connected) {
+                                      await disconnect();
+                                    }
+                                    await SharedprefHelper.deleteUserData(
+                                        "printer");
 
-                    setState(() {
-                      _progress = true;
-                      isConnectionComplete =
-                      false; // Disable the list during connection
-                    });
+                                    setState(() {
+                                      _progress = true;
+                                      isConnectionComplete =
+                                          false; // Disable the list during connection
+                                    });
 
-                    _printerMacAddress = items[index].macAdress;
+                                    _printerMacAddress = items[index].macAdress;
 
-                    final bool result =
-                    await PrintBluetoothThermal.connect(
-                        macPrinterAddress:
-                        items[index].macAdress);
+                                    final bool result =
+                                        await PrintBluetoothThermal.connect(
+                                            macPrinterAddress:
+                                                items[index].macAdress);
 
-                    if (result) {
-                      setState(() {
-                        _progress = false;
-                        _msj =
-                        "Connected with ${items[index].name}";
-                        connected = true;
-                        selectedIndex = index;
-                      });
+                                    if (result) {
+                                      setState(() {
+                                        _progress = false;
+                                        _msj =
+                                            "Connected with ${items[index].name}";
+                                        connected = true;
+                                        selectedIndex = index;
+                                      });
 
-                      await SharedprefHelper.saveUserData(
-                          "printer", _printerMacAddress!);
-                    } else {
-                      setState(() {
-                        _progress = false;
-                        _msj =
-                        "Could not connect with ${items[index].name}";
-                        connected = false;
-                        selectedIndex = -1;
-                      });
-                    }
+                                      await SharedprefHelper.saveUserData(
+                                          "printer", _printerMacAddress!);
+                                    } else {
+                                      setState(() {
+                                        _progress = false;
+                                        _msj =
+                                            "Could not connect with ${items[index].name}";
+                                        connected = false;
+                                        selectedIndex = -1;
+                                      });
+                                    }
 
-                    setState(() {
-                      isConnectionComplete =
-                      true; // Re-enable the list after connection
-                    });
-                  }
-                      : null,
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 10),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    _msj,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).primaryColor,
+                                    setState(() {
+                                      isConnectionComplete =
+                                          true; // Re-enable the list after connection
+                                    });
+                                  }
+                                : null,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _msj,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Visibility(
+                      visible: _progress,
+                      child: const Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              "Please Wait..",
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        CustomElevatedButton(
+                          onPressed: () {
+                            getBluetoots();
+                          },
+                          text: 'Search Printer',
+                        ),
+                        CustomElevatedButton(
+                          onPressed: () async {
+                            try {
+                              if (connected) {
+                                await SharedprefHelper.deleteUserData(
+                                    "printer");
+                                await disconnect();
+                              }
+                            } catch (e) {
+                              if (kDebugMode) {
+                                print(e.toString());
+                              }
+                            }
+                          },
+                          text: 'Disconnect',
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    SizedBox(
+                      width: 200,
+                      height: 50,
+                      child: CustomElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            if (kDebugMode) {
+                              print(
+                                  "Conntected Status $connected  ${SharedprefHelper.getUserData("printer").toString()}");
+                            }
+
+                            if (connected) {
+                              if (count == 0) {
+                                printTicket1();
+                                count++;
+                              } else {
+                                if (Platform.isIOS) {
+                                  if (isPrintComplete == false) {
+                                    _printAgain(context);
+                                  } else {
+                                    if (kDebugMode) {
+                                      print("Comes in another block");
+                                    }
+                                  }
+                                }
+                                if (Platform.isAndroid) {
+                                  if (isPrintComplete == true) {
+                                    _printAgain(context);
+                                  } else {
+                                    if (kDebugMode) {
+                                      print("Comes in another block");
+                                    }
+                                  }
+                                }
+                                if (isPrintComplete == false) {
+                                  _printAgain(context);
+                                } else {
+                                  if (kDebugMode) {
+                                    print("Comes in another block");
+                                  }
+                                }
+                              }
+                            }
+                          });
+                        },
+                        text: 'Print',
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                  ],
+                )
+          : Column(
+              children: <Widget>[
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(
+                      10.0,
+                    ),
+                    child: Text(
+                      'Select Printer',
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(
-            height: 10,
-          ),
-          Visibility(
-            visible: _progress,
-            child: const Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(
-                    width: 10,
-                  ),
-                  Text(
-                    "Please Wait..",
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              CustomElevatedButton(
-                onPressed: () {
-                  getBluetoots();
-                },
-                text: 'Search Printer',
-              ),
-              CustomElevatedButton(
-                onPressed: () async {
-                  try {
-                    if (connected) {
-                      await SharedprefHelper.deleteUserData(
-                          "printer");
-                      await disconnect();
-                    }
-                  } catch (e) {
-                    if (kDebugMode) {
-                      print(e.toString());
-                    }
-                  }
-                },
-                text: 'Disconnect',
-              ),
-            ],
-          ),
-          const SizedBox(
-            height: 10,
-          ),
-          SizedBox(
-            width: 200,
-            height: 50,
-            child: CustomElevatedButton(
-              onPressed: () {
-                setState(() {
-                  if (kDebugMode) {
-                    print(
-                        "Conntected Status $connected  ${SharedprefHelper.getUserData("printer").toString()}");
-                  }
-
-                  if (connected) {
-                    if (count == 0) {
-                      printTicket1();
-                      count++;
-                    } else {
-                      if (Platform.isIOS) {
-                        if (isPrintComplete == false) {
-                          _printAgain(context);
-                        } else {
-                          if (kDebugMode) {
-                            print("Comes in another block");
-                          }
-                        }
-                      }
-                      if (Platform.isAndroid) {
-                        if (isPrintComplete == true) {
-                          _printAgain(context);
-                        } else {
-                          if (kDebugMode) {
-                            print("Comes in another block");
-                          }
-                        }
-                      }
-                      if (isPrintComplete == false) {
-                        _printAgain(context);
-                      } else {
-                        if (kDebugMode) {
-                          print("Comes in another block");
-                        }
-                      }
-                    }
-                  }
-                });
-              },
-              text: 'Print',
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-        ],
-      )
-          : Column(
-        children: <Widget>[
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(
-                10.0,
-              ),
-              child: Text(
-                'Select Printer',
-                style: TextStyle(
-                    fontSize: 20,
-                    color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          Expanded(
-            child: ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (BuildContext context, int index) {
-                return ListTile(
-                  title: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        items[index].name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(items[index].macAdress,
-                          style: const TextStyle(
-                            fontSize: 10,
-                          )),
-                    ],
-                  ),
-                  trailing: (selectedIndex == (index))
-                      ? const Icon(Icons.check,
-                      color: Colors.green) // Check mark icon
-                      : null,
-                  onTap: isConnectionComplete
-                      ? () async {
-                    if (connected) {
-                      await disconnect();
-                    }
-                    await SharedprefHelper.deleteUserData(
-                        "printer");
-
-                    setState(() {
-                      _progress = true;
-                      isConnectionComplete =
-                      false; // Disable the list during connection
-                    });
-
-                    _printerMacAddress = items[index].macAdress;
-
-                    final bool result =
-                    await PrintBluetoothThermal.connect(
-                        macPrinterAddress:
-                        items[index].macAdress);
-
-                    if (result) {
-                      setState(() {
-                        _progress = false;
-                        _msj =
-                        "Connected with ${items[index].name}";
-                        connected = true;
-                        selectedIndex = index;
-                      });
-
-                      await SharedprefHelper.saveUserData(
-                          "printer", _printerMacAddress!);
-
-                      _retrieveAndPrint();
-                    } else {
-                      setState(() {
-                        _progress = false;
-                        _msj =
-                        "Could not connect with ${items[index].name}";
-                        connected = false;
-                        selectedIndex = -1;
-                      });
-                    }
-
-                    setState(() {
-                      isConnectionComplete =
-                      true; // Re-enable the list after connection
-                    });
-                  }
-                      : null,
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 10),
-          Center(
-            child: Padding(
-              padding: const EdgeInsets.all(
-                10.0,
-              ),
-              child: Text(
-                _msj,
-                style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor)  ,
-              ),
-            ),
-          ),
-          if(_msj == "Go to settings & check in settings that the permission of nearby devices is 'Allowed'." && Platform.isAndroid)
-            ElevatedButton(
-              onPressed: () async {
-                AppSettingsHelper.openAppInfo();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // ✅ Set border radius
                 ),
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12), // ✅ Add padding
-              ),
-              child: Text("Open Settings",style:  TextStyle(color: Colors.white),),
-            ),
-          const SizedBox(
-            height: 10,
-          ),
-          Visibility(
-            visible: _progress,
-            child: const Center(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(),
-                  SizedBox(
-                    width: 10,
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return ListTile(
+                        title: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              items[index].name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            Text(items[index].macAdress,
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                )),
+                          ],
+                        ),
+                        trailing: (selectedIndex == (index))
+                            ? const Icon(Icons.check,
+                                color: Colors.green) // Check mark icon
+                            : null,
+                        onTap: isConnectionComplete
+                            ? () async {
+                                if (connected) {
+                                  await disconnect();
+                                }
+                                await SharedprefHelper.deleteUserData(
+                                    "printer");
+
+                                setState(() {
+                                  _progress = true;
+                                  isConnectionComplete =
+                                      false; // Disable the list during connection
+                                });
+
+                                _printerMacAddress = items[index].macAdress;
+
+                                final bool result =
+                                    await PrintBluetoothThermal.connect(
+                                        macPrinterAddress:
+                                            items[index].macAdress);
+
+                                if (result) {
+                                  setState(() {
+                                    _progress = false;
+                                    _msj =
+                                        "Connected with ${items[index].name}";
+                                    connected = true;
+                                    selectedIndex = index;
+                                  });
+
+                                  await SharedprefHelper.saveUserData(
+                                      "printer", _printerMacAddress!);
+
+                                  _retrieveAndPrint();
+                                } else {
+                                  setState(() {
+                                    _progress = false;
+                                    _msj =
+                                        "Could not connect with ${items[index].name}";
+                                    connected = false;
+                                    selectedIndex = -1;
+                                  });
+                                }
+
+                                setState(() {
+                                  isConnectionComplete =
+                                      true; // Re-enable the list after connection
+                                });
+                              }
+                            : null,
+                      );
+                    },
                   ),
-                  Text(
-                    "Please Wait..",
+                ),
+                const SizedBox(height: 10),
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(
+                      10.0,
+                    ),
+                    child: Text(
+                      _msj,
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Theme.of(context).primaryColor),
+                    ),
                   ),
-                ],
-              ),
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              CustomElevatedButton(
-                onPressed: () {
-
-                  if(Platform.isAndroid) {
-                    if (status!.isDenied || status!.isPermanentlyDenied) {
+                ),
+                if (_msj ==
+                        "Go to settings & check in settings that the permission of nearby devices is 'Allowed'." &&
+                    Platform.isAndroid)
+                  ElevatedButton(
+                    onPressed: () async {
+                      AppSettingsHelper.openAppInfo();
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(8), // ✅ Set border radius
+                      ),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12), // ✅ Add padding
+                    ),
+                    child: Text(
+                      "Open Settings",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Visibility(
+                  visible: _progress,
+                  child: const Center(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          "Please Wait..",
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    CustomElevatedButton(
+                      onPressed: () {
+                        if (Platform.isAndroid) {
+                          if (status!.isDenied || status!.isPermanentlyDenied) {
+                            setState(() {
+                              _msj =
+                                  "Go to settings & check in settings that the permission of nearby devices is 'Allowed'.";
+                            });
+                          } else {
+                            setState(() {
+                              checkPermissions();
+                              initPlatformState();
+                              getBluetoots();
+                            });
+                          }
+                        } else if (Platform.isIOS) {
+                          getBluetoots();
+                        }
+                      },
+                      text: 'Search Printer',
+                    ),
+                    CustomElevatedButton(
+                      onPressed: () async {
+                        try {
+                          if (connected) {
+                            await SharedprefHelper.deleteUserData("printer");
+                            await disconnect();
+                          }
+                        } catch (e) {
+                          print(e.toString());
+                        }
+                      },
+                      text: 'Disconnect',
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: 200,
+                  height: 50,
+                  child: CustomElevatedButton(
+                    onPressed: () {
                       setState(() {
-                        _msj =
-                        "Go to settings & check in settings that the permission of nearby devices is 'Allowed'.";
-                      });
-                    } else {
-                      setState(() {
-                        checkPermissions();
-                        initPlatformState();
-                        getBluetoots();
-                      });
-                    }
-                  }else if(Platform.isIOS){
-                    getBluetoots();
+                        print(
+                            "Conntected Status $connected  ${SharedprefHelper.getUserData("printer").toString()}");
 
-                  }
+                        if (connected) {
+                          if (count == 0) {
+                            printTicket1();
+                            count++;
+                          } else {
+                            if (Platform.isIOS) {
+                              if (isPrintComplete == false) {
+                                _printAgain(context);
+                              } else {
+                                if (kDebugMode) {
+                                  print("Comes in another block");
+                                }
+                              }
+                            }
+                            if (Platform.isAndroid) {
+                              if (isPrintComplete == true) {
+                                _printAgain(context);
+                              } else {
+                                if (kDebugMode) {
+                                  print("Comes in another block");
+                                }
+                              }
+                            }
 
-                },
-                text: 'Search Printer',
-              ),
-              CustomElevatedButton(
-                onPressed: () async {
-                  try {
-                    if (connected) {
-                      await SharedprefHelper.deleteUserData("printer");
-                      await disconnect();
-                    }
-                  } catch (e) {
-                    print(e.toString());
-                  }
-                },
-                text: 'Disconnect',
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: 200,
-            height: 50,
-            child: CustomElevatedButton(
-              onPressed: () {
-                setState(() {
-                  print(
-                      "Conntected Status $connected  ${SharedprefHelper.getUserData("printer").toString()}");
-
-                  if (connected) {
-                    if (count == 0) {
-                      printTicket1();
-                      count++;
-                    } else {
-                      if (Platform.isIOS) {
-                        if (isPrintComplete == false) {
-                          _printAgain(context);
-                        } else {
-                          if (kDebugMode) {
-                            print("Comes in another block");
+                            if (isPrintComplete == false) {
+                              _printAgain(context);
+                            } else {
+                              if (kDebugMode) {
+                                print("Comes in another block");
+                              }
+                            }
                           }
                         }
-                      }
-                      if (Platform.isAndroid) {
-                        if (isPrintComplete == true) {
-                          _printAgain(context);
-                        } else {
-                          if (kDebugMode) {
-                            print("Comes in another block");
-                          }
-                        }
-                      }
-
-                      if (isPrintComplete == false) {
-                        _printAgain(context);
-                      } else {
-                        if (kDebugMode) {
-                          print("Comes in another block");
-                        }
-                      }
-                    }
-                  }
-                });
-              },
-              text: 'Print',
+                      });
+                    },
+                    text: 'Print',
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+              ],
             ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-        ],
-      ),
     );
   }
 
@@ -2217,7 +1475,7 @@ print("Patient Info 1: $patientInfo");
           title: const Center(child: Text("Confirm Print")),
           content: const Text("Do you want to print again?",
               style:
-              TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
+                  TextStyle(fontWeight: FontWeight.bold, color: Colors.black)),
           actions: [
             TextButton(
               child: const Text(
@@ -2288,13 +1546,13 @@ print("Patient Info 1: $patientInfo");
   }
 
   Future<ui.Image> generateBitmapFromText(
-      String text, {
-        double fontSize = 80.0,
-        Color textColor = Colors.black,
-        Color backgroundColor = Colors.white,
-        int width = 400,
-        int height = 300, // Increased height to accommodate multiple lines of text
-      }) async {
+    String text, {
+    double fontSize = 80.0,
+    Color textColor = Colors.black,
+    Color backgroundColor = Colors.white,
+    int width = 400,
+    int height = 300, // Increased height to accommodate multiple lines of text
+  }) async {
     // Create a picture recorder to start drawing
     final ui.PictureRecorder pictureRecorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(pictureRecorder);
@@ -2325,9 +1583,9 @@ print("Patient Info 1: $patientInfo");
 
       // Build the paragraph with the current text style
       final ui.ParagraphBuilder paragraphBuilder =
-      ui.ParagraphBuilder(paragraphStyle)
-        ..pushStyle(textStyle.getTextStyle())
-        ..addText(text);
+          ui.ParagraphBuilder(paragraphStyle)
+            ..pushStyle(textStyle.getTextStyle())
+            ..addText(text);
 
       paragraph = paragraphBuilder.build()
         ..layout(ui.ParagraphConstraints(width: width.toDouble()));
@@ -2348,7 +1606,7 @@ print("Patient Info 1: $patientInfo");
 
     // End recording and create an image
     final ui.Image image =
-    await pictureRecorder.endRecording().toImage(width, height);
+        await pictureRecorder.endRecording().toImage(width, height);
 
     return image;
   }
@@ -2404,7 +1662,7 @@ print("Patient Info 1: $patientInfo");
     );
 
     final ByteData? byteData =
-    await image.toByteData(format: ui.ImageByteFormat.png);
+        await image.toByteData(format: ui.ImageByteFormat.png);
 
     return byteData?.buffer.asUint8List();
   }
@@ -2464,9 +1722,9 @@ print("Patient Info 1: $patientInfo");
     }
 
     String base64String = DataSingleton().bottom_logo?.replaceAll(
-      "data:image/png;base64,",
-      "",
-    ) ??
+              "data:image/png;base64,",
+              "",
+            ) ??
         "";
 
     if (DataSingleton().bottom_logo != null) {
@@ -2508,9 +1766,13 @@ print("Patient Info 1: $patientInfo");
       }
 
       if (image != null) {
-        bytes += generator.imageRaster(
-          image,
-        );
+        Platform.isIOS
+            ? bytes += generator.image(
+                image,
+              )
+            : bytes += generator.image(
+                image,
+              );
         bytes += generator.feed(2);
       }
     }
@@ -2529,21 +1791,51 @@ print("Patient Info 1: $patientInfo");
     print('checkkkkkkkkkkkk $checkPlatformAPPVersion');
     String versionShortform = "";
 
-    if(checkPlatformAPPVersion.contains("android")){
+    if (checkPlatformAPPVersion.contains("android")) {
       versionShortform = "A";
-    }else{
+    } else {
       versionShortform = "I";
     }
-
 
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String appVersion = packageInfo.version;
 
     bytes += generator.text('v.$versionShortform-$appVersion',
-        styles: const PosStyles(align: PosAlign.right,fontType: PosFontType.fontB,));
+        styles: const PosStyles(
+          align: PosAlign.right,
+          fontType: PosFontType.fontB,
+        ));
 
     bytes += generator.feed(4);
 
     return bytes;
+  }
+
+  void showPrintingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text(
+                  "Printing, please wait...",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

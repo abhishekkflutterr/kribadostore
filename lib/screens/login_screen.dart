@@ -45,27 +45,16 @@ class LoginScreen extends StatelessWidget {
             Obx(() => _buildErrorMessage()),
             const SizedBox(height: 20),
             _buildLoginButton(),
-            const SizedBox(height: 15),
+            /*   const SizedBox(height: 10),
             InkWell(
               onTap: (){
                 Get.to(RegisterScreen());
               },
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
-                child: Center(
-                  child: Text(
-                    'Sign up',
-                    style: TextStyle(
-                      color: Colors.deepPurple,
-                      decoration: TextDecoration.underline, // This adds the line through the text
-                      decorationColor: Colors.deepPurple, // Optional: Customize the color of the line
-                      decorationThickness: 2, // Optional: Set the thickness of the line
-                    ),
-                  ),
-                ),
+                padding: const EdgeInsets.fromLTRB(8,0,8,0),
+                child: Center(child: Text('Register',style: TextStyle(color: Colors.black),)),
               ),
-
-            )
+            )*/
 
           ],
         ),

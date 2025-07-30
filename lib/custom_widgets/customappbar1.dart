@@ -252,8 +252,6 @@ class _CustomAppBar1State extends State<CustomAppBar1> {
         DataSingleton().download_btn = "";
         DataSingleton().download_print_btn = "";
         DataSingleton().drConsentText = "";
-        DataSingleton().doctorSpecialtyDropDown = null;
-
         //DataSingleton().ptConsentText = "";
         bool isOnline = await networkHelper.isInternetAvailable();
         if (isOnline) {
@@ -300,7 +298,6 @@ class _CustomAppBar1State extends State<CustomAppBar1> {
       DataSingleton().top_logo = null;
       DataSingleton().Disclaimer = null;
       DataSingleton().font_size = 16.0;
-      DataSingleton().addDoctorBtn = false;
       Get.offAll(LoginScreen());
 
     } else {

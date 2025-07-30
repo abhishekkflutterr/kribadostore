@@ -182,7 +182,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
         DataSingleton().print_btn = "";
         DataSingleton().download_btn = "";
         DataSingleton().download_print_btn = "";
-        DataSingleton().doctorSpecialtyDropDown = null;
         print('@@objectcreation');
         DataSingleton().drConsentText = "";
         //DataSingleton().ptConsentText = "";
@@ -234,7 +233,6 @@ class _CustomAppBarState extends State<CustomAppBar> {
       DataSingleton().top_logo = null;
       DataSingleton().Disclaimer = null;
       DataSingleton().font_size = 16.0;
-      DataSingleton().addDoctorBtn = false;
       Get.offAll(LoginScreen());
 
     } else {

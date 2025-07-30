@@ -7,8 +7,9 @@ Future<List<pw.Text>> disclaimerAndReference() async {
   String? disclaimer = DataSingleton().Disclaimer ??
       'This is a customized service by Indigital Technologies LLP...';
 
+  // Defensive null and empty checks
   List<pw.Text> disclaimerAndReference = [
-    if (reference != null || reference!.isNotEmpty) ...[
+    if (reference != null && reference.isNotEmpty) ...[
       pw.Text(
         "\nReference ",
         style: pw.TextStyle(
@@ -25,7 +26,7 @@ Future<List<pw.Text>> disclaimerAndReference() async {
         ),
       ),
     ],
-    if (disclaimer.isNotEmpty) ...[
+    if (disclaimer != null && disclaimer.isNotEmpty) ...[
       pw.Text(
         "\nDisclaimer ",
         style: pw.TextStyle(

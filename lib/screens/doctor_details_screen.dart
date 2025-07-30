@@ -504,7 +504,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
 
 
 
-      if(key != "SPECIALITY"){
+      if(key!="SPECIALITY"){
 
         if (!_validateField(key, label, regex, errorMessage,requiredKey,requiredValue)) {
 
@@ -584,7 +584,7 @@ class _DoctorDetailsScreenState extends State<DoctorDetailsScreen> {
             content: Text(
               DataSingleton().drConsentText!.trim().isNotEmpty?
                    DataSingleton().drConsentText!
-                  : "I agree that my patients’ data may be used in an anonymized and aggregated manner for analysis and publication purposes, either in India or abroad. Specifically, I understand and agree that such data may be shared with a service provider (other than Indigital Technologies) located in India or abroad, provided the data is properly de-identified before any further use for analytical purposes.",
+                  : "I agree that my Patient data may be used in an anonymous aggregated manner for analysis/publication purposes in India or abroad. In particular, I understand and agree that Patient data may be used by a service provider company (other than Indigital Technologies) in India or abroad, in order to be properly de-identified before any further utilization for analysis purposes.",
               style: TextStyle(fontWeight: FontWeight.normal, color: Colors.black),
             ),
 

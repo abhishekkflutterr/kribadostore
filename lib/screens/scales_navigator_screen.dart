@@ -23,6 +23,8 @@ void main() {
 }
 
 class Test extends StatefulWidget {
+
+
   @override
   State<Test> createState() => _TestState();
 }
@@ -33,21 +35,16 @@ int greaterThanCode = 62;
 // ASCII code for equal sign
 int equalSignCode = 61;
 
+
 // Combine ASCII codes to form the greater-than-or-equal-to symbol
 String greaterThanOrEqualToSymbol =
     String.fromCharCode(greaterThanCode) + String.fromCharCode(equalSignCode);
+
 
 List<Map<String, dynamic>> seekbarChildFormat = [];
 List<Map<String, dynamic>> finalMergedList = [];
 String? _errorTextIBSkribado;
 
-String formatDecimal(double value) {
-  if (value == value.toInt()) {
-    return value.toInt().toString(); // e.g., 12.0 → "12"
-  } else {
-    return value.toStringAsFixed(2); // e.g., 12.5 → "12.50"
-  }
-}
 
 void addOrUpdateResult({
   required int questionId,
@@ -56,8 +53,7 @@ void addOrUpdateResult({
   required int childId,
 }) {
   // Remove any existing entries with the same question_id
-  seekbarChildFormat
-      .removeWhere((element) => element['question_id'] == questionId);
+  seekbarChildFormat.removeWhere((element) => element['question_id'] == questionId);
 
   // Add the new entry
   seekbarChildFormat.add({
@@ -70,14 +66,16 @@ void addOrUpdateResult({
 
 bool numChild = false;
 
+
 bool isChild = false;
-String childAnswer = "";
+String childAnswer ="";
 String globalScaleid = "";
 String hintText = "Enter value";
 
 double rangeCheck = 0.0;
 
 class _TestState extends State<Test> {
+
   late int _curr;
   int? groupValue;
   DataSingleton dataSingleton = DataSingleton();
@@ -105,8 +103,9 @@ class _TestState extends State<Test> {
       // Proceed with submission
       // Update the evaluation data for the current question
 
-      if (globalScaleid == "SFAR.kribado") {
-      } else {
+      if(globalScaleid == "SFAR.kribado"){
+
+      }else {
         _updateEvaluationData(_curr, selectedValues[_curr]);
       }
 
@@ -159,6 +158,7 @@ class _TestState extends State<Test> {
   double dysBp = 0.0;
   double heartRateBp = 0.0;
 
+
   Map<int, int?> selectedValues = {};
   Map<double, double?> selectedValuesNum = {};
   Map<int, Map<String, dynamic>> evaluationDataMap = {};
@@ -183,13 +183,16 @@ class _TestState extends State<Test> {
     DataSingleton().option_selected_logo = "";
     _fetchs3Offline();
     seekbarChildFormat.clear();
+
   }
+
 
   Future<void> sharedPrefsData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     subscriber_id = prefs.getString('subscriber_id');
     mr_id = prefs.getString('mr_id');
   }
+
 
   Future<void> fetchs3data() async {
     String? scaleUrl = DataSingleton().scaleS3Url;
@@ -198,6 +201,7 @@ class _TestState extends State<Test> {
     var res = await http.get(uri);
     DataSingleton().s3jsonOffline = res.body.toString();
     String reference = jsonDecode(res.body)["references"];
+    // print('references$reference');
     DataSingleton().References = reference;
     setState(() {
       jsonData = jsonDecode(res.body);
@@ -299,7 +303,7 @@ class _TestState extends State<Test> {
   String pat_name = DataSingleton().pat_name ?? '';
   String pat_gender = DataSingleton().pat_gender ?? '';
   String? scale_id = DataSingleton().scale_id;
-  Map<double, double?> numTypeInputsOnly = {};
+  Map<double, double?> numTypeInputsOnly ={} ;
   bool type = false;
   late List<Widget> _list;
 
@@ -309,10 +313,9 @@ class _TestState extends State<Test> {
       // Add a delay of 500ms before rendering
       future: Future.delayed(Duration(milliseconds: 500), () => jsonData),
       builder: (context, snapshot) {
+
         // Check if jsonData or inputs are null after the delay
-        if (!snapshot.hasData ||
-            snapshot.data == null ||
-            snapshot.data!['inputs'] == null) {
+        if (!snapshot.hasData || snapshot.data == null || snapshot.data!['inputs'] == null) {
           return Scaffold(
             backgroundColor: Colors.white,
             body: Center(
@@ -343,6 +346,8 @@ class _TestState extends State<Test> {
             updateParent,
             updateTextType,
             _handleOptionSelectedNum,
+
+
           );
         });
         // Extracting title from jsonData
@@ -366,6 +371,9 @@ class _TestState extends State<Test> {
   }
 
   void _handleOptionSelected(int? value, int questionIndex) {
+
+
+
     // Update the selected option immediately
     setState(() {
       selectedValues[questionIndex] = value;
@@ -374,6 +382,8 @@ class _TestState extends State<Test> {
     // Update the evaluation data
     _updateEvaluationData(questionIndex, value);
   }
+
+
 
   void _handleOptionSelectedNum(double value, int questionIndex) {
     // Update the selected option immediately
@@ -386,8 +396,8 @@ class _TestState extends State<Test> {
   }
 
   String selectedCheckboxes = "";
-  int selectedCheckboxesScore = 0;
-  void updateSelectedCheckboxes(String checkboxes, int score) {
+  int  selectedCheckboxesScore = 0;
+  void updateSelectedCheckboxes(String checkboxes,int score) {
     // Update the selected checkboxes list
     this.selectedCheckboxes = checkboxes;
     this.selectedCheckboxesScore = score;
@@ -398,7 +408,6 @@ class _TestState extends State<Test> {
   void updateTextType(String textType) {
     this.textType = textType;
   }
-
   void updateTextbox(String text) {
     this.text = text;
   }
@@ -412,6 +421,7 @@ class _TestState extends State<Test> {
   String? subscriber_id;
   String? mr_id;
 
+
   void updateChild(
       String child, num childScore, String childAnswer, num childId) {
     this.child = child;
@@ -420,7 +430,7 @@ class _TestState extends State<Test> {
     this.childId = childId;
   }
 
-  void updateParent(num parentScore, String parentAnswer) {
+  void updateParent(num parentScore,String parentAnswer ) {
     this.parentScore = parentScore;
     this.parentAnswer = parentAnswer;
   }
@@ -430,6 +440,7 @@ class _TestState extends State<Test> {
     if (selectedValue != null) {
       // Handle the case where the input type is "NUM"
       if (jsonData['inputs'][questionIndex]['type'] == 'NUM') {
+
         type = true;
         double? numericValue1 = 0.0;
         Map<double, double?> numTypeInputsOnlyNewMap = numTypeInputsOnly;
@@ -440,6 +451,7 @@ class _TestState extends State<Test> {
             numericValue1 = value;
           }
         });
+
 
         int numericValue = selectedValue;
         // Update the evaluation data for the current question
@@ -454,8 +466,7 @@ class _TestState extends State<Test> {
         });
       }
 
-      if (jsonData['inputs'][questionIndex]['type'] == 'MS' ||
-          jsonData['inputs'][questionIndex]['type'] == 'AON') {
+      if (jsonData['inputs'][questionIndex]['type'] == 'MS' || jsonData['inputs'][questionIndex]['type'] == 'AON') {
         // Get the entered numeric value
         int numericValue = selectedValue;
         String stringValue = selectedValue.toString().split('').join('|');
@@ -503,10 +514,9 @@ class _TestState extends State<Test> {
 
       if (jsonData['inputs'][questionIndex]['type'] == 'SS') {
         String chiltext = child;
-        if (chiltext.isEmpty) {
+        if (chiltext.isEmpty){
           // Get the score of the selected option
-          num score = jsonData['inputs'][questionIndex]['options']
-          [selectedValue]['score'];
+          num score = jsonData['inputs'][questionIndex]['options'][selectedValue]['score'];
           // Get the option text
           String optionText = jsonData['inputs'][questionIndex]['options']
           [selectedValue]['title'];
@@ -520,8 +530,10 @@ class _TestState extends State<Test> {
           });
         }
 
-        if (chiltext == "childAvailable") {
+        if (chiltext == "childAvailable" ) {
+          print('@@@@@@@@@@@@@@@@@@@insideSSchild');
           setState(() {
+            print('@@@@@@childansewer $childAnswer');
             evaluationDataMap[questionIndex] = {
               'id': jsonData['inputs'][questionIndex]['id'],
               'score': childScore,
@@ -531,13 +543,11 @@ class _TestState extends State<Test> {
               // Include the option text in the result data
             };
           });
-        } else if (chiltext == "childAvailable") {
+        } else  if (chiltext == "childAvailable"){
           // Get the score of the selected option
-          num score = jsonData['inputs'][questionIndex]['options']
-          [selectedValue]['score'];
+          num score = jsonData['inputs'][questionIndex]['options'][selectedValue]['score'];
           // Get the option text
-          String optionText = jsonData['inputs'][questionIndex]['options']
-          [selectedValue]['title'];
+          String optionText = jsonData['inputs'][questionIndex]['options'][selectedValue]['title'];
           // Update the evaluation data for the current question
           setState(() {
             evaluationDataMap[questionIndex] = {
@@ -551,11 +561,9 @@ class _TestState extends State<Test> {
 
       if (jsonData['inputs'][questionIndex]['type'] == 'DD') {
         // Get the score of the selected option
-        int score = jsonData['inputs'][questionIndex]['options'][selectedValue]
-        ['score'];
+        int score = jsonData['inputs'][questionIndex]['options'][selectedValue]['score'];
         // Get the option text
-        String optionText = jsonData['inputs'][questionIndex]['options']
-        [selectedValue]['title'];
+        String optionText = jsonData['inputs'][questionIndex]['options'][selectedValue]['title'];
         // Update the evaluation data for the current question
         setState(() {
           evaluationDataMap[questionIndex] = {
@@ -650,7 +658,7 @@ class _TestState extends State<Test> {
       String value = evaluationDataMap[i]?['value'] ?? '';
       int child_id = evaluationDataMap[i]?['child_id'] ?? 0;
 
-      if (child == "childAvailable") {
+      if(child == "childAvailable"){
         resultDataformat.add({
           "question_id": id,
           "score": parentScore,
@@ -687,17 +695,33 @@ class _TestState extends State<Test> {
       }
     }
 
-    if (scale_id == 'FRAX.osteocalc.kribado') {
+    if(scale_id == 'FRAX.osteocalc.kribado'){
       // Process `question_id: 10` before printing
       resultDataformat = processQuestion10(resultDataformat);
       DataSingleton().resultDataformat = resultDataformat;
-    } else if (scale_id == 'IBS.kribado') {
+      // Print the updated resultDataformat
+      print('eitetiefdkfkfdkfskfskfskfsk ${jsonEncode(resultDataformat)}');
+    } else if(scale_id == 'IBS.kribado'){
+
+      // Print the updated resultDataformat
+      print('eitetiefdkfkfdkfskfskfskfsk ${jsonEncode(resultDataformat)}');
+      print('dfdtrtrtretrtertetetetetete $seekbarChildFormat');
+
       finalMergedList = mergeResults(resultDataformat, seekbarChildFormat);
+      print('Merged result: ${jsonEncode(finalMergedList)}');
       DataSingleton().resultDataformat = finalMergedList;
+
+
     } else {
       // Print the accumulated evaluation data in the desired format
       DataSingleton().resultDataformat = resultDataformat;
+
+      print('kfjfhjxncmxncxmcnxfeufh $resultDataformat');
     }
+
+
+
+
   }
 
   List<Map<String, dynamic>> mergeResults(
@@ -727,20 +751,16 @@ class _TestState extends State<Test> {
     return mergedList;
   }
 
-  List<Map<String, dynamic>> processQuestion10(
-      List<Map<String, dynamic>> data) {
+
+
+  List<Map<String, dynamic>> processQuestion10(List<Map<String, dynamic>> data) {
     List<Map<String, dynamic>> modifiedData = [];
 
     for (var entry in data) {
       if (entry["question_id"] == 10) {
         if (DataSingleton().fraxOptionTitle == "Yes") {
           modifiedData.add({"question_id": 10, "score": 1, "answer": "Yes"});
-          modifiedData.add({
-            "question_id": 10,
-            "score": DataSingleton().fraxAnswer10,
-            "answer": DataSingleton().fraxAnswer10,
-            "child_id": DataSingleton().fraxchilId
-          });
+          modifiedData.add({"question_id": 10, "score": DataSingleton().fraxAnswer10, "answer": DataSingleton().fraxAnswer10, "child_id": DataSingleton().fraxchilId});
         } else {
           modifiedData.add({"question_id": 10, "score": 0, "answer": "No"});
         }
@@ -807,6 +827,7 @@ class _TestState extends State<Test> {
           "Dyspeptic Symptom score ${greaterThanOrEqualToSymbol}6 indicates the need for Prokinetics along with PCAB.";
         } else {
           Dinterpretation = "Dyspeptic- No symptoms found";
+
         }
       }
 
@@ -877,6 +898,8 @@ class _TestState extends State<Test> {
       int esr = 1;
       int patienGloabalHealth = 0;
 
+      // print("cskskj $resultvar");
+
       for (var item in resultvar) {
         int questionid = item['question_id'] ?? 0;
         if (questionid == 1) {
@@ -893,6 +916,7 @@ class _TestState extends State<Test> {
           patienGloabalHealth = item['score'] ?? "";
         }
       }
+
 
       // Calculate DAS28(4) score
       double das28ScoreESR = 0.56 * sqrt(tender) +
@@ -955,12 +979,14 @@ class _TestState extends State<Test> {
         }
       }
 
+
       // Calculate DAS28(4) score
       double das28ScoreCRP = 0.56 * sqrt(tender) +
           0.28 * sqrt(swollen) +
           0.36 * log(crp + 1) +
           0.014 * patienGloabalHealth +
           0.96;
+
 
       double roundedDas28ScoreCRP =
       double.parse(das28ScoreCRP.toStringAsFixed(2));
@@ -1016,25 +1042,28 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'MRS.kribado') {
+    }
+
+
+    else if (jsonData['scale_code'] == 'MRS.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
       var resultvar = DataSingleton().resultDataformat;
 
       //Somatic Subscale
-      int questionidCount1 = 0;
-      int questionidCount2 = 0;
-      int questionidCount3 = 0;
-      int questionidCount11 = 0;
+      int questionidCount1= 0;
+      int questionidCount2= 0;
+      int questionidCount3= 0;
+      int questionidCount11= 0;
       //Psychological Subscale
-      int questionidCount4 = 0;
-      int questionidCount5 = 0;
-      int questionidCount6 = 0;
-      int questionidCount7 = 0;
+      int questionidCount4= 0;
+      int questionidCount5= 0;
+      int questionidCount6= 0;
+      int questionidCount7= 0;
       //Urogenital Subscale
-      int questionidCount8 = 0;
-      int questionidCount9 = 0;
-      int questionidCount10 = 0;
+      int questionidCount8= 0;
+      int questionidCount9= 0;
+      int questionidCount10= 0;
 
       for (var item in resultvar) {
         int questionid = item['question_id'] ?? 0;
@@ -1042,51 +1071,53 @@ class _TestState extends State<Test> {
         if (questionid == 1) {
           int answer = item['score'];
           questionidCount1 = answer;
-        } else if (questionid == 2) {
+        } else  if (questionid == 2) {
           int answer = item['score'];
           questionidCount2 = answer;
-        } else if (questionid == 3) {
+        }else  if (questionid == 3) {
           int answer = item['score'];
           questionidCount3 = answer;
-        } else if (questionid == 4) {
+        }else  if (questionid == 4) {
           int answer = item['score'];
           questionidCount4 = answer;
-        } else if (questionid == 5) {
+        }else  if (questionid == 5) {
           int answer = item['score'];
           questionidCount5 = answer;
-        } else if (questionid == 6) {
+        }else  if (questionid == 6) {
           int answer = item['score'];
           questionidCount6 = answer;
-        } else if (questionid == 7) {
+        }else  if (questionid == 7) {
           int answer = item['score'];
           questionidCount7 = answer;
-        } else if (questionid == 8) {
+        }else  if (questionid == 8) {
           int answer = item['score'];
           questionidCount8 = answer;
-        } else if (questionid == 9) {
+        }else  if (questionid == 9) {
           int answer = item['score'];
           questionidCount9 = answer;
-        } else if (questionid == 10) {
+        }else  if (questionid == 10) {
           int answer = item['score'];
           questionidCount10 = answer;
-        } else if (questionid == 11) {
+        }else  if (questionid == 11) {
           int answer = item['score'];
           questionidCount11 = answer;
         }
+
       }
 
       //Somatic Subscale
-      int somaticCount = questionidCount1 +
-          questionidCount2 +
-          questionidCount3 +
-          questionidCount11;
+      int somaticCount = questionidCount1 + questionidCount2 + questionidCount3 + questionidCount11;
       //Psychological Subscale
-      int psychologicalCount = questionidCount4 +
-          questionidCount5 +
-          questionidCount6 +
-          questionidCount7;
+      int psychologicalCount = questionidCount4 + questionidCount5 + questionidCount6 + questionidCount7;
       //Urogenital Subscale
       int urogenital = questionidCount8 + questionidCount9 + questionidCount10;
+
+      print('@@@@@@@@@@@@@@menopause Somatic $somaticCount');
+      print('@@@@@@@@@@@@@@menopause Psychological $psychologicalCount');
+      print('@@@@@@@@@@@@@@menopause Urogenital $urogenital');
+
+
+
 
       if (score >= 0 && score <= 4) {
         Rinterpretation = "No or minimal symptoms";
@@ -1111,7 +1142,14 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'testing1.kribado') {
+    }
+
+
+
+
+
+
+    else if (jsonData['scale_code'] == 'testing1.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
 
@@ -1136,7 +1174,9 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'HbA1c.kribado') {
+    }
+
+    else if (jsonData['scale_code'] == 'HbA1c.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
       Get.off(
@@ -1152,103 +1192,29 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == "Short.Womac.kribado") {
-      result = totalScoreAsInt; // assuming this is an int or double
-      DataSingleton().TotalScore = result;
+    }
 
-      // Convert result to double, then to formatted String
-      String score = formatDecimal(result.toDouble());
+    else if (jsonData['scale_code'] == "Short.Womac.kribado") {
+      result = totalScoreAsInt;
+      DataSingleton().TotalScore = result;
 
       String tag = "Total Score for Short Womac";
-      String scoreOutof = '$score out of 28';
+      String scoreOutof = '$result out of 28';
 
-      Rinterpretation =
-      "Higher Short Womac Score Indicates restricted physical activity in OA";
 
-      String finalOutput =
-          '$tag\n$scoreOutof\n\nFINAL INTERPRETATION:\n$Rinterpretation';
-//For Glucose and Uric acid Readings
-      print("patient_details${DataSingleton().patient_data}");
-      var patientData = DataSingleton().patient_data;
-      print("patientData $patientData");
+      //default interpretation
+      Rinterpretation = "Higher scores on the WOMAC indicate worse pain, stiffness, and/or functional limitations";
 
-      String uricAcidStr = jsonDecode(patientData)['PATIENT_URIC_ACID'];
-      String glucoseStr = jsonDecode(patientData)['PATIENT_GLUCOSE'];
-
-      // Convert to double
-      double uricAcid = double.tryParse(uricAcidStr) ?? 0.0;
-      double glucose = double.tryParse(glucoseStr) ?? 0.0;
-      // Debug output
-      print("Uric Acid: $uricAcid");
-      print("Glucose: $glucose");
 
       Get.off(result_screen(
-        DataSingleton().scale_name,
-        DataSingleton().scale_name,
-        score,
-        finalOutput,
-        pat_name,
-        pat_age,
-        pat_gender,
-      ));
-
-      _insertData(result);
-    } else if (jsonData['scale_code'] == "WOMAC.Score.kribado") {
-      double result = totalScoreAsInt.toDouble();
-      DataSingleton().TotalScore = result;
-
-      // Calculate and format WOMAC Percentage Score
-      double womacRawScore = result * 1.04;
-      String womacTotalScore = "${womacRawScore.toStringAsFixed(2)}%";
-
-      String interpreatation = '';
-      // Determine the interpretation based on the score
-      if (result >= 0 && result <= 20) {
-        interpreatation = "Mild";
-      } else if (result >= 21 && result <= 50) {
-        interpreatation = "Moderate";
-      } else if (result >= 51 && result <= 100) {
-        interpreatation = "Severe";
-      }
-
-      int pain_score = 0;
-      int stiffness_score = 0;
-      int difficulty_score = 0;
-
-      var resultvar = DataSingleton().resultDataformat;
-
-      for (var item in resultvar) {
-        int questionId = item['question_id'] ?? 0;
-        int score = item['score'] ?? 0;
-
-        if (questionId >= 1 && questionId <= 5) {
-          pain_score += score;
-        } else if (questionId >= 6 && questionId <= 7) {
-          stiffness_score += score;
-        } else if (questionId >= 8 && questionId <= 24) {
-          difficulty_score += score;
-        }
-      }
-
-      Dinterpretation =
-      "$interpreatation \n\n0-20 : Mild\n21-50 : Moderate\n51-100 : Severe";
-      Rinterpretation =
-      "Pain Score: ${pain_score}/20\nStiffness Score: ${stiffness_score}/8\nPhysical Function Difficulty Score: ${difficulty_score}/68\nTotal Raw Score: ${DataSingleton().TotalScore?.toInt()}/96";
-
-      // Navigate to result screen
-      Get.off(
-        result_screen(
           DataSingleton().scale_name,
           DataSingleton().scale_name,
-          womacTotalScore,
-          '$Rinterpretation\n\n$Dinterpretation',
+          '$result',
+          '$tag' "\n" ' $scoreOutof' "\n" '$Rinterpretation',
           pat_name,
           pat_age,
-          pat_gender,
-        ),
-      );
+          pat_gender));
 
-      // Save result
       _insertData(result);
     }
 
@@ -1268,81 +1234,75 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] ?? 0;
+
+          print("questionId2  $questionId2");
         }
         if (questionid == 3) {
           questionId3 = item['score'] ?? 0;
+
+          print("questionId3  $questionId3");
         }
         if (questionid == 4) {
           questionId4 = item['score'] ?? 0;
+          print("questionId4  $questionId4");
         }
         if (questionid == 5) {
           questionId5 = item['score'] ?? 0;
+          print("questionId5  $questionId5");
         }
         if (questionid == 6) {
           questionId6 = item['score'] ?? 0;
+          print("questionId6  $questionId6");
         }
       }
 
-      double NHS = (questionId1.toDouble() +
-          questionId2.toDouble() +
-          questionId3.toDouble()) /
-          3;
+
+      double NHS = (questionId1.toDouble() + questionId2.toDouble() + questionId3.toDouble()) / 3;
       String formattedNHS = NHS.toStringAsFixed(2);
-      double PP = (questionId4.toDouble() +
-          questionId5.toDouble() +
-          questionId6.toDouble()) /
-          3;
+      double PP = (questionId4.toDouble() + questionId5.toDouble() + questionId6.toDouble()) / 3;
       String formattedPP = PP.toStringAsFixed(2);
+      print("formattedNHS $formattedNHS");
+      print("formattedPP $formattedPP");
 
-      score = double.parse(formattedNHS) + double.parse(formattedPP);
+      score  = double.parse(formattedNHS) + double.parse(formattedPP);
 
-      if (NHS == 0) {
-        Rinterpretation =
-        "Patient score for non-hay fever \nsymptoms:$formattedNHS\nNot troubled\n";
-      } else if (NHS >= 1 && NHS < 2) {
+      if (NHS ==0) {
+        Rinterpretation = "Patient score for non-hay fever \nsymptoms:$formattedNHS\nNot troubled\n";
+      } else if (NHS>=1 && NHS<2) {
         Rinterpretation =
         "Patient score for non-hay fever \nsymptoms:$formattedNHS\nHardly troubled at all\n";
-      } else if (NHS >= 2 && NHS < 3) {
-        Rinterpretation =
-        "Patient score for non-hay fever \nsymptoms:$formattedNHS\nSomewhat troubled\n";
-      } else if (NHS >= 3 && NHS < 4) {
-        Rinterpretation =
-        "Patient score for non-hay fever \nsymptoms:$formattedNHS\nModerately troubled\n";
-      } else if (NHS >= 4 && NHS < 5) {
-        Rinterpretation =
-        "Patient score for non-hay fever \nsymptoms:$formattedNHS\nQuite a bit troubled\n";
-      } else if (NHS >= 5 && NHS < 6) {
-        Rinterpretation =
-        "Patient score for non-hay fever \nsymptoms:$formattedNHS\nVery troubled\n";
-      } else if (NHS == 6) {
-        Rinterpretation =
-        "Patient score for non-hay fever \nsymptoms:$formattedNHS\nExtremely troubled\n";
+      }else if(NHS>=2 && NHS<3){
+        Rinterpretation="Patient score for non-hay fever \nsymptoms:$formattedNHS\nSomewhat troubled\n";
+      }else if(NHS>=3 && NHS<4){
+        Rinterpretation="Patient score for non-hay fever \nsymptoms:$formattedNHS\nModerately troubled\n";
+      }else if(NHS>=4 && NHS<5){
+        Rinterpretation="Patient score for non-hay fever \nsymptoms:$formattedNHS\nQuite a bit troubled\n";
+      }else if(NHS>=5 && NHS<6){
+        Rinterpretation="Patient score for non-hay fever \nsymptoms:$formattedNHS\nVery troubled\n";
+      }else if(NHS==6){
+        Rinterpretation="Patient score for non-hay fever \nsymptoms:$formattedNHS\nExtremely troubled\n";
       }
 
-      if (PP == 0) {
-        Dinterpretation =
-        "Patient score for practical \nproblems:$formattedPP\nNot troubled\n";
-      } else if (PP >= 1 && PP < 2) {
+      if (PP ==0) {
+        Dinterpretation = "Patient score for practical \nproblems:$formattedPP\nNot troubled\n";
+      } else if (PP>=1 && PP<2) {
         Dinterpretation =
         "Patient score for practical \nproblems:$formattedPP\nHardly troubled at all\n";
-      } else if (PP >= 2 && PP < 3) {
-        Dinterpretation =
-        "Patient score for practical \nproblems:$formattedPP\nSomewhat troubled\n";
-      } else if (PP >= 3 && PP < 4) {
-        Dinterpretation =
-        "Patient score for practical \nproblems:$formattedPP\nModerately troubled\n";
-      } else if (PP >= 4 && PP < 5) {
-        Dinterpretation =
-        "Patient score for practical \nproblems:$formattedPP\nQuite a bit troubled\n";
-      } else if (PP >= 5 && PP < 6) {
-        Dinterpretation =
-        "Patient score for practical \nproblems:$formattedPP\nVery troubled\n";
-      } else if (PP == 6) {
-        Dinterpretation =
-        "Patient score for practical \nproblems:$formattedPP\nExtremely troubled\n";
+      }else if(PP>=2 && PP<3){
+        Dinterpretation="Patient score for practical \nproblems:$formattedPP\nSomewhat troubled\n";
+      }else if(PP>=3 && PP<4){
+        Dinterpretation="Patient score for practical \nproblems:$formattedPP\nModerately troubled\n";
+      }else if(PP>=4 && PP<5){
+        Dinterpretation="Patient score for practical \nproblems:$formattedPP\nQuite a bit troubled\n";
+      }else if(PP>=5 && PP<6){
+        Dinterpretation="Patient score for practical \nproblems:$formattedPP\nVery troubled\n";
+      }else if(PP==6){
+        Dinterpretation="Patient score for practical \nproblems:$formattedPP\nExtremely troubled\n";
       }
       Get.off(
         result_screen(
@@ -1356,11 +1316,14 @@ class _TestState extends State<Test> {
         ),
       );
       _insertData(score);
-    } else if (jsonData['scale_code'] == "BP.Monitoring.kribado") {
+    }
+
+    else if (jsonData['scale_code'] == "BP.Monitoring.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
       var resultvar = DataSingleton().resultDataformat;
+
 
       for (var item in resultvar) {
         int questionid = item['question_id'] ?? 0;
@@ -1380,7 +1343,7 @@ class _TestState extends State<Test> {
         if (value == value.toInt()) {
           return value.toInt().toString();
         } else {
-          return value.toStringAsFixed(2);
+          return value.toString();
         }
       }
 
@@ -1388,17 +1351,16 @@ class _TestState extends State<Test> {
       double pulsePressure = sysBp - dysBp;
       double meanArterialPressure = dysBp + (1 / 3 * (sysBp - dysBp));
       double cardiacOutput = (pulsePressure / (sysBp + dysBp)) * heartRateBp;
-      double systemicVascularResistance =
-      cardiacOutput != 0 ? meanArterialPressure / cardiacOutput : 0;
+      double systemicVascularResistance = cardiacOutput != 0 ? meanArterialPressure / cardiacOutput : 0;
 
       Rinterpretation =
       "Systolic Blood Pressure: ${formatDecimal(sysBp)} mmHg \n"
           "Diastolic Blood Pressure: ${formatDecimal(dysBp)} mmHg \n"
           "Heart Rate: ${formatDecimal(heartRateBp)} bpm \n\n"
           "Pulse Pressure (PP): ${formatDecimal(pulsePressure)} mmHg \n"
-          "Mean Arterial Pressure (MAP): ${formatDecimal(meanArterialPressure)} mmHg \n"
-          "Cardiac Output (CO): ${formatDecimal(cardiacOutput)} L/min \n"
-          "Systemic Vascular Resistance (SVR): ${formatDecimal(systemicVascularResistance)} mmHg/L/min";
+          "Mean Arterial Pressure (MAP): ${meanArterialPressure.toStringAsFixed(2)} mmHg \n"
+          "Cardiac Output (CO): ${cardiacOutput.toStringAsFixed(2)} L/min \n"
+          "Systemic Vascular Resistance (SVR): ${systemicVascularResistance.toStringAsFixed(2)} mmHg/L/min";
 
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -1410,7 +1372,9 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(0);
-    } else if (jsonData['scale_code'] == "LipidProfile.kribado") {
+    }
+
+    else if (jsonData['scale_code'] == "LipidProfile.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
@@ -1434,7 +1398,9 @@ class _TestState extends State<Test> {
       double roundedResult = double.parse(finalResult.toStringAsFixed(1));
       print('TC/HDL Ratio = $roundedResult'); // Output: TC/HDL Ratio = 3.2
 
-      if (pat_gender == 'male') {
+
+
+      if(pat_gender == 'male'){
         if (roundedResult >= 0 && roundedResult <= 3.4) {
           Rinterpretation = "A very low risk";
         } else if (roundedResult >= 3.5 && roundedResult <= 4.5) {
@@ -1446,7 +1412,7 @@ class _TestState extends State<Test> {
         } else if (roundedResult >= 16.6 && roundedResult <= 100) {
           Rinterpretation = "High risk";
         }
-      } else {
+      }else {
         if (roundedResult >= 0 && roundedResult <= 3.3) {
           Rinterpretation = "A very low risk";
         } else if (roundedResult >= 3.4 && roundedResult <= 4.1) {
@@ -1458,6 +1424,8 @@ class _TestState extends State<Test> {
         }
       }
 
+
+
       Get.off(result_screen(
           DataSingleton().scale_name,
           DataSingleton().scale_name,
@@ -1468,11 +1436,16 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(roundedResult);
-    } else if (jsonData['scale_code'] == "FRAX.osteocalc.kribado") {
+    }
+
+    else if (jsonData['scale_code'] == "FRAX.osteocalc.kribado") {
+////////
       double result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
+
       var resultvar = DataSingleton().resultDataformat;
+      // print('@@@@@@@@@@@fraxResult $resultvar');
 
       double weight = 0; // in kg
       double height = 0; // in cm
@@ -1484,6 +1457,7 @@ class _TestState extends State<Test> {
       int score8 = 0;
       int score9 = 0;
       String tScore = '';
+
 
       for (var item in resultvar) {
         int questionid = item['question_id'] ?? 0;
@@ -1520,59 +1494,73 @@ class _TestState extends State<Test> {
         }
       }
 
+      print('ruewrksdjskdjdknzxmzn $tScore');
       String parameter = '';
       String scoreParameter = '';
 
+      print('@@@@@@frax weight and height : $weight  $height');
       double bmi = FraxHelper.calculateBMI(weight, height);
+      print('@@@@@@frax Your BMI is: $bmi');
 
       int bmiRound = FraxHelper.roundToNearestFive(bmi.toInt());
+      print('@@@@@@frax Your BMIround is: $bmiRound');
 
       if (DataSingleton().fraxOptionTitle == "No") {
         parameter = 'BMI';
         scoreParameter = '$bmiRound';
-      } else if (DataSingleton().fraxOptionTitle == "Yes") {
+      } else  if (DataSingleton().fraxOptionTitle == "Yes") {
         double? tscoreDouble = double.tryParse(tScore);
         if (tscoreDouble != null) {
-          double tscoreRound =
-          FraxHelper.roundToNearestIntervalTsore(tscoreDouble);
+          double tscoreRound = FraxHelper.roundToNearestIntervalTsore(tscoreDouble);
+          print('@@@@@@frax tscoreRound $tscoreRound');
+
           parameter = 'BMD';
           scoreParameter = '$tscoreRound';
         }
       }
 
-      if (parameter == 'BMI') {
+
+      print('finallllllllparamenter $parameter');
+      print('finallllllllscoreParameter $scoreParameter');
+
+      if(parameter == 'BMI'){
         DataSingleton().fraxHeader = 'BMI (without BMD)';
-      } else {
+      }else {
         DataSingleton().fraxHeader = 'BMI (with BMD)';
       }
 
+
+
       // crf
-      int sumofCrfs =
-          score3 + score4 + score5 + score6 + score7 + score8 + score9;
+      int sumofCrfs = score3 + score4 + score5 + score6 + score7 + score8 + score9;
       int crf = (sumofCrfs == 0) ? sumofCrfs : sumofCrfs - 1;
+      print('@@@@@@frax crf  $crf');
+      print('@@@@@@frax gender $pat_gender');
       DataSingleton().fraxBmiRound = bmiRound;
+      print('@@@@@@frax age $pat_age');
 
       //age round to nearest
       int patAgeInt = int.parse(pat_age);
       int ageRound = FraxHelper.roundToNearestFiveAge(patAgeInt);
+      print('hjsfhjsfhcnzm $ageRound');
 
       FraxHelper helper = FraxHelper();
       // String OsteoporoticFracture = helper.getTenYearOsteoporoticFracture("$pat_gender", "Osteoporotic", "BMD", "$crf", "$tscoreRound","$pat_age");
-      String OsteoporoticFracture = helper.getTenYearOsteoporoticFracture(
-          "$pat_gender",
-          "Osteoporotic",
-          "$parameter",
-          "$crf",
-          "$scoreParameter",
-          "$ageRound");
+      String OsteoporoticFracture = helper.getTenYearOsteoporoticFracture("$pat_gender", "Osteoporotic", "$parameter", "$crf", "$scoreParameter","$ageRound");
+      print('@@@@@@frax  getAgeByIdAndName $OsteoporoticFracture');
 
-      String HipFracture = helper.getTenYearHipFracture("$pat_gender",
-          "Hip Fracture", "$parameter", "$crf", "$scoreParameter", "$ageRound");
+
+      String HipFracture = helper.getTenYearHipFracture("$pat_gender", "Hip Fracture", "$parameter", "$crf", "$scoreParameter","$ageRound");
+      print('@@@@@@frax  getAgeByIdAndNameHip $HipFracture');
+
+
+
 
       //default interpretation
       String tag = "THE TEN-YEAR PROBABILITY OF FRACTURE";
       Rinterpretation = 'Major osteoporotic : $OsteoporoticFracture %';
-      Dinterpretation = 'Hip Fracture : $HipFracture %';
+      Dinterpretation  = 'Hip Fracture : $HipFracture %';
+
 
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -1584,7 +1572,9 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(bmiRound.toDouble());
-    } else if (jsonData['scale_code'] == 'SFAR.kribado') {
+    }
+
+    else if (jsonData['scale_code'] == 'SFAR.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
 
@@ -1608,52 +1598,15 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'KidneyStone.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
+    }
 
-      // Determine the interpretation based on the score
-      if (score >= 5 && score <= 5) {
-        Rinterpretation =
-        "94% Probability of stone free outcome after first procedure";
-      } else if (score >= 6 && score <= 6) {
-        Rinterpretation =
-        "92% Probability of stone free outcome after first procedure";
-      } else if (score >= 7 && score <= 7) {
-        Rinterpretation =
-        "88% Probability of stone free outcome after first procedure";
-      } else if (score >= 8 && score <= 8) {
-        Rinterpretation =
-        "83% Probability of stone free outcome after first procedure";
-      } else if (score >= 9 && score <= 9) {
-        Rinterpretation =
-        "64% Probability of stone free outcome after first procedure";
-      } else if (score >= 10 && score <= 10) {
-        Rinterpretation =
-        "42% Probability of stone free outcome after first procedure";
-      } else if (score >= 11 && score <= 100) {
-        Rinterpretation =
-        "27% Probability of stone free outcome after first procedure";
-      }
 
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$score',
-          Rinterpretation,
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(score);
-    } else if (jsonData['scale_code'] == "BP.Monitoring.kribado") {
+    else if (jsonData['scale_code'] == "BP.Monitoring.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
       var resultvar = DataSingleton().resultDataformat;
+
 
       for (var item in resultvar) {
         int questionid = item['question_id'] ?? 0;
@@ -1669,8 +1622,9 @@ class _TestState extends State<Test> {
         }
       }
 
-      Rinterpretation =
-      "Systolic Blood Pressure: $sysBp mmHg \nDiastolic Blood Pressure: $dysBp mmHg \nHeart Rate: $heartRateBp bpm";
+
+      Rinterpretation = "Systolic Blood Pressure: $sysBp mmHg \nDiastolic Blood Pressure: $dysBp mmHg \nHeart Rate: $heartRateBp bpm";
+
 
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -1682,7 +1636,12 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(0);
-    } else if (jsonData['scale_code'] == 'OSDI.kribado') {
+    }
+
+
+
+
+    else if (jsonData['scale_code'] == 'OSDI.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
 
@@ -1788,10 +1747,13 @@ class _TestState extends State<Test> {
         addAnsweredQuestions -= 1;
       }
 
+
       double adjustedScore = (score / addAnsweredQuestions) * 25.round();
+
 
       // Round the adjusted score to the nearest whole number
       int roundedAdjustedScore = adjustedScore.round();
+
 
       // Determine the interpretation based on the score for CRP
       if (roundedAdjustedScore >= 0 && roundedAdjustedScore <= 12) {
@@ -1865,55 +1827,64 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] ?? 0;
+
+          print("questionId2  $questionId2");
         }
         if (questionid == 3) {
           questionId3 = item['score'] ?? 0;
+
+          print("questionI3  $questionId3");
         }
         if (questionid == 4) {
           questionId4 = item['score'] ?? 0;
+          print("questionId4  $questionId4");
         }
         if (questionid == 5) {
           questionId5 = item['score'] ?? 0;
+          print("questionId5  $questionId5");
         }
         if (questionid == 6) {
           questionId6 = item['score'] ?? 0;
+          print("questionId6  $questionId6");
         }
         if (questionid == 7) {
           questionId7 = item['score'] ?? 0;
+
+          print("questionId7  $questionId7");
         }
         if (questionid == 8) {
           questionId8 = item['score'] ?? 0;
+
+          print("questionId8  $questionId8");
         }
         if (questionid == 9) {
           questionId9 = item['score'] ?? 0;
+
+          print("questionId9  $questionId9");
         }
         if (questionid == 10) {
           questionId10 = item['score'] ?? 0;
+          print("questionId10  $questionId10");
         }
         if (questionid == 11) {
           questionId11 = item['score'] ?? 0;
+          print("questionId11  $questionId11");
         }
         if (questionid == 12) {
           questionId12 = item['score'] ?? 0;
+          print("questionId12  $questionId12");
         }
       }
 
-      double reflux = (questionId1 +
-          questionId4 +
-          questionId6 +
-          questionId7 +
-          questionId9 +
-          questionId10 +
-          questionId12)
-          .toDouble();
+      double reflux = (questionId1 + questionId4 + questionId6 + questionId7 + questionId9 + questionId10 + questionId12).toDouble();
       print("refluxScore $reflux");
 
-      double dyspeptic =
-      (questionId2 + questionId3 + questionId5 + questionId8 + questionId11)
-          .toDouble();
+      double  dyspeptic =(questionId2 + questionId3 + questionId5 + questionId8 + questionId11).toDouble();
       print("dyspepticScore $dyspeptic");
 
       print("Total Score:- $score");
@@ -1921,6 +1892,8 @@ class _TestState extends State<Test> {
       if (score >= 0 && score <= 48) {
         Rinterpretation =
         "FSSG score >= 8 was considered  to indicate probable GERD \n\n Acid reflux related \nsymptom:- ${reflux} \n\n Dyspeptic (Dysmotility) \nsymptom:- ${dyspeptic}";
+
+
       }
 
       Get.off(
@@ -1936,354 +1909,6 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'GERDUsingFSSG.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-
-      int questionId1 = 0;
-      int questionId2 = 0;
-      int questionId3 = 0;
-      int questionId4 = 0;
-      int questionId5 = 0;
-      int questionId6 = 0;
-      int questionId7 = 0;
-      int questionId8 = 0;
-      int questionId9 = 0;
-      int questionId10 = 0;
-      int questionId11 = 0;
-      int questionId12 = 0;
-
-      var resultvar = DataSingleton().resultDataformat;
-      for (var item in resultvar) {
-        int questionid = item['question_id'] ?? 0;
-
-        if (questionid == 1) {
-          questionId1 = item['score'] ?? 0;
-        }
-        if (questionid == 2) {
-          questionId2 = item['score'] ?? 0;
-        }
-        if (questionid == 3) {
-          questionId3 = item['score'] ?? 0;
-        }
-        if (questionid == 4) {
-          questionId4 = item['score'] ?? 0;
-        }
-        if (questionid == 5) {
-          questionId5 = item['score'] ?? 0;
-        }
-        if (questionid == 6) {
-          questionId6 = item['score'] ?? 0;
-        }
-        if (questionid == 7) {
-          questionId7 = item['score'] ?? 0;
-        }
-        if (questionid == 8) {
-          questionId8 = item['score'] ?? 0;
-        }
-        if (questionid == 9) {
-          questionId9 = item['score'] ?? 0;
-        }
-        if (questionid == 10) {
-          questionId10 = item['score'] ?? 0;
-        }
-        if (questionid == 11) {
-          questionId11 = item['score'] ?? 0;
-        }
-        if (questionid == 12) {
-          questionId12 = item['score'] ?? 0;
-        }
-      }
-
-      double reflux = (questionId1 +
-          questionId4 +
-          questionId6 +
-          questionId7 +
-          questionId9 +
-          questionId10 +
-          questionId12)
-          .toDouble();
-      print("refluxScore $reflux");
-
-      double dyspeptic =
-      (questionId2 + questionId3 + questionId5 + questionId8 + questionId11)
-          .toDouble();
-      print("dyspepticScore $dyspeptic");
-
-      print("Total Score:- $score");
-
-      if (score >= 0 && score <= 7) {
-        Rinterpretation = "Your GERD Risk is Low";
-      } else if (score >= 8 && score <= 100) {
-        Rinterpretation =
-        "Your GERD Risk is high.Requires medical management. Consult your Doctor today.";
-      }
-
-      Dinterpretation = "<8 : GERD Risk is Low\n >8 : GERD Risk is high.";
-
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$score',
-          "$Rinterpretation\n\n $Dinterpretation",
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(score);
-    }
-
-    //Helirab/D NTHB
-    else if (jsonData['scale_code'] == 'HelirabD.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-
-      int questionId1 = 0;
-      int questionId2 = 0;
-      int questionId3 = 0;
-      int questionId4 = 0;
-      int questionId5 = 0;
-      int questionId6 = 0;
-      int questionId7 = 0;
-      int questionId8 = 0;
-      int questionId9 = 0;
-      int questionId10 = 0;
-      int questionId11 = 0;
-      int questionId12 = 0;
-
-      var resultvar = DataSingleton().resultDataformat;
-      for (var item in resultvar) {
-        int questionid = item['question_id'] ?? 0;
-
-        if (questionid == 1) {
-          questionId1 = item['score'] ?? 0;
-        }
-        if (questionid == 2) {
-          questionId2 = item['score'] ?? 0;
-        }
-        if (questionid == 3) {
-          questionId3 = item['score'] ?? 0;
-        }
-        if (questionid == 4) {
-          questionId4 = item['score'] ?? 0;
-        }
-        if (questionid == 5) {
-          questionId5 = item['score'] ?? 0;
-        }
-        if (questionid == 6) {
-          questionId6 = item['score'] ?? 0;
-        }
-        if (questionid == 7) {
-          questionId7 = item['score'] ?? 0;
-        }
-        if (questionid == 8) {
-          questionId8 = item['score'] ?? 0;
-        }
-        if (questionid == 9) {
-          questionId9 = item['score'] ?? 0;
-        }
-        if (questionid == 10) {
-          questionId10 = item['score'] ?? 0;
-        }
-        if (questionid == 11) {
-          questionId11 = item['score'] ?? 0;
-        }
-        if (questionid == 12) {
-          questionId12 = item['score'] ?? 0;
-        }
-      }
-
-      print("Total Score:- $score");
-
-      Dinterpretation =
-      "Kindly note that this is not a definitive diagnosis. This score is based solely on your responses to the questions.";
-
-      if (score >= 0 && score <= 7) {
-        Rinterpretation =
-        "Your GERD Risk is Low. Maintain a healthy diet & follow a regular exercise to avoid GERD. For further information consult your doctor";
-      } else if (score >= 8 && score <= 60) {
-        Rinterpretation =
-        "Your GERD Risk is high. Consult your doctor today to know about the risk factor & tips for management of GERD.";
-      }
-
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$score',
-          '$Rinterpretation' "\n\n\n" '$Dinterpretation',
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(score);
-    }
-
-    //LipidProfileCustom
-    else if (jsonData['scale_code'] == 'LipidProfileCustom.kribado') {
-      var resultvar = DataSingleton().resultDataformat;
-
-      int race = 0;
-      String totalCholesterol = "";
-      String hdlCholesterol = "";
-      int hypertensionTreatment = 0;
-      String systolicBloodPressure = "";
-      String dysystolicBloodPressure = "";
-      int smoker = 0;
-      int diabetes = 0;
-      int statin = 0;
-      int aspirin = 0;
-      int LDL = 0;
-      int Triglycerides = 0;
-      int VLDLCholesterol = 0;
-
-      int questionId1 = 0;
-      int questionId2 = 0;
-      int questionId3 = 0;
-      int questionId4 = 0;
-      int questionId5 = 0;
-      int questionId6 = 0;
-      int questionId7 = 0;
-      int questionId8 = 0;
-      int questionId9 = 0;
-      int questionId10 = 0;
-      int questionId11 = 0;
-      int questionId12 = 0;
-      int questionId13 = 0;
-
-      for (var item in resultvar) {
-        int questionid = item['question_id'] ?? 0;
-
-        if (questionid == 1) {
-          questionId1 = item['score'] ?? 0;
-        }
-        if (questionid == 2) {
-          questionId2 = item['score'] ?? 0;
-        }
-        if (questionid == 3) {
-          questionId3 = item['score'] ?? 0;
-        }
-        if (questionid == 4) {
-          questionId4 = item['score'] ?? 0;
-        }
-        if (questionid == 5) {
-          questionId5 = item['score'] ?? 0;
-        }
-        if (questionid == 6) {
-          questionId6 = item['score'] ?? 0;
-        }
-        if (questionid == 7) {
-          questionId7 = item['score'] ?? 0;
-        }
-        if (questionid == 8) {
-          questionId8 = item['score'] ?? 0;
-        }
-        if (questionid == 9) {
-          questionId9 = item['score'] ?? 0;
-        }
-        if (questionid == 10) {
-          questionId10 = item['score'] ?? 0;
-        }
-        if (questionid == 11) {
-          questionId11 = item['score'] ?? 0;
-        }
-        if (questionid == 12) {
-          questionId12 = item['score'] ?? 0;
-        }
-        if (questionid == 13) {
-          questionId13 = item['score'] ?? 0;
-        }
-      }
-      LDL = questionId1;
-      print("LDL $LDL");
-
-      hdlCholesterol = questionId2.toString();
-      print("hdlCholesterol $hdlCholesterol");
-
-      Triglycerides = questionId3;
-      print("Triglycerides $Triglycerides");
-
-      totalCholesterol = questionId4.toString();
-      print("totalCholesterol $totalCholesterol");
-
-      VLDLCholesterol = questionId5;
-      print(" VLDLCholesterol $VLDLCholesterol");
-
-      race = questionId6;
-      print(" race $race");
-
-      systolicBloodPressure = questionId7.toString();
-      print(" systolicBloodPressure $systolicBloodPressure");
-
-      dysystolicBloodPressure = questionId8.toString();
-      print(" dysystolicBloodPressure $dysystolicBloodPressure");
-
-      diabetes = questionId9;
-      print(" diabetes $diabetes");
-
-      smoker = questionId10;
-      print(" smoker $smoker");
-
-      hypertensionTreatment = questionId11;
-      print("  hypertensionTreatment $hypertensionTreatment");
-
-      statin = questionId12;
-      print("  statin $statin");
-
-      aspirin = questionId13;
-      print("  aspirin $aspirin");
-
-      double HDLtoLDLRatio = (questionId2 / LDL);
-      double roundedRatio = double.parse(HDLtoLDLRatio.toStringAsFixed(2));
-      print("HDLtoLDLRatio $roundedRatio");
-
-      result = tenYearCalculator(
-          race.toDouble(),
-          pat_gender,
-          double.parse(pat_age),
-          double.parse(totalCholesterol),
-          double.parse(hdlCholesterol),
-          hypertensionTreatment.toDouble(),
-          double.parse(systolicBloodPressure),
-          smoker.toDouble(),
-          diabetes.toDouble());
-      DataSingleton().TotalScore = result;
-
-      Dinterpretation =
-      "LDL: $LDL\nHDL: $hdlCholesterol\nTG: $Triglycerides\nTotal Cholesterol: $totalCholesterol\nVLDL: $VLDLCholesterol\nHDL to LDL Ratio: $roundedRatio\n\n\nASCVD Risk Score: $result";
-
-      if (result < 5) {
-        Rinterpretation =
-        "The 10-year ASCVD calculated risk is less than 5%. Indicating Low risk.Kindly consult your doctor for appropriate guidance and timely treatment interventions.";
-      } else if (result >= 5 && result < 7.5) {
-        Rinterpretation =
-        "The 10-year ASCVD calculated risk is between 5% - 7.4%. Indicating Borderline risk.Kindly consult your doctor for appropriate guidance and timely treatment interventions.";
-      } else if (result >= 7.5 && result < 20) {
-        Rinterpretation =
-        "The 10-year ASCVD calculated risk is between 7.5% - 19.99%, Indicating Intermediate risk.Kindly consult your doctor for appropriate guidance and timely treatment interventions.";
-      } else {
-        Rinterpretation =
-        "The 10-year ASCVD calculated risk is greater than 19.99%, Indicating High risk.Kindly consult your doctor for appropriate guidance and timely treatment interventions.";
-      }
-
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$result',
-          '$Dinterpretation' "\n" '$Rinterpretation\n',
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(result);
     } else if (jsonData['scale_code'] ==
         'Allergic.Rhinitis.Calculator.kribado') {
       double score = totalScoreAsInt;
@@ -2296,6 +1921,7 @@ class _TestState extends State<Test> {
       } else if (score >= 7) {
         Rinterpretation = "Suggest the presence of Allergic Rhinitis";
       }
+
 
       Get.off(
         result_screen(
@@ -2311,6 +1937,8 @@ class _TestState extends State<Test> {
 
       _insertData(score);
     } else if (jsonData['scale_code'] == "FSSG.Regional.kribado") {
+      // print('@@## FSSGGScaleID entered else');
+
       double dyspeptic = (totalScoreAsInt ~/ 100).toDouble();
       double reflux = totalScoreAsInt % 100;
 
@@ -2338,8 +1966,9 @@ class _TestState extends State<Test> {
         } else if (dyspeptic >= 6) {
           Dinterpretation =
           "Dyspeptic Symptom score ${greaterThanOrEqualToSymbol}6 indicates the need for Prokinetics along with PCAB.";
-        } else {
+        }else {
           Dinterpretation = "Dyspeptic- No symptoms found";
+
         }
       }
 
@@ -2353,7 +1982,11 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "FSSG.Bangladesh.kribado") {
+    }
+
+    else if (jsonData['scale_code'] == "FSSG.Bangladesh.kribado") {
+      // print('@@## FSSGGScaleID entered else');
+
       double dyspeptic = (totalScoreAsInt ~/ 100).toDouble();
       double reflux = totalScoreAsInt % 100;
 
@@ -2381,8 +2014,9 @@ class _TestState extends State<Test> {
         } else if (dyspeptic >= 6) {
           Dinterpretation =
           "Dyspeptic Symptom score ${greaterThanOrEqualToSymbol}6 indicates the need for Prokinetics along with PPI.";
-        } else {
+        }else {
           Dinterpretation = "Dyspeptic- No symptoms found";
+
         }
       }
 
@@ -2396,7 +2030,10 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "FSSG.Scale.kribado") {
+    }
+
+
+    else if (jsonData['scale_code'] == "FSSG.Scale.kribado") {
       double dyspeptic = (totalScoreAsInt ~/ 100).toDouble();
       double reflux = totalScoreAsInt % 100;
       DataSingleton().reflux_score_only = reflux;
@@ -2420,8 +2057,9 @@ class _TestState extends State<Test> {
         } else if (dyspeptic >= 6) {
           Dinterpretation =
           "Dyspeptic Symptom score ${greaterThanOrEqualToSymbol}6 indicates the need for Prokinetics along with PPI.";
-        } else {
+        }else {
           Dinterpretation = "Dyspeptic- No symptoms found";
+
         }
       }
 
@@ -2435,7 +2073,11 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "ASCVD.Custom.kribado") {
+    }
+
+
+    else if (jsonData['scale_code'] == "ASCVD.Custom.kribado") {
+
       var resultvar = DataSingleton().resultDataformat;
 
       int race = 0;
@@ -2448,35 +2090,30 @@ class _TestState extends State<Test> {
       for (var item in resultvar) {
         int questionid = item['question_id'] ?? 0;
 
-        if (questionid == 2) {
-          // 2
+        if (questionid == 2) {        // 2
           race = item['score'] ?? 0;
         }
-        if (questionid == 3) {
-          // 3
+        if (questionid == 3) {  // 3
           systolicBloodPressure = item['answer'] ?? 0;
         }
-        if (questionid == 5) {
-          //5
+        if (questionid == 5) {  //5
           totalCholesterol = item['answer'] ?? 0;
         }
-        if (questionid == 6) {
-          // 6
+        if (questionid == 6) { // 6
           hdlCholesterol = item['answer'] ?? 0;
         }
-        if (questionid == 8) {
-          // 8
+        if (questionid == 8) { // 8
           diabetes = item['score'] ?? 0;
         }
-        if (questionid == 9) {
-          // 9
+        if (questionid == 9) { // 9
           smoker = item['score'] ?? 0;
         }
-        if (questionid == 10) {
-          //  10
+        if (questionid == 10) { //  10
           hypertensionTreatment = item['score'] ?? 0;
         }
       }
+
+      // print("@@## " + systolicBloodPressure.toString());
 
       // result= tenYearCalculator(1.0,"Female",20.0,150.0,40.0,1.0,100.0,1.0,1.0);
       result = tenYearCalculator(
@@ -2492,13 +2129,17 @@ class _TestState extends State<Test> {
       DataSingleton().TotalScore = result;
 
       if (result >= 0 && result <= 4.9) {
-        Rinterpretation = "Low Risk";
+        Rinterpretation =
+        "Low Risk";
       } else if (result >= 5 && result < 7.4) {
-        Rinterpretation = "Borderline Risk";
+        Rinterpretation =
+        "Borderline Risk";
       } else if (result >= 7.5 && result < 19.9) {
-        Rinterpretation = "Intermediate Risk";
-      } else if (result >= 20) {
-        Rinterpretation = "High Risk";
+        Rinterpretation =
+        "Intermediate Risk";
+      } else if (result >= 20){
+        Rinterpretation =
+        "High Risk";
       }
 
       Get.off(result_screen(
@@ -2511,8 +2152,17 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "GERDQ.kribado.IN") {
+    }
+
+
+
+
+
+    else if (jsonData['scale_code'] == "GERDQ.kribado.IN") {
+      // print("@@##Total " + totalScoreAsInt.toString());
+
       var resultvar = DataSingleton().resultDataformat;
+      // print("@@##Total " + resultvar.toString());
       int combinescore5and6 = 0;
       for (var item in resultvar) {
         int questionid = item['question_id'] ?? 0;
@@ -2522,6 +2172,7 @@ class _TestState extends State<Test> {
         }
       }
 
+      // print("@@##Total C " + combinescore5and6.toString());
       if (totalScoreAsInt >= 0 && totalScoreAsInt < 8) {
         Rinterpretation = "Low probability for GERD";
       } else if (totalScoreAsInt >= 8 && combinescore5and6 <= 3) {
@@ -2531,6 +2182,7 @@ class _TestState extends State<Test> {
       }
 
       result = totalScoreAsInt;
+      // print('@@##result navigator screen $result');
       DataSingleton().TotalScore = result;
 
       Get.off(result_screen(
@@ -2545,6 +2197,7 @@ class _TestState extends State<Test> {
       _insertData(result);
     } else if (jsonData['scale_code'].contains("WOMAC.kribado")) {
       result = totalScoreAsInt;
+      // print('@@##result navigator screen $totalScoreAsInt');
       DataSingleton().TotalScore = totalScoreAsInt;
       Rinterpretation =
       "Higher scores on the WOMAC indicate worse pain, stiffness, and/or functional limitations.";
@@ -2558,7 +2211,11 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'].contains("iap.growthchart.kribado")) {
+    }
+    else if (jsonData['scale_code'].contains("iap.growthchart.kribado")) {
+      // _insertData(result);
+
+      // print('@@## FSSGGkscale_generic');
       Get.off(
         ResultChartScreen(),
         arguments: {
@@ -2572,11 +2229,16 @@ class _TestState extends State<Test> {
         },
       );
     } else if (jsonData['scale_code'].contains('testing.kribado')) {
+      // _insertData(result);
+
+      // print('@@## FSSGGkscale_generic');
       Get.off(result_screen("TESTING", "TESTING", '22', '$Rinterpretation',
           pat_name, pat_age, pat_gender));
+
       _insertData(22);
     } else if (jsonData['scale_code'] == "PASI.kribado") {
       result = totalScoreAsInt;
+
       var resultvar = DataSingleton().resultDataformat;
       int questionScore1 = 0;
       int questionScore2 = 0;
@@ -2617,6 +2279,8 @@ class _TestState extends State<Test> {
         if (questionid == 1) {
           questionScore1 = item['score'] ?? 0;
           gH = questionScore1;
+
+          // print("bvbcfyfhdfsfsfssfs $gH");
         }
         if (questionid == 2) {
           questionScore2 = item['score'] ?? 0;
@@ -2630,6 +2294,8 @@ class _TestState extends State<Test> {
         if (questionid == 5) {
           questionScore5 = item['score'] ?? 0;
           gA = questionScore5;
+
+          // print("xvxvxgdgdg $gA");
         }
         if (questionid == 6) {
           questionScore6 = item['score'] ?? 0;
@@ -2643,6 +2309,8 @@ class _TestState extends State<Test> {
         if (questionid == 9) {
           questionScore9 = item['score'] ?? 0;
           gT = questionScore9;
+
+          // print("xvxvxgdgdg $gT");
         }
         if (questionid == 10) {
           questionScore10 = item['score'] ?? 0;
@@ -2656,6 +2324,8 @@ class _TestState extends State<Test> {
         if (questionid == 13) {
           questionScore13 = item['score'] ?? 0;
           gL = questionScore13;
+
+          // print("iyoyoyoyo $gL");
         }
         if (questionid == 14) {
           questionScore14 = item['score'] ?? 0;
@@ -2668,15 +2338,29 @@ class _TestState extends State<Test> {
         }
       }
 
+
       int head = ((questionScore2 + questionScore3 + questionScore4) * gH);
+      // print("##head : $head");
+
       int arms = ((questionScore6 + questionScore7 + questionScore8) * gA);
+      // print("##arms : $arms");
+
       int trunk = ((questionScore10 + questionScore11 + questionScore12) * gT);
+      // print("##trunk : $trunk");
+
       int legs = ((questionScore14 + questionScore15 + questionScore16) * gL);
+      // print("##legs : $legs");
+
       // Calculate PASI formula
       double PASI =
           (0.1 * (head)) + (0.2 * (arms)) + (0.3 * (trunk)) + (0.4 * (legs));
+
+      // print('PASI: $PASI');
+
       DataSingleton().TotalScore = double.parse(PASI.toStringAsFixed(1));
+
       double totalScore = 22.0;
+
 
       if (PASI > 0 && PASI <= 72) {
         Rinterpretation =
@@ -2977,6 +2661,8 @@ class _TestState extends State<Test> {
         }
       }
 
+      // print("@@## " + systolicBloodPressure.toString());
+
       // result= tenYearCalculator(1.0,"Female",20.0,150.0,40.0,1.0,100.0,1.0,1.0);
       result = tenYearCalculator(
           race.toDouble(),
@@ -3016,6 +2702,8 @@ class _TestState extends State<Test> {
       _insertData(result);
     } else if (jsonData['scale_code'] == "ASCVD.risk.estimator.kribado") {
       var resultvar = DataSingleton().resultDataformat;
+
+      // print('@@## ' + resultvar.toString());
       int race = 0;
       String totalCholesterol = "";
       String hdlCholesterol = "";
@@ -3048,6 +2736,8 @@ class _TestState extends State<Test> {
           hypertensionTreatment = item['score'] ?? 0;
         }
       }
+
+      // print("@@## " + systolicBloodPressure.toString());
 
       // result= tenYearCalculator(1.0,"Female",20.0,150.0,40.0,1.0,100.0,1.0,1.0);
       result = tenYearCalculator(
@@ -3135,185 +2825,6 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(score);
-    }
-
-    // Urinary Tract Infection (UTI) Assessment Scale
-    else if (jsonData['scale_code'] == 'UTI.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-      int questionId1 = 0;
-      int questionId2 = 0;
-      int questionId3 = 0;
-      int questionId4 = 0;
-      int questionId5 = 0;
-      int questionId6 = 0;
-      int questionId7 = 0;
-      int questionId8 = 0;
-      int questionId9 = 0;
-      int questionId10 = 0;
-      int questionId11 = 0;
-      int questionId12 = 0;
-      int questionId13 = 0;
-      int questionId14 = 0;
-      int questionId15 = 0;
-      var resultvar = DataSingleton().resultDataformat;
-      for (var item in resultvar) {
-        int questionid = item['question_id'] ?? 0;
-
-        if (questionid == 1) {
-          questionId1 = item['score'] ?? 0;
-
-          print("questionId1  $questionId1");
-        }
-        if (questionid == 2) {
-          questionId2 = item['score'] ?? 0;
-
-          print("questionId1  $questionId2");
-        }
-        if (questionid == 3) {
-          questionId3 = item['score'] ?? 0;
-
-          print("questionId3  $questionId3");
-        }
-        if (questionid == 4) {
-          questionId4 = item['score'] ?? 0;
-          print("questionId4  $questionId4");
-        }
-        if (questionid == 5) {
-          questionId5 = item['score'] ?? 0;
-          print("questionId5  $questionId5");
-        }
-        if (questionid == 6) {
-          questionId6 = item['score'] ?? 0;
-          print("questionId6  $questionId6");
-        }
-        if (questionid == 7) {
-          questionId7 = item['score'] ?? 0;
-
-          print("questionId7  $questionId7");
-        }
-        if (questionid == 8) {
-          questionId8 = item['score'] ?? 0;
-          print("questionId8  $questionId8");
-        }
-        if (questionid == 9) {
-          questionId9 = item['score'] ?? 0;
-          print("questionId9  $questionId9");
-        }
-        if (questionid == 10) {
-          questionId10 = item['score'] ?? 0;
-          print("questionId10  $questionId10");
-        }
-        if (questionid == 11) {
-          questionId11 = item['score'] ?? 0;
-
-          print("questionId11  $questionId11");
-        }
-        if (questionid == 12) {
-          questionId12 = item['score'] ?? 0;
-
-          print("questionId12  $questionId12");
-        }
-        if (questionid == 13) {
-          questionId13 = item['score'] ?? 0;
-
-          print("questionId13  $questionId13");
-        }
-        if (questionid == 14) {
-          questionId14 = item['score'] ?? 0;
-          print("questionId14  $questionId14");
-        }
-        if (questionid == 15) {
-          questionId15 = item['score'] ?? 0;
-          print("questionId15  $questionId15");
-        }
-      }
-
-      int totalScore = (questionId1 +
-          questionId2 +
-          questionId3 +
-          questionId4 +
-          questionId5 +
-          questionId6 +
-          questionId7 +
-          questionId8 +
-          questionId9 +
-          questionId10 +
-          questionId11 +
-          questionId12 +
-          questionId13 +
-          questionId14 +
-          questionId15);
-      print("TotalScore $totalScore");
-      int symptoms =
-      (questionId1 + questionId2 + questionId3 + questionId4 + questionId5);
-      print("Symptoms (Questions 1-5): $symptoms");
-      int riskFactors = (questionId6 +
-          questionId7 +
-          questionId8 +
-          questionId9 +
-          questionId10);
-      print("Risk Factors (Questions 6-10):$riskFactors");
-      int mlf = (questionId11 +
-          questionId12 +
-          questionId13 +
-          questionId14 +
-          questionId15);
-      print("Medical and Lifestyle Factors (Questions 11-15):$mlf");
-
-      Dinterpretation =
-      "Symptoms (Questions 1-5): \t$symptoms\nHigh scores indicate active UTI symptoms requiring immediate attention.\n\nRisk Factors (Questions 6-10): \t$riskFactors\nHigh scores suggest lifestyle or behavioural risks contributing to UTIs.\n\nMedical and Lifestyle Factors (Questions 11-15): \t$mlf\nHigh scores point to underlying health conditions or complications that may increase UTI risk.";
-
-      if (totalScore >= 24 && totalScore <= 30) {
-        Rinterpretation =
-        "High Risk of UTI\nSignificant symptoms and risk factors suggest the presence of a UTI. Seek medical evaluation and treatment immediately.";
-      } else if (totalScore >= 15 && totalScore <= 23) {
-        Rinterpretation =
-        "Moderate Risk of UTI\nSome symptoms or risk factors are present. Increase fluid intake and consider preventive measures. Consult a healthcare provider if symptoms worsen or persist.";
-      } else if (totalScore >= 0 && totalScore <= 14) {
-        Rinterpretation =
-        "Low Risk of UTI\nNo significant symptoms or risk factors. Continue with good hydration and healthy urinary habits to maintain low risk.";
-      }
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$totalScore',
-          '$Rinterpretation' "\n\n" '$Dinterpretation',
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(totalScore.toDouble());
-    }
-//Necrotizing Soft Tissue Infection LRINEC Score
-    else if (jsonData['scale_code'] == 'SoftTissue.Infection.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-
-      if (score >= 0 && score <= 5) {
-        Rinterpretation =
-        "Less than 50% risk. The patient should be monitored and administered IV antibiotics.";
-      } else if (score >= 6 && score <= 7) {
-        Rinterpretation = "Between 50 and 75% risk.";
-      } else if (score >= 8 && score <= 20) {
-        Rinterpretation = "Risk of PPV of 92% and NPV of 96%";
-      }
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$score',
-          Rinterpretation,
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(score);
     } else if (jsonData['scale_code'] == 'AcneGrading.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
@@ -3329,21 +2840,30 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] * 2 ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] * 2 ?? 0;
+
+          print("questionId1  $questionId2");
         }
         if (questionid == 3) {
           questionId3 = item['score'] * 2 ?? 0;
+
+          print("questionId3  $questionId3");
         }
         if (questionid == 4) {
           questionId4 = item['score'] ?? 0;
+          print("questionId4  $questionId4");
         }
         if (questionid == 5) {
           questionId5 = item['score'] ?? 0;
+          print("questionId5  $questionId5");
         }
         if (questionid == 6) {
           questionId6 = item['score'] * 3 ?? 0;
+          print("questionId6  $questionId6");
         }
       }
 
@@ -3405,39 +2925,57 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] ?? 0;
+
+          print("questionId2  $questionId2");
         }
         if (questionid == 3) {
           questionId3 = item['score'] ?? 0;
+
+          print("questionI3  $questionId3");
         }
         if (questionid == 4) {
           questionId4 = item['score'] ?? 0;
+          print("questionId4  $questionId4");
         }
         if (questionid == 5) {
           questionId5 = item['score'] ?? 0;
+          print("questionId5  $questionId5");
         }
         if (questionid == 6) {
           questionId6 = item['score'] ?? 0;
+          print("questionId6  $questionId6");
         }
         if (questionid == 7) {
           questionId7 = item['score'] ?? 0;
+
+          print("questionId7  $questionId7");
         }
         if (questionid == 8) {
           questionId8 = item['score'] ?? 0;
+
+          print("questionId8  $questionId8");
         }
         if (questionid == 9) {
           questionId9 = item['score'] ?? 0;
+
+          print("questionId9  $questionId9");
         }
         if (questionid == 10) {
           questionId10 = item['score'] ?? 0;
+          print("questionId10  $questionId10");
         }
         if (questionid == 11) {
           questionId11 = item['score'] ?? 0;
+          print("questionId11  $questionId11");
         }
         if (questionid == 12) {
           questionId12 = item['score'] ?? 0;
+          print("questionId12  $questionId12");
         }
       }
       forehead = 0.3 * questionId1 * (questionId5 + questionId9);
@@ -3447,6 +2985,7 @@ class _TestState extends State<Test> {
       lMelar = 0.3 * questionId3 * (questionId7 + questionId11);
 
       chin = 0.1 * questionId4 * (questionId8 + questionId12);
+
 
       newScore = forehead + rMelar + lMelar + chin;
 
@@ -3500,7 +3039,10 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(panssScore);
-    } else if (jsonData['scale_code'] == 'COPD.risk.kribado') {
+    }
+
+
+    else if (jsonData['scale_code'] == 'COPD.risk.kribado') {
       // _insertData(result);
       double pedisScore = totalScoreAsInt;
       DataSingleton().TotalScore = pedisScore;
@@ -3510,8 +3052,7 @@ class _TestState extends State<Test> {
       } else if (pedisScore >= 7 && pedisScore <= 12) {
         Rinterpretation = "Moderate risk for COPD";
       } else if (pedisScore >= 13) {
-        Rinterpretation =
-        "High risk for COPD seek further evaluation or spirometry testing.";
+        Rinterpretation = "High risk for COPD seek further evaluation or spirometry testing.";
       }
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -3523,31 +3064,14 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(pedisScore);
-    } else if (jsonData['scale_code'] == 'GERD.Score.kribado') {
-      // _insertData(result);
-      double pedisScore = totalScoreAsInt;
-      DataSingleton().TotalScore = pedisScore;
+    }
 
-      if (pedisScore >= 0 && pedisScore <= 0) {
-        Rinterpretation = "No symptoms found";
-      } else if (pedisScore >= 1 && pedisScore <= 10) {
-        Rinterpretation = "Mild GERD";
-      } else if (pedisScore >= 11 && pedisScore <= 20) {
-        Rinterpretation = "Moderate GERD";
-      } else if (pedisScore >= 21 && pedisScore <= 100) {
-        Rinterpretation = "Severe GERD";
-      }
-      Get.off(result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$pedisScore',
-          Rinterpretation,
-          pat_name,
-          pat_age,
-          pat_gender));
 
-      _insertData(pedisScore);
-    } else if (jsonData['scale_code'] == 'PedisScore.kribado') {
+
+
+
+
+    else if (jsonData['scale_code'] == 'PedisScore.kribado') {
       // _insertData(result);
       double pedisScore = totalScoreAsInt;
       DataSingleton().TotalScore = pedisScore;
@@ -3599,97 +3123,6 @@ class _TestState extends State<Test> {
       );
 
       _insertData(yobcScore);
-    } else if (jsonData['scale_code'] == 'HDRS.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-
-      if (score >= 0 && score <= 7) {
-        Rinterpretation = "Normal";
-      } else if (score >= 8 && score <= 13) {
-        Rinterpretation = "Mild depression";
-      } else if (score >= 14 && score <= 18) {
-        Rinterpretation = "Moderate depression";
-      } else if (score >= 19 && score <= 22) {
-        Rinterpretation = "Severe depression";
-      } else if (score >= 23) {
-        Rinterpretation = "Very severe depression";
-      }
-
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$score',
-          Rinterpretation,
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(score);
-    }
-
-    //BPHOAB
-    else if (jsonData['scale_code'] == 'BPHOAB.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-
-      if (score >= 0 && score <= 7) {
-        Rinterpretation =
-        "Mild symptoms, unlikely to require aggressive treatment.";
-      } else if (score >= 8 && score <= 19) {
-        Rinterpretation =
-        "Moderate symptoms, potential candidate for Geripod-M.";
-      } else if (score >= 20 && score <= 55) {
-        Rinterpretation = "Severe symptoms, likely to benefit from Geripod-M.";
-      }
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$score',
-          Rinterpretation,
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(score);
-    }
-
-    //PainSwelling
-    else if (jsonData['scale_code'] == 'PainSwelling.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-
-      if (score >= 0 && score <= 10) {
-        Rinterpretation =
-        "Minimal symptoms, typically manageable with self-care.";
-      } else if (score >= 11 && score <= 20) {
-        Rinterpretation =
-        "Mild symptoms may benefit from professional monitoring.";
-      } else if (score >= 21 && score <= 30) {
-        Rinterpretation =
-        "Moderate symptoms,likely requires treatment adjustment.";
-      } else if (score >= 31 && score <= 40) {
-        Rinterpretation =
-        "Severe symptoms, recommend comprehensive medical intervention.";
-      }
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$score',
-          Rinterpretation,
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(score);
     } else if (jsonData['scale_code'] == 'HDRS.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
@@ -3848,31 +3281,43 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] ?? 0;
+
+          print("questionId2  $questionId2");
         }
         if (questionid == 3) {
           questionId3 = item['score'] ?? 0;
+
+          print("questionId3  $questionId3");
         }
         if (questionid == 4) {
           questionId4 = item['score'] ?? 0;
+
+          print("questionId4  $questionId4");
         }
         if (questionid == 5) {
           questionId5 = item['score'] ?? 0;
+
+          print("questionId5  $questionId5");
         }
       }
-      int sumOFall =
-          questionId1 + questionId2 + questionId3 + questionId4 + questionId5;
-      score = sumOFall / 5;
+      int sumOFall=questionId1+questionId2+questionId3+questionId4+questionId5;
+      score=sumOFall/5;
       if (score >= 0 && score <= 1.4) {
         Rinterpretation = "A remission-like state";
       } else if (score >= 1.5 && score <= 3.0) {
-        Rinterpretation = "Mild disease activity";
+        Rinterpretation =
+        "Mild disease activity";
       } else if (score >= 3.1 && score <= 5.4) {
-        Rinterpretation = "Moderate disease activity";
-      } else if (score >= 5.5 && score <= 10.0) {
-        Rinterpretation = "High disease activity";
+        Rinterpretation =
+        "Moderate disease activity";
+      }else if (score >= 5.5 && score <= 10.0) {
+        Rinterpretation =
+        "High disease activity";
       }
       Get.off(
         result_screen(
@@ -3901,20 +3346,27 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] ?? 0;
+
+          print("questionId2  $questionId2");
         }
         if (questionid == 3) {
           questionId3 = item['score'] ?? 0;
+
+          print("questionId3  $questionId3");
         }
       }
       // Calculate the absolute difference and cast to double
       int absoluteDifference = (questionId2 - questionId1);
+      print('Absolute difference: $absoluteDifference'"mlU/ml");
       // Calculate percentage difference
       double Percentagedifference = (absoluteDifference / questionId1) * 100;
-      Percentagedifference =
-          double.parse(Percentagedifference.toStringAsFixed(2));
+      Percentagedifference = double.parse(Percentagedifference.toStringAsFixed(2));
+      print("Percentage difference: ${Percentagedifference.toStringAsFixed(2)} %");
       // Log base 2 calculation
       double log2(double x) => log(x) / log(2);
       // Doubling time calculation
@@ -3937,21 +3389,13 @@ class _TestState extends State<Test> {
       DataSingleton().oneDayIncrease = oneDayIncrease;
       DataSingleton().twoDayIncrease = twoDayIncrease;
       if (DataSingleton().scale_id == "HCG.kribado") {
-        Rinterpretation =
-        "\nAbsolute Difference: ${DataSingleton().absoluteDifference}"
-            'mlU/ml'
-            '\n\n'
-            "\nPercentage difference: ${DataSingleton().Percentagedifference}"
-            '%'
-            '\n\n'
-            "\nDoubling time: ${DataSingleton().doublingTime}"
-            'hours'
-            '\n\n'
-            "\nOne-day increase: ${DataSingleton().oneDayIncrease}"
-            '%'
-            '\n\n'
-            "\nTwo-day increase : ${DataSingleton().twoDayIncrease}"
-            '%';
+        Rinterpretation=
+        "\nAbsolute Difference: ${DataSingleton().absoluteDifference}"'mlU/ml'
+            '\n\n' "\nPercentage difference: ${DataSingleton()
+            .Percentagedifference}"'%'
+            '\n\n'"\nDoubling time: ${DataSingleton().doublingTime}"'hours'
+            '\n\n' "\nOne-day increase: ${DataSingleton().oneDayIncrease}" '%'
+            '\n\n'"\nTwo-day increase : ${DataSingleton().twoDayIncrease}"'%';
       }
       Get.off(
         result_screen(
@@ -3985,8 +3429,8 @@ class _TestState extends State<Test> {
       int questionId13 = 0;
       int questionId14 = 0;
       int questionId15 = 0;
-      int questionId16 = 0;
-      int questionId17 = 0;
+      int questionId16= 0;
+      int questionId17= 0;
       var resultvar = DataSingleton().resultDataformat;
 
       for (var item in resultvar) {
@@ -3994,72 +3438,94 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] ?? 0;
+
+          print("questionId2  $questionId2");
         }
         if (questionid == 3) {
           questionId3 = item['score'] ?? 0;
+
+          print("questionId3  $questionId3");
         }
         if (questionid == 4) {
           questionId4 = item['score'] ?? 0;
+
+          print("questionId4  $questionId4");
         }
         if (questionid == 5) {
           questionId5 = item['score'] ?? 0;
+
+          print("questionId5  $questionId5");
         }
         if (questionid == 6) {
           questionId6 = item['score'] ?? 0;
+
+          print("questionId6  $questionId6");
         }
         if (questionid == 7) {
           questionId7 = item['score'] ?? 0;
+
+          print("questionId7  $questionId7");
         }
         if (questionid == 8) {
           questionId8 = item['score'] ?? 0;
+
+          print("questionId8  $questionId8");
         }
         if (questionid == 9) {
           questionId9 = item['score'] ?? 0;
+
+          print("questionId9  $questionId9");
         }
         if (questionid == 10) {
           questionId10 = item['score'] ?? 0;
+
+          print("questionId10  $questionId10");
         }
         if (questionid == 11) {
           questionId11 = item['score'] ?? 0;
+
+          print("questionId11  $questionId11");
         }
         if (questionid == 12) {
           questionId12 = item['score'] ?? 0;
+          print("questionId12  $questionId12");
         }
         if (questionid == 13) {
           questionId13 = item['score'] ?? 0;
+
+          print("questionId13  $questionId13");
         }
         if (questionid == 14) {
           questionId14 = item['score'] ?? 0;
+
+          print("questionId14  $questionId14");
         }
         if (questionid == 15) {
           questionId15 = item['score'] ?? 0;
+
+          print("questionId15  $questionId15");
         }
         if (questionid == 16) {
           questionId16 = item['score'] ?? 0;
+
+          print("questionId16  $questionId16");
         }
         if (questionid == 17) {
           questionId17 = item['score'] ?? 0;
+
+          print("questionId17  $questionId17");
         }
       }
-      int count = questionId1 +
-          questionId2 +
-          questionId3 +
-          questionId4 +
-          questionId5 +
-          questionId6 +
-          questionId7 +
-          questionId8 +
-          questionId9 +
-          questionId10 +
-          questionId11 +
-          questionId12 +
-          questionId13;
-      if (count >= 7 &&
-          questionId14 == 1 &&
-          (questionId15 == 2 || questionId15 == 3)) {
+      int count=questionId1+questionId2+questionId3+questionId4+questionId5+questionId6+questionId7+questionId8+questionId9+questionId10+questionId11+questionId12+questionId13;
+      print("Count $count");
+      print("questionId14 $questionId14");
+      print("questionId15 $questionId15");
+      if (count >= 7 && questionId14==1 && (questionId15==2 || questionId15==3)) {
         Rinterpretation = "Further medical assessment for bipolar\n" +
             "disorder is clearly warranted";
       } else {
@@ -4091,39 +3557,53 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] ?? 0;
+
+          print("questionId2  $questionId2");
         }
         if (questionid == 3) {
           questionId3 = item['score'] ?? 0;
+
+          print("questionId3  $questionId3");
         }
       }
       //For BMI Calculation
-      double height = questionId2 / 100;
-      double bmi = questionId1 / (height * height);
+      double  height=questionId2/100;
+      double bmi=questionId1/(height*height);
       String formattedBmi = bmi.toStringAsFixed(2);
       score = double.parse(formattedBmi);
 
-      if (questionId3 == 1) {
+      if(questionId3==1) {
         if (score >= 0 && score <= 18.4) {
           Rinterpretation = "Underweight\nYou need to put on 13-18 kgs.";
         } else if (score >= 18.5 && score < 25) {
-          Rinterpretation = "Normal Weight\nYou need to put on 17-25 kgs.";
+          Rinterpretation =
+          "Normal Weight\nYou need to put on 17-25 kgs.";
         } else if (score >= 25 && score <= 29) {
-          Rinterpretation = "Overweight\nYou need to put on 14-23 kgs";
-        } else if (score >= 30 && score <= 100) {
-          Rinterpretation = "Obese\nYou need to put on 11-19 kgs.";
+          Rinterpretation =
+          "Overweight\nYou need to put on 14-23 kgs";
         }
-      } else {
+        else if (score >= 30 && score <= 100) {
+          Rinterpretation =
+          "Obese\nYou need to put on 11-19 kgs.";
+        }
+      }else{
         if (score >= 0 && score <= 18.4) {
           Rinterpretation = "Underweight\nYou need to put on 13-18 kgs.";
         } else if (score >= 18.5 && score < 25) {
-          Rinterpretation = "Normal Weight\nYou need to put on 11-16 kgs.";
+          Rinterpretation =
+          "Normal Weight\nYou need to put on 11-16 kgs.";
         } else if (score >= 25 && score <= 29) {
-          Rinterpretation = "Overweight\nYou need to put on 7-11 kgs.";
-        } else if (score >= 30 && score <= 100) {
-          Rinterpretation = "Obese\nYou need to put on 5-9 kgs.";
+          Rinterpretation =
+          "Overweight\nYou need to put on 7-11 kgs.";
+        }
+        else if (score >= 30 && score <= 100) {
+          Rinterpretation =
+          "Obese\nYou need to put on 5-9 kgs.";
         }
       }
       Get.off(
@@ -4139,7 +3619,8 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'GCSI.kribado') {
+    }
+    else if (jsonData['scale_code'] == 'GCSI.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
 
@@ -4216,7 +3697,8 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'HbA1c.kribado') {
+    }
+    else if (jsonData['scale_code'] == 'HbA1c.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
       Get.off(
@@ -4232,7 +3714,8 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'RCAT.kribado') {
+    }
+    else if (jsonData['scale_code'] == 'RCAT.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
       if (score >= 0 && score <= 17) {
@@ -4287,7 +3770,7 @@ class _TestState extends State<Test> {
         Rinterpretation = "Mild Risk";
       } else if (score >= 8 && score <= 12) {
         Rinterpretation = "Moderate Risk";
-      } else if (score >= 13 && score <= 16) {
+      } else if (score >= 13 && score <= 15) {
         Rinterpretation = "Severe Risk";
       }
       Get.off(
@@ -4303,50 +3786,7 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'rHTN.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-      int questionId1 = 0;
-      int questionId2 = 0;
-      var resultvar = DataSingleton().resultDataformat;
-      for (var item in resultvar) {
-        int questionid = item['question_id'] ?? 0;
-
-        if (questionid == 1) {
-          questionId1 = item['score'] ?? 0;
-        }
-        if (questionid == 2) {
-          questionId2 = item['score'] ?? 0;
-        }
-      }
-      print("QuestionNo1rdn $questionId1");
-      print("QuestionNo2edn $questionId2");
-      if (questionId1 == 0 && questionId2 == 0 ) {
-        Rinterpretation =
-        "Your blood pressure seems under control. Continue with your treatment as advised by your doctor.";
-      } else if ( score < 2){
-        Rinterpretation =
-        "Your blood pressure seems under control. Continue with your treatment as advised by your doctor.";
-      }else{
-        Rinterpretation="You are at risk of resistant hypertension. Meet your doctor for further evaluation.";
-      }
-      print("Score:- $score");
-      score=0;
-      print("Final Score:- $score");
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$score',
-          Rinterpretation,
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-      _insertData(score);
-    }
-    else if (jsonData['scale_code'] == 'IronDeficiency.kribado') {
+    } else if (jsonData['scale_code'] == 'IronDeficiency.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
       if (score > 1) {
@@ -4472,7 +3912,8 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'DLQI.kribado') {
+    }
+    else if (jsonData['scale_code'] == 'DLQI.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
       var questions;
@@ -4792,113 +4233,6 @@ class _TestState extends State<Test> {
       );
 
       _insertData(totalScore.toDouble());
-    }
-
-    //Allercet.kribado
-    else if (jsonData['scale_code'] == 'Allercet.kribado') {
-      double score = totalScoreAsInt;
-      DataSingleton().TotalScore = score;
-      int questionId1 = 0;
-      int questionId2 = 0;
-      int questionId3 = 0;
-      int questionId4 = 0;
-      int questionId5 = 0;
-      int questionId6 = 0;
-      int questionId7 = 0;
-      int questionId8 = 0;
-      int questionId9 = 0;
-      int questionId10 = 0;
-      var resultvar = DataSingleton().resultDataformat;
-      for (var item in resultvar) {
-        int questionid = item['question_id'] ?? 0;
-
-        if (questionid == 1) {
-          questionId1 = item['score'] ?? 0;
-
-          print("questionId1  $questionId1");
-        }
-        if (questionid == 2) {
-          questionId2 = item['score'] ?? 0;
-
-          print("questionId1  $questionId2");
-        }
-        if (questionid == 3) {
-          questionId3 = item['score'] ?? 0;
-
-          print("questionId3  $questionId3");
-        }
-        if (questionid == 4) {
-          questionId4 = item['score'] ?? 0;
-          print("questionId4  $questionId4");
-        }
-        if (questionid == 5) {
-          questionId5 = item['score'] ?? 0;
-          print("questionId5  $questionId5");
-        }
-        if (questionid == 6) {
-          questionId6 = item['score'] ?? 0;
-          print("questionId6  $questionId6");
-        }
-        if (questionid == 7) {
-          questionId7 = item['score'] ?? 0;
-
-          print("questionId7  $questionId7");
-        }
-        if (questionid == 8) {
-          questionId8 = item['score'] ?? 0;
-          print("questionId8  $questionId8");
-        }
-        if (questionid == 9) {
-          questionId9 = item['score'] ?? 0;
-          print("questionId9  $questionId9");
-        }
-        if (questionid == 10) {
-          questionId10 = item['score'] ?? 0;
-          print("questionId10  $questionId10");
-        }
-      }
-
-      int totalScore = (questionId1 +
-          questionId2 +
-          questionId3 +
-          questionId4 +
-          questionId5 +
-          questionId6 +
-          questionId7 +
-          questionId8 +
-          questionId9 +
-          questionId10);
-      print("TotalScore $totalScore");
-
-      Dinterpretation =
-      "Kindly note that this is not a definitive diagnosis. This score is based solely on your responses to the questions.";
-
-      if (totalScore >= 0 && totalScore <= 5) {
-        Rinterpretation = "Normal";
-      } else if (totalScore >= 6 && totalScore <= 13) {
-        Rinterpretation = "Mild";
-      } else if (totalScore >= 14 && totalScore <= 22) {
-        Rinterpretation = "Moderate";
-      } else if (totalScore >= 23 && totalScore <= 31) {
-        Rinterpretation = "Severe";
-      } else if (totalScore >= 32) {
-        Rinterpretation = "Very Severe";
-      } else {
-        Rinterpretation = "";
-      }
-      Get.off(
-        result_screen(
-          DataSingleton().scale_name,
-          DataSingleton().scale_name,
-          '$totalScore',
-          '$Rinterpretation' "\n\n\n" '$Dinterpretation',
-          pat_name,
-          pat_age,
-          pat_gender,
-        ),
-      );
-
-      _insertData(totalScore.toDouble());
     } else if (jsonData['scale_code'] == 'BASDAI.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
@@ -5042,12 +4376,13 @@ class _TestState extends State<Test> {
       _insertData(result);
     }
 
-//IBS scale for child parent scale
+    //IBS scale for child parent scale
     else if (jsonData['scale_code'] == "IBS.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
       var resultvar = DataSingleton().resultDataformat;
+      print('eiteiteoitkfkfskfn $resultvar');
       Map<int, double> finalScores = {};
       bool isQ1AnswerNo = false;
 
@@ -5060,31 +4395,37 @@ class _TestState extends State<Test> {
         // Store only child score if it exists; overwrite parent
         if (isChild || !finalScores.containsKey(questionId)) {
           finalScores[questionId] = score;
-          if (questionId == 1 && answer.toString().toLowerCase() == 'no') {
+          if (questionId == 1 && answer.toString().toLowerCase() == 'no' || questionId==2 && answer.toString().toLowerCase()== 'yes') {
             isQ1AnswerNo = true;
           }
         }
       }
       // Now access them
       double questionId1 = finalScores[1] ?? 0;
+      double questionId2 = finalScores[2] ?? 0;
+      double questionId3 = finalScores[3] ?? 0;
+      double questionId4 = finalScores[4] ?? 0;
+      // print('q1No: $q1No'); // 50.0
+      // double questionId1 = finalScores[1] ?? 0;
       if (isQ1AnswerNo) {
         print('About to multiply questionId1: $questionId1');
         questionId1 = questionId1 * 100;
         print('multipliedValue: $questionId1');
       }
-      double questionId2 = finalScores[2] ?? 0;
-      double questionId3 = finalScores[3] ?? 0;
-      double questionId4 = finalScores[4] ?? 0;
-      result = questionId1 + questionId2 + questionId3 + questionId4;
-
-      if (result < 75) {
+      print('Q1: $questionId1'); // 50.0
+      print('Q2: $questionId2'); // 75.0
+      print('Q3: $questionId3'); // 67.0
+      print('Q4: $questionId4'); // 100.0
+      result=questionId1+questionId2+questionId3+questionId4;
+      if (result==0) {
         Rinterpretation = "No IBS";
-      } else if (result >= 75 && result < 175) {
-        Rinterpretation = "Mild";
-      } else if (result >= 176 && result <= 300) {
-        Rinterpretation = "Moderate";
-      } else if (result > 300) {
-        Rinterpretation = "Severe";
+      } else if (result>=75 && result<175) {
+        Rinterpretation =
+        "Mild";
+      }else if(result>=176 && result<=300){
+        Rinterpretation="Moderate";
+      }else if(result>300){
+        Rinterpretation="Severe";
       }
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -5096,7 +4437,14 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "CSI.kribado") {
+    }
+
+
+
+
+
+
+    else if (jsonData['scale_code'] == "CSI.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
       if (result >= 0 && result <= 30) {
@@ -5177,6 +4525,7 @@ class _TestState extends State<Test> {
       _insertData(score);
     }
 
+
     //For Division  Vitabiotic
     else if (jsonData['scale_code'] == "MNA.kribado") {
       result = totalScoreAsInt;
@@ -5189,20 +4538,28 @@ class _TestState extends State<Test> {
 
         if (questionid == 1) {
           questionId1 = item['score'] ?? 0;
+
+          print("questionId1  $questionId1");
         }
         if (questionid == 2) {
           questionId2 = item['score'] ?? 0;
+
+          print("questionId2  $questionId2");
         }
       }
+      print("resultbefore $result");
       //Changes for removal of Height and Weight score.
-      result = result - (questionId1 + questionId2);
+      result=result-(questionId1+questionId2);
       print("resultafter $result");
       if (result >= 12 && result <= 14) {
-        Rinterpretation = "Normal nutritional status.";
+        Rinterpretation =
+        "Normal nutritional status.";
       } else if (result >= 8 && result <= 11) {
-        Rinterpretation = "At risk of malnutrition.";
+        Rinterpretation =
+        "At risk of malnutrition.";
       } else if (result >= 0 && result <= 7) {
-        Rinterpretation = "Malnourished";
+        Rinterpretation =
+        "Malnourished";
       }
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -5214,18 +4571,21 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "PMS.kribado") {
+    }
+    else if (jsonData['scale_code'] == "PMS.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
       if (result >= 0 && result <= 14) {
-        Rinterpretation = "Minimal symptoms.";
+        Rinterpretation =
+        "Minimal symptoms.";
       } else if (result >= 15 && result <= 28) {
-        Rinterpretation = "Mild symptoms.";
+        Rinterpretation =
+        "Mild symptoms.";
       } else if (result >= 29 && result <= 42) {
         Rinterpretation =
         "Moderate symptoms (may require lifestyle adjustments)";
-      } else if (result >= 43 && result <= 56) {
+      }else if (result >= 43 && result <= 56) {
         Rinterpretation =
         "Moderate symptoms(consultation with a healthcare provider recommended)";
       }
@@ -5239,18 +4599,23 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "Skin.kribado") {
+    }
+    else if (jsonData['scale_code'] == "Skin.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
       if (result >= 11 && result <= 16) {
-        Rinterpretation = "You are a dry skin and D skin type.";
+        Rinterpretation =
+        "You are a dry skin and D skin type.";
       } else if (result >= 17 && result <= 26) {
-        Rinterpretation = "You have slightly dry skin and D skin type.";
+        Rinterpretation =
+        "You have slightly dry skin and D skin type.";
       } else if (result >= 27 && result <= 33) {
-        Rinterpretation = "You have slightly oily skin and O skin type";
-      } else if (result >= 34 && result <= 44) {
-        Rinterpretation = "You have very oily skin and O skin type";
+        Rinterpretation =
+        "You have slightly oily skin and O skin type";
+      }else if (result >= 34 && result <= 44) {
+        Rinterpretation =
+        "You have very oily skin and O skin type";
       }
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -5268,7 +4633,8 @@ class _TestState extends State<Test> {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
       if (result >= 0 && result <= 10) {
-        Rinterpretation = "Minimal symptoms, not suggestive of SIBO.";
+        Rinterpretation =
+        "Minimal symptoms, not suggestive of SIBO.";
       } else if (result >= 11 && result <= 20) {
         Rinterpretation =
         "Mild symptoms, consider monitoring and dietary modifications.";
@@ -5289,18 +4655,23 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "Diverticulitis.kribado") {
+    }
+    else if (jsonData['scale_code'] == "Diverticulitis.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
       if (result >= 0 && result <= 10) {
-        Rinterpretation = "Mild Diverticulitis.";
+        Rinterpretation =
+        "Mild Diverticulitis.";
       } else if (result >= 11 && result <= 20) {
-        Rinterpretation = "Moderate Diverticulitis.";
+        Rinterpretation =
+        "Moderate Diverticulitis.";
       } else if (result >= 21 && result <= 32) {
-        Rinterpretation = "Severe Diverticulitis.";
+        Rinterpretation =
+        "Severe Diverticulitis.";
       } else if (result >= 32 && result <= 100) {
-        Rinterpretation = "Complicated Diverticulitis.";
+        Rinterpretation =
+        "Complicated Diverticulitis.";
       }
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -5312,18 +4683,23 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == "HBI.kribado") {
+    }
+    else if (jsonData['scale_code'] == "HBI.kribado") {
       result = totalScoreAsInt;
       DataSingleton().TotalScore = result;
 
       if (result >= 0 && result <= 4) {
-        Rinterpretation = "Remission.";
+        Rinterpretation =
+        "Remission.";
       } else if (result >= 5 && result <= 7) {
-        Rinterpretation = "Mild disease.";
+        Rinterpretation =
+        "Mild disease.";
       } else if (result >= 8 && result <= 16) {
-        Rinterpretation = "Moderate disease.";
+        Rinterpretation =
+        "Moderate disease.";
       } else if (result >= 16 && result <= 100) {
-        Rinterpretation = "Severe disease.";
+        Rinterpretation =
+        "Severe disease.";
       }
       Get.off(result_screen(
           DataSingleton().scale_name,
@@ -5335,7 +4711,10 @@ class _TestState extends State<Test> {
           pat_gender));
 
       _insertData(result);
-    } else if (jsonData['scale_code'] == 'Ludwig.Scales') {
+    }
+
+
+    else if (jsonData['scale_code'] == 'Ludwig.Scales') {
       double score = totalScoreAsInt;
       // Rinterpretation = "Patient is suffering from baldness pattern";
       DataSingleton().TotalScore = score;
@@ -5347,20 +4726,27 @@ class _TestState extends State<Test> {
         optionText = data[0]['answer'];
       }
 
-      if (optionText == "Type 1") {
+      if(optionText == "Type 1"){
+
+        Rinterpretation = "Mild thinning, slight widening of part line (Grade I)";
+
+
+      } else if (optionText == "Type 2"){
+
+        Rinterpretation = "Moderate thinning with noticeable scalp visibility (Grade II)";
+
+      }else if (optionText == "Type 3"){
+        Rinterpretation = "Severe thinning with significant scalp exposure (Grade III)";
+
+      }else if (optionText == "Frontal"){
         Rinterpretation =
-        "Mild thinning, slight widening of part line (Grade I)";
-      } else if (optionText == "Type 2") {
-        Rinterpretation =
-        "Moderate thinning with noticeable scalp visibility (Grade II)";
-      } else if (optionText == "Type 3") {
-        Rinterpretation =
-        "Severe thinning with significant scalp exposure (Grade III)";
-      } else if (optionText == "Frontal") {
-        Rinterpretation = "Recession at the hairline with crown thinning";
-      } else if (optionText == "Advanced") {
+        "Recession at the hairline with crown thinning";
+
+      }else if (optionText == "Advanced"){
         Rinterpretation = "Complete baldness on the crown";
+
       }
+
 
       Get.off(
         result_screen(
@@ -5405,29 +4791,25 @@ class _TestState extends State<Test> {
       _insertData(Score.toDouble());
     }*/
 
+
     else if (jsonData['scale_code'] == 'hamilton.kribado') {
       double Score = totalScoreAsInt;
       DataSingleton().TotalScore = Score;
 
+
       // Determine the interpretation based on the score
-      if (Score == 1) {
-        Rinterpretation =
-        "Patient falls under Type I category hence no hair loss";
-      } else if (Score == 2) {
-        Rinterpretation =
-        "Patient is suffering from Type II baldness pattern and shows minor recession of the frontal hairline";
-      } else if (Score == 3) {
-        Rinterpretation =
-        "Patient is suffering from Type III baldness pattern and shows further frontal loss and is considered cosmetically significant";
-      } else if (Score == 4) {
-        Rinterpretation =
-        "Patient is suffering from Type III vertex baldness pattern and shows significant frontal recession coupled with hair loss from the vertex region of the scalp";
-      } else if (Score == 5) {
-        Rinterpretation =
-        "Patient is suffering from Type IV - VI baldness pattern and shows further frontal and vertex loss";
-      } else if (Score == 6) {
-        Rinterpretation =
-        "Patient is suffering from Type VII baldness pattern and shows only the occipital scalp region maintains significant amounts of hair";
+      if (Score==1) {
+        Rinterpretation = "Patient falls under Type I category hence no hair loss";
+      } else if (Score==2) {
+        Rinterpretation = "Patient is suffering from Type II baldness pattern and shows minor recession of the frontal hairline";
+      } else if (Score==3) {
+        Rinterpretation = "Patient is suffering from Type III baldness pattern and shows further frontal loss and is considered cosmetically significant";
+      }else if(Score==4){
+        Rinterpretation="Patient is suffering from Type III vertex baldness pattern and shows significant frontal recession coupled with hair loss from the vertex region of the scalp";
+      }else if(Score==5){
+        Rinterpretation="Patient is suffering from Type IV - VI baldness pattern and shows further frontal and vertex loss";
+      }else if(Score==6){
+        Rinterpretation="Patient is suffering from Type VII baldness pattern and shows only the occipital scalp region maintains significant amounts of hair";
       }
       Get.off(
         result_screen(
@@ -5442,7 +4824,9 @@ class _TestState extends State<Test> {
       );
 
       _insertData(Score);
-    } else if (jsonData['scale_code'] == 'IPSS.kribado') {
+    }
+
+    else if (jsonData['scale_code'] == 'IPSS.kribado') {
       double IPSSScore = totalScoreAsInt;
       DataSingleton().TotalScore = IPSSScore;
 
@@ -5476,15 +4860,12 @@ class _TestState extends State<Test> {
       DataSingleton().TotalScore = score;
 
       // Determine the interpretation based on the score
-      if (score == 0) {
-        Rinterpretation =
-        "Your gum health is good ,Please consult your dentist for further information.";
+      if (score==0) {
+        Rinterpretation = "Your gum health is good ,Please consult your dentist for further information.";
       } else if (score >= 1 && score <= 2) {
-        Rinterpretation =
-        "You may be at risk for developing gum disease. Please consult your dentist for further information.";
+        Rinterpretation = "You may be at risk for developing gum disease. Please consult your dentist for further information.";
       } else if (score >= 3 && score <= 8) {
-        Rinterpretation =
-        "You may be at high risk for developing gum disease. Please consult your dentist for further information.";
+        Rinterpretation = "You may be at high risk for developing gum disease. Please consult your dentist for further information.";
       }
       Get.off(
         result_screen(
@@ -5499,7 +4880,10 @@ class _TestState extends State<Test> {
       );
 
       _insertData(score);
-    } else if (jsonData['scale_code'] == 'VAS.pain.kribado') {
+    }
+
+
+    else if (jsonData['scale_code'] == 'VAS.pain.kribado') {
       double score = totalScoreAsInt;
       DataSingleton().TotalScore = score;
 
@@ -5579,6 +4963,7 @@ class _TestState extends State<Test> {
 
       _insertData(strokeScore);
     } else if (jsonData['scale_code'] == "WURSS.kribado") {
+      // print('@@## FSSGG ScaleID entered if');
       if (totalScoreAsInt == 0) {
         Rinterpretation = "No Symptom";
       } else if (totalScoreAsInt >= 1 && totalScoreAsInt <= 10) {
@@ -5594,6 +4979,7 @@ class _TestState extends State<Test> {
         Rinterpretation = "Severe";
       }
       result = totalScoreAsInt;
+      // print('@@##result navigator screen $result');
       DataSingleton().TotalScore = result;
 
       Get.off(result_screen(
@@ -5727,18 +5113,18 @@ class _TestState extends State<Test> {
       );
 
       _insertData(IPSSScore);
-    } else if (jsonData['scale_code'] == 'SleepScore.kribado') {
+    }else if (jsonData['scale_code'] == 'SleepScore.kribado') {
       double Score = totalScoreAsInt;
       DataSingleton().TotalScore = Score;
       // Determine the interpretation based on the score
-      if (Score >= 0 && Score <= 4) {
+      if (Score>=0 && Score<=4) {
         Rinterpretation = "No Insomnia";
-      } else if (Score >= 5 && Score <= 10) {
+      } else if (Score>=5 && Score<=10) {
         Rinterpretation = "Mild Insomnia";
-      } else if (Score >= 11 && Score <= 20) {
+      } else if (Score>=11 && Score<=20) {
         Rinterpretation = "Moderate Insomnia";
-      } else if (Score >= 21 && Score <= 30) {
-        Rinterpretation = "Severe Insomnia";
+      }else if(Score>=21 && Score<=30){
+        Rinterpretation="Severe Insomnia";
       }
       Get.off(
         result_screen(
@@ -5828,6 +5214,9 @@ class _TestState extends State<Test> {
         double meanValue = -29.18;
 
         final result = 100 * (1 - pow(0.9665, exp(individualSum - meanValue)));
+
+        // print("result" + result.toString());
+        //finalResult = Double.parseDouble(new DecimalFormat("###.#").format(result));
 
         String inString = result.toStringAsFixed(2);
 
@@ -6111,11 +5500,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     onPressed: () {
                       // Check if an option is selected for the current question
 
-                      if (DataSingleton().scale_id == 'IBS.kribado' &&
-                          numChild == false) {
+
+                      print('itortirotirotirogkdjvodj $numChild');
+
+                      if (DataSingleton().scale_id == 'IBS.kribado' && numChild == false) {
                         showOptionRequiredSnackbar();
                         return; // <-- This blocks going to next question
                       }
+
 
                       if (inputs[_curr]['type'] == "SEEK") {
                         if (widget.selectedValues[_curr].toString() == null) {
@@ -6125,20 +5517,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
                       if (inputs[_curr]['type'] == "NUM") {
                         //rangecheck
-                        double min = inputs[_curr]['min'] is double
-                            ? inputs[_curr]['min']
-                            : inputs[_curr]['min'].toDouble();
-                        double max = inputs[_curr]['max'] is double
-                            ? inputs[_curr]['max']
-                            : inputs[_curr]['max'].toDouble();
+                        double min = inputs[_curr]['min'] is double ? inputs[_curr]['min'] : inputs[_curr]['min'].toDouble();
+                        double max = inputs[_curr]['max'] is double ? inputs[_curr]['max'] : inputs[_curr]['max'].toDouble();
                         // If an option is selected, navigate to the next question if not the last one [ its will call on on next pressed ]
                         if (_curr != _list.length - 1) {
                           // Check if rangeCheck is within the range
                           if (rangeCheck >= min && rangeCheck <= max) {
                             controller.jumpToPage(_curr + 1);
                           } else {
-                            showOptionRequiredSnackbarRange(
-                                inputs[_curr]['min'], inputs[_curr]['max']);
+                            showOptionRequiredSnackbarRange(inputs[_curr]['min'], inputs[_curr]['max']);
                           }
                         } else {
                           // it will call only on submit pressed
@@ -6146,23 +5533,24 @@ class _MyHomePageState extends State<MyHomePage> {
                           if (rangeCheck >= min && rangeCheck <= max) {
                             widget.onNextButtonPressed();
                           } else {
-                            showOptionRequiredSnackbarRange(
-                                inputs[_curr]['min'], inputs[_curr]['max']);
+                            showOptionRequiredSnackbarRange(inputs[_curr]['min'], inputs[_curr]['max']);
                             // showOptionRequiredSnackbar();
                           }
                           // If it's the last question, call the onNextButtonPressed method
                         }
                         // If no option is selected, show a message or perform an action
                         // For example, you can show a snackbar indicating that an option must be selected
-                      } else {
+                      }
+                      else {
                         if (widget.selectedValues[_curr] != null) {
                           // If an option is selected, navigate to the next question if not the last one
-                          if (_curr == _list.length - 1) if (isChild == true) {
-                            if (childAnswer.isEmpty) {
-                              showRequiredSnackbar();
-                              return;
+                          if(_curr ==_list.length - 1 )
+                            if(isChild == true){
+                              if(childAnswer.isEmpty){
+                                showRequiredSnackbar();
+                                return;
+                              }
                             }
-                          }
                           if (_curr != _list.length - 1) {
                             controller.jumpToPage(_curr + 1);
                             // print('onnextNext');
@@ -6170,7 +5558,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             // If it's the last question, call the onNextButtonPressed method
                             // print('onsubmitsubmit');
                             widget.onNextButtonPressed();
-                            childAnswer = "";
+                            childAnswer="";
                           }
                         } else {
                           // If no option is selected, show a message or perform an action
@@ -6202,9 +5590,8 @@ class ScalesTestScreen extends StatefulWidget {
   final Function(String checkboxes, int score) updateSelectedCheckboxes;
   final Function(String text) updateTextbox;
   final Function(String text) OnCheckType;
-  final Function(String child, num childScore, String childAnswer, num childId)
-  updateChild;
-  final Function(num parentScore, String parentAnswer) updateParent;
+  final Function(String child, num childScore, String childAnswer, num childId) updateChild;
+  final Function(num parentScore,String parentAnswer) updateParent;
 
   ScalesTestScreen(
       this._curr,
@@ -6216,8 +5603,7 @@ class ScalesTestScreen extends StatefulWidget {
       this.updateTextbox,
       this.updateChild,
       this.updateParent,
-      this.OnCheckType,
-      this.onOptionSelectedNum);
+      this.OnCheckType, this.onOptionSelectedNum);
 
   @override
   _ScalesTestScreenState createState() => _ScalesTestScreenState();
@@ -6226,7 +5612,7 @@ class ScalesTestScreen extends StatefulWidget {
 class _ScalesTestScreenState extends State<ScalesTestScreen> {
   int? _groupValue;
   int? groupValuewithoutIndexInt;
-  int selectedChildId = 0;
+  int selectedChildId= 0;
   TextEditingController? _textEditingController; // Add this line
   String? _selectedDropdownValue; // Define selected dropdown value
   List<bool> _checkedList = []; // Initialize the list of checkbox states
@@ -6242,12 +5628,15 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
 
   bool showChildText = false;
 
+
+
+
   //abhishek checkbox score wise case done....
 
-  void _toggleCheckbox(int index, String title, int score) {
+  void _toggleCheckbox(int index, String title,int score) {
     // Increment index by 1 to start indexing from 1 instead of 0
     index += 0;
-    int totalScore = 0;
+    int totalScore=0;
     setState(() {
       // If "None" is selected, uncheck all other options and only check "None"
       if (title == "None") {
@@ -6262,35 +5651,30 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
         }
       }
 
-      Map<String, dynamic> currentQuestion =
-      widget.jsonData['inputs'][widget._curr];
+
+      Map<String, dynamic> currentQuestion = widget.jsonData['inputs'][widget._curr];
 
       // Find index for "None" and "All of the Above"
-      int noneIndex = currentQuestion['options']
-          .indexWhere((opt) => opt['title'] == 'None');
-      int allOfTheAboveIndex = currentQuestion['options']
-          .indexWhere((opt) => opt['title'] == 'All of the Above');
+      int noneIndex = currentQuestion['options'].indexWhere((opt) => opt['title'] == 'None');
+      int allOfTheAboveIndex = currentQuestion['options'].indexWhere((opt) => opt['title'] == 'All of the Above');
 
       if (title == "All of above") {
         // Check all options except "None"
         for (int i = 0; i < _checkedList.length; i++) {
           if (i != noneIndex) {
-            _checkedList[i] = true; // Check all options except "None"
+            _checkedList[i] = true;  // Check all options except "None"
             // Add the title if not already present
             if (!_selectedCheckboxes.contains(i)) {
-              _selectedCheckboxes.add(i); // Add to selected options
-              _selectedTitles
-                  .add(currentQuestion['options'][i]['title']); // Add the title
+              _selectedCheckboxes.add(i);  // Add to selected options
+              _selectedTitles.add(currentQuestion['options'][i]['title']);  // Add the title
             }
           }
         }
 
         // Implicitly handle "None" by clearing its selection if "All of the Above" is selected
-        _checkedList[noneIndex] = false; // Ensure "None" is unchecked in the UI
-        _selectedCheckboxes.remove(
-            noneIndex); // Ensure "None" is not in the selected checkboxes
-        _selectedTitles.remove(
-            'None'); // Ensure "None" is removed from the selected titles
+        _checkedList[noneIndex] = false;  // Ensure "None" is unchecked in the UI
+        _selectedCheckboxes.remove(noneIndex);  // Ensure "None" is not in the selected checkboxes
+        _selectedTitles.remove('None');  // Ensure "None" is removed from the selected titles
       }
 
       // For any other option
@@ -6299,24 +5683,24 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
         if (_selectedCheckboxes.contains(noneIndex)) {
           _selectedCheckboxes.remove(noneIndex);
           _selectedTitles.remove('None');
-          _checkedList[noneIndex] = false; // Uncheck "None"
+          _checkedList[noneIndex] = false;  // Uncheck "None"
         }
 
         if (_selectedCheckboxes.contains(allOfTheAboveIndex)) {
           _selectedCheckboxes.remove(allOfTheAboveIndex);
           _selectedTitles.remove('All of the Above');
-          _checkedList[allOfTheAboveIndex] = true; // Uncheck "All of the Above"
+          _checkedList[allOfTheAboveIndex] = true;  // Uncheck "All of the Above"
         }
 
         // Toggle the current option
         if (_selectedCheckboxes.contains(index)) {
           _selectedCheckboxes.remove(index);
           _selectedTitles.remove(title);
-          _checkedList[index] = false; // Uncheck current checkbox
+          _checkedList[index] = false;  // Uncheck current checkbox
         } else {
           _selectedCheckboxes.add(index);
           _selectedTitles.add(title);
-          _checkedList[index] = true; // Check current checkbox
+          _checkedList[index] = true;  // Check current checkbox
         }
       }
 
@@ -6325,8 +5709,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
 
       // Replace selected titles with corresponding scores and create a map
       for (String selectedTitle in _selectedTitles) {
-        int titleIndex = currentQuestion['options']
-            .indexWhere((opt) => opt['title'] == selectedTitle);
+        int titleIndex = currentQuestion['options'].indexWhere((opt) => opt['title'] == selectedTitle);
         if (titleIndex != -1) {
           int selectedScore = currentQuestion['options'][titleIndex]['score'];
           titleScoreMap[selectedTitle] = selectedScore;
@@ -6356,14 +5739,14 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
 
       // Update selected titles into a formatted string
       String formattedTitles = _selectedTitles.join(' | ');
-      widget.updateSelectedCheckboxes(formattedTitles, totalScore);
+      widget.updateSelectedCheckboxes(formattedTitles,totalScore);
     });
   }
 
   bool _isChecked(int index) {
-    return _checkedList[
-    index]; // Check if the checkbox at the given index is checked
+    return _checkedList[index]; // Check if the checkbox at the given index is checked
   }
+
 
   @override
   void initState() {
@@ -6376,12 +5759,16 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
     _initializeCheckedList(); // Initialize the checkbox list
     _dynamicFontSize();
 
+
+
     List<dynamic> inputs = widget.jsonData['inputs'];
     Map<String, dynamic> currentQuestion = inputs[widget._curr];
     String type = currentQuestion['type'];
 
+
     if (type == "SEEK") {
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        print('Initial Slider Value: $_sliderValue');
         widget.onOptionSelected(
             _sliderValue.toInt(),
             widget
@@ -6409,6 +5796,8 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
   Widget build(BuildContext context) {
     List<dynamic> inputs = widget.jsonData['inputs'];
     Map<String, dynamic> currentQuestion = inputs[widget._curr];
+
+
 
     if (widget._curr <= 1 && globalScaleid == "iap.growthchart.kribado") {
       hintText = "Please do not enter a decimal number.";
@@ -6450,6 +5839,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
       scaleTitle = "Scale"; // You can customize this according to your needs
     }
 
+
     //////////////////////////////////////////
     List<String> tTokens = List<String>.from(currentQuestion['t_token'] ?? []);
     List<String?> filteredTokens =
@@ -6458,6 +5848,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
     String filteredTokensString = filteredTokens.join(', ');
 // Step 3: Split the tokens string to get individual tokens
     List<String> splitTokens = filteredTokensString.split(', ');
+    // print("splitttoekns $splitTokens");
 
 // Step 4: Assign first and last tokens to separate strings
     String firstTokenTitleLocale = splitTokens.first;
@@ -6486,7 +5877,6 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
         finalLocaleCategory = value;
       }
     });
-
     ///for options locale
     Map<String, dynamic> currentQuestionOption = inputs[widget._curr];
     List<dynamic>? subtitles =
@@ -6498,14 +5888,13 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
         (currentQuestion['childrens'] as List).isNotEmpty
         ? currentQuestion['childrens'][0]['ranges']
         : null;
+    print('fjkdfjskfmskcmc $rangess');
     List<dynamic>? subtitless;
 
     final children = currentQuestion['childrens'];
     if (children != null && children is List && children.isNotEmpty) {
       final firstChild = children[0];
-      if (firstChild != null &&
-          firstChild is Map &&
-          firstChild['subtitles'] != null) {
+      if (firstChild != null && firstChild is Map && firstChild['subtitles'] != null) {
         final subtitlesData = firstChild['subtitles'];
         if (subtitlesData is List) {
           subtitless = subtitlesData;
@@ -6518,6 +5907,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
     } else {
       print('children is null or empty');
     }
+    print('fskfjkfkxcmxcm $subtitless');
     List<Map<String, dynamic>> localeList = [];
 
     if (currentQuestionOption['options'] != null) {
@@ -6541,6 +5931,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
     }
 
     final childrens = currentQuestion['childrens'];
+
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -6607,8 +5998,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                     },
                     child: TextFormField(
                       controller: _textEditingController,
-                      keyboardType:
-                      TextInputType.numberWithOptions(decimal: true),
+                      keyboardType: TextInputType.numberWithOptions(decimal: true),
                       onChanged: (text) {
                         if (widget._curr == 0) {
                           // If valid and not a whole number, save it in the singleton
@@ -6618,7 +6008,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                         int enteredValue = int.tryParse(text) ?? 0;
                         double? t = double.tryParse(text);
                         widget.onOptionSelected(enteredValue, widget._curr);
-                        widget.onOptionSelectedNum(t!, widget._curr);
+                        widget.onOptionSelectedNum(t!,widget._curr);
                       },
                       decoration: InputDecoration(
                         labelText:
@@ -6682,33 +6072,23 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                         title: Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // Wrap text with Expanded to allow wrapping
-                              Expanded(
-                                child: Text(
-                                  title,
-                                  style: TextStyle(fontSize: 16),
-                                  softWrap: true,
-                                  overflow: TextOverflow.visible,
-                                ),
+                              Text(
+                                title,
+                                style: TextStyle(fontSize: 16),
                               ),
-                              SizedBox(width: 10),
-                              // Show image if present
-                              if (option['imageData'] != null)
-                                Image.memory(
-                                  base64Decode(option['imageData']),
-                                  height: 45,
-                                ),
+                              SizedBox(
+                                width: 30,
+                              ),
+                              imageWidget,
                             ],
                           ),
                         ),
-
                         value: _isChecked(index),
                         onChanged: (bool? value) {
                           setState(() {
-                            _toggleCheckbox(
-                                index, option["title"], option['score']);
+                            _toggleCheckbox(index, option["title"],option['score']);
                             widget.onOptionSelected(
                                 finalcheckbox, widget._curr);
                           });
@@ -6717,7 +6097,6 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                     },
                   ),
                 ),
-
               if (currentQuestion['type'] == 'AON')
                 Flexible(
                   child: ConstrainedBox(
@@ -6739,7 +6118,8 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                     index < localeList.length
                                     ? localeList[index]['title']
                                     : option['title'];
-                                Widget imageWidget = option['imageData'] != null
+                                Widget imageWidget =
+                                option['imageData'] != null
                                     ? Image.memory(
                                   base64Decode(option['imageData']),
                                   height: 45,
@@ -6759,7 +6139,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                             style: TextStyle(fontSize: 16),
                                             overflow: TextOverflow.ellipsis,
                                             maxLines:
-                                            10, // Limit text to one line
+                                            1, // Limit text to one line
                                           ),
                                         ),
                                         SizedBox(width: 30),
@@ -6770,10 +6150,8 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                   value: _isChecked(index),
                                   onChanged: (bool? value) {
                                     setState(() {
-                                      _toggleCheckbox(index, option["title"],
-                                          option['score']);
-                                      widget.onOptionSelected(
-                                          finalcheckbox, widget._curr);
+                                      _toggleCheckbox(index, option["title"],option['score']);
+                                      widget.onOptionSelected(finalcheckbox, widget._curr);
                                     });
                                   },
                                 );
@@ -6853,83 +6231,72 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                     ? localeList[index]['title']
                                     : option['title'];
 
+
+
                                 bool isSelected = _groupValue == index;
+
+
+
 
                                 return GestureDetector(
                                   onTap: () {
                                     // Update the selected value
+                                    print('dgjdkgjdkgjdgjdnx');
+
+
+
                                     setState(() {
                                       _groupValue = index;
-                                      String? groupValuewithoutIndex =
-                                      currentQuestion['options'][index]
-                                      ['value']
-                                          .toString();
-                                      if (widget._curr == 0 &&
-                                          DataSingleton().scale_id ==
-                                              'IBS.kribado') {
-                                        numChild = false;
+                                      String? groupValuewithoutIndex = currentQuestion['options'][index]['value'].toString();
+                                      print('jfkdfjdkfjskfjskfncn ${option['title']}');
+                                      print('dgiggkggksgkksksksks ${widget._curr}');
+                                      if(widget._curr == 0 && DataSingleton().scale_id == 'IBS.kribado'){
+                                        numChild =false;
                                       }
 
-                                      if (widget._curr == 1 &&
-                                          option['title'] == 'No' &&
-                                          DataSingleton().scale_id ==
-                                              'IBS.kribado') {
-                                        numChild = true;
+                                      if(widget._curr == 1 &&  option['title'] == 'No' && DataSingleton().scale_id == 'IBS.kribado'){
+                                        numChild =true;
                                       }
 
-                                      if (widget._curr == 1 &&
-                                          option['title'] == 'Yes' &&
-                                          DataSingleton().scale_id ==
-                                              'IBS.kribado') {
-                                        numChild = false;
+                                      if(widget._curr == 1 &&  option['title'] == 'Yes' && DataSingleton().scale_id == 'IBS.kribado'){
+                                        numChild =false;
                                       }
 
-                                      DataSingleton().fraxOptionTitle =
-                                          groupValuewithoutIndex;
+                                      DataSingleton().fraxOptionTitle = groupValuewithoutIndex;
+                                      print('djfkdjfksjfksfjksfjskfj $groupValuewithoutIndex');
                                       // Check if the string can be parsed as an integer
-                                      if (int.tryParse(
-                                          groupValuewithoutIndex) !=
-                                          null) {
-                                        groupValuewithoutIndexInt =
-                                            int.parse(groupValuewithoutIndex);
+                                      if (int.tryParse(groupValuewithoutIndex) != null) {
+                                        groupValuewithoutIndexInt = int.parse(groupValuewithoutIndex);
                                       } else {
                                         // Handle the case where it cannot be parsed as an integer
                                       }
-
-                                      if(DataSingleton().scale_id == 'rHTN.kribado' && widget._curr == 2) {
-                                        showChildText = true;
-                                      }
-                                      DataSingleton().option_selected_logo =
-                                          option['b64data'].split(',').last;
-                                      if (showChildText /*&& groupValuewithoutIndexInt != -1 && currentQuestion['childrens'].length > _groupValue*/) {
+                                      DataSingleton().option_selected_logo = option['b64data'].split(',').last;
+                                      if(showChildText /*&& groupValuewithoutIndexInt != -1 && currentQuestion['childrens'].length > _groupValue*/){
                                         print('Children data is available');
                                         // widget.updateChild("childAvailable",0,"",0);
-                                      } else {
+                                      }else {
                                         print('no children available');
                                         // widget.updateChild("NochildAvailable",0,"",0);
                                       }
-                                      widget.onOptionSelected(
-                                          index, widget._curr);
-                                      widget.updateChild("", 0, "", 0);
+                                      widget.onOptionSelected(index, widget._curr);
+                                      widget.updateChild("",0,"",0);
                                     });
-                                    widget.updateParent(
-                                        option['score'], option['title']);
+                                    widget.updateParent(option['score'],option['title']);
 
-                                    isChild = false; // Toggle to
+                                    isChild = false;// Toggle to
                                     // Check if the current option has children and display them if available
-                                    if (currentQuestion['childrens'].length >
-                                        _groupValue) {
+                                    if ( currentQuestion['childrens'].length > _groupValue) {
                                       setState(() {
-                                        widget.updateChild(
-                                            "childAvailable", 0, "", 0);
+                                        widget.updateChild("childAvailable",0,"",0);
                                         showChildText = true; //
-                                        isChild = true; // Toggle to
+                                        isChild = true;// Toggle to
                                         // widget.onOptionSelected(null,0);// show text
                                       });
-                                    } else {
+                                    }
+                                    else{
                                       setState(() {
-                                        widget.updateChild("", 0, "", 0);
-                                        isChild = false; // Toggle to
+                                        widget.updateChild("",0,"",0);
+                                        isChild = false;// Toggle to
                                       });
                                     }
                                   },
@@ -6952,13 +6319,9 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                         ? Center(
                                       child: option['b64data'].isNotEmpty
                                           ? Image.memory(
-                                        base64Decode(
-                                            option['b64data']
-                                                .split(',')
-                                                .last),
+                                        base64Decode(option['b64data'].split(',').last),
                                       )
-                                          : SizedBox
-                                          .shrink(), // Handle case when image is also empty
+                                          : SizedBox.shrink(), // Handle case when image is also empty
                                     )
                                         : Row(
                                       crossAxisAlignment:
@@ -6973,8 +6336,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                                   ? Colors.white
                                                   : Colors.black,
                                             ),
-                                            overflow:
-                                            TextOverflow.ellipsis,
+                                            overflow: TextOverflow.ellipsis,
                                             maxLines: 10,
                                           ),
                                         ),
@@ -6982,9 +6344,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                           SizedBox(width: 10),
                                         if (option['b64data'].isNotEmpty)
                                           Image.memory(
-                                            base64Decode(option['b64data']
-                                                .split(',')
-                                                .last),
+                                            base64Decode(option['b64data'].split(',').last),
                                           ),
                                       ],
                                     ),
@@ -6997,18 +6357,15 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
 
                         // Header displayed between the two ListViews
 
+
                         if (showChildText &&
-                            groupValuewithoutIndexInt != 0 &&
+                            groupValuewithoutIndexInt != -1 &&
                             (childrens == null ||
                                 (childrens is List && childrens.isEmpty) ||
                                 (childrens is List &&
                                     _groupValue! < childrens.length &&
-                                    currentQuestion['childrens'][_groupValue]
-                                    ['type'] !=
-                                        null &&
-                                    currentQuestion['childrens'][_groupValue]
-                                    ['type'] ==
-                                        'SEEK')))
+                                    currentQuestion['childrens'][_groupValue]['type'] != null &&
+                                    currentQuestion['childrens'][_groupValue]['type'] == 'SEEK')))
                           Container(
                             margin: const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Column(
@@ -7016,12 +6373,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                               children: [
                                 // Conditionally show title only if it's not null or empty
 
-                                if (currentQuestion['childrens'][_groupValue]
-                                ['title']
-                                    ?.toString()
-                                    .trim()
-                                    .isNotEmpty ??
-                                    false)
+                                if (currentQuestion['childrens'][_groupValue]['title']?.toString().trim().isNotEmpty ?? false)
                                   Padding(
                                     padding: const EdgeInsets.all(8.0),
                                     child: Text(
@@ -7037,8 +6389,7 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                 // Main card
                                 Card(
                                   shape: RoundedRectangleBorder(
-                                    side: BorderSide(
-                                        color: ColorConstants.lightGrey),
+                                    side: BorderSide(color: ColorConstants.lightGrey),
                                     borderRadius: BorderRadius.circular(10.0),
                                   ),
                                   elevation: 3,
@@ -7046,10 +6397,8 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                   color: ColorConstants.cultured,
                                   surfaceTintColor: ColorConstants.cultured,
                                   child: Column(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                    crossAxisAlignment:
-                                    CrossAxisAlignment.stretch,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
                                     children: <Widget>[
                                       Text(
                                         "Value : $_sliderValue",
@@ -7062,53 +6411,37 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                       ),
                                       Slider(
                                         value: _sliderValue.toDouble(),
-                                        min: currentQuestion['childrens']
-                                        [_groupValue]['min']
-                                            .toDouble(),
-                                        max: currentQuestion['childrens']
-                                        [_groupValue]['max']
-                                            .toDouble(),
-                                        divisions: currentQuestion['childrens']
-                                        [_groupValue]['step'],
+                                        min: currentQuestion['childrens'][_groupValue]['min'].toDouble(),
+                                        max: currentQuestion['childrens'][_groupValue]['max'].toDouble(),
+                                        divisions: currentQuestion['childrens'][_groupValue]['step'],
                                         onChanged: (double value) {
                                           setState(() {
                                             _sliderValue = value.round();
                                             idofCurrentValue = _sliderValue;
-                                            numChild = true;
+                                            numChild =true;
                                             isChild = false;
                                             childAnswer = '$_sliderValue';
                                             widget.updateChild("", 0, "", 0);
                                             addOrUpdateResult(
                                               questionId: currentQuestion['id'],
                                               score: _sliderValue.toDouble(),
-                                              answer: rangess!
-                                                  .firstWhere(
-                                                    (rangess) =>
-                                                rangess['score'] ==
-                                                    idofCurrentValue,
-                                                orElse: () => {
-                                                  'title': 'No Label Found'
-                                                },
-                                              )['title']
-                                                  .toString(),
-                                              childId:
-                                              currentQuestion['childrens']
-                                              [_groupValue]['id'],
+                                              answer: rangess!.firstWhere(
+                                                    (rangess) => rangess['score'] == idofCurrentValue,
+                                                orElse: () => {'title': 'No Label Found'},
+                                              )['title'].toString(),
+                                              childId: currentQuestion['childrens'][_groupValue]['id'],
                                             );
                                           });
                                         },
                                       ),
                                       Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Expanded(
                                             child: Padding(
-                                              padding:
-                                              const EdgeInsets.all(4.0),
+                                              padding: const EdgeInsets.all(4.0),
                                               child: Text(
-                                                subtitless!.first['key']
-                                                    .toString(),
+                                                subtitless!.first['key'].toString(),
                                                 style: const TextStyle(
                                                   fontSize: 12,
                                                   color: Colors.black,
@@ -7121,11 +6454,9 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                           ),
                                           Expanded(
                                             child: Padding(
-                                              padding:
-                                              const EdgeInsets.all(4.0),
+                                              padding: const EdgeInsets.all(4.0),
                                               child: Text(
-                                                subtitless!.last['key']
-                                                    .toString(),
+                                                subtitless!.last['key'].toString(),
                                                 style: const TextStyle(
                                                   fontSize: 12,
                                                   color: Colors.black,
@@ -7139,18 +6470,13 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                         ],
                                       ),
                                       Row(
-                                        mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             rangess!
                                                 .firstWhere(
-                                                  (rangess) =>
-                                              rangess['score'] ==
-                                                  idofCurrentValue,
-                                              orElse: () => {
-                                                'title': 'No Label Found'
-                                              },
+                                                  (rangess) => rangess['score'] == idofCurrentValue,
+                                              orElse: () => {'title': 'No Label Found'},
                                             )['title']
                                                 .toString(),
                                             style: const TextStyle(
@@ -7170,16 +6496,11 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                             ),
                           ),
 
-                        if (showChildText &&
-                            groupValuewithoutIndexInt != -1 &&
-                            currentQuestion['childrens'].length > _groupValue &&
-                            currentQuestion['childrens'][_groupValue]['type'] ==
-                                'NUM')
+                        if (showChildText && groupValuewithoutIndexInt != -1 && currentQuestion['childrens'].length > _groupValue  && currentQuestion['childrens'][_groupValue]['type'] == 'NUM')
                           Expanded(
                             child: GestureDetector(
                               onVerticalDragStart: (details) {
-                                FocusScopeNode currentFocus =
-                                FocusScope.of(context);
+                                FocusScopeNode currentFocus = FocusScope.of(context);
                                 if (!currentFocus.hasPrimaryFocus) {
                                   currentFocus.unfocus();
                                 }
@@ -7188,15 +6509,12 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                    padding:
-                                    const EdgeInsets.fromLTRB(12, 2, 12, 1),
-                                    margin:
-                                    const EdgeInsets.fromLTRB(4, 0, 0, 8),
+                                    padding: const EdgeInsets.all(12.0),
+                                    margin: const EdgeInsets.fromLTRB(4, 8, 0, 8),
                                     child: Align(
                                       alignment: Alignment.topLeft,
                                       child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             '${currentQuestion['childrens'][_groupValue]['title']}',
@@ -7211,36 +6529,27 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                   ),
                                   Theme(
                                     data: Theme.of(context).copyWith(
-                                      inputDecorationTheme:
-                                      InputDecorationTheme(
+                                      inputDecorationTheme: InputDecorationTheme(
                                         errorStyle: TextStyle(
-                                          fontSize:
-                                          10, // 👈 change this to your desired size
+                                          fontSize: 10, // 👈 change this to your desired size
                                           color: Colors.red,
                                         ),
                                       ),
                                     ),
                                     child: TextFormField(
                                       controller: _textEditingController,
-                                      keyboardType:
-                                      TextInputType.numberWithOptions(
-                                          decimal: true),
+                                      keyboardType: TextInputType.numberWithOptions(decimal: true),
                                       onChanged: (text) {
-                                        double? enteredValue =
-                                        double.tryParse(text);
+                                        double? enteredValue = double.tryParse(text);
 
                                         setState(() {
                                           _errorTextIBSkribado = null;
                                         });
 
-                                        if (DataSingleton().scale_id ==
-                                            'IBS.kribado') {
-                                          if (enteredValue == null ||
-                                              enteredValue < 1 ||
-                                              enteredValue > 10) {
+                                        if (DataSingleton().scale_id == 'IBS.kribado') {
+                                          if (enteredValue == null || enteredValue < 1 || enteredValue > 10) {
                                             setState(() {
-                                              _errorTextIBSkribado =
-                                              'Please enter a value between 1 and 10';
+                                              _errorTextIBSkribado = 'Please enter a value between 1 and 10';
                                               numChild = false;
                                             });
                                             return;
@@ -7248,29 +6557,24 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                           numChild = true;
                                         }
 
-                                        if (DataSingleton().fraxOptionTitle ==
-                                            'No') {
-                                          widget.onOptionSelectedNum(
-                                              1234567890, widget._curr);
-                                        } else if (DataSingleton()
-                                            .fraxOptionTitle ==
-                                            'Yes') {
-                                          widget.onOptionSelectedNum(
-                                              enteredValue!, widget._curr);
-                                          DataSingleton().fraxAnswer10 =
-                                          "$enteredValue";
+                                        print('suhsufhsfhsjfhsfjshjfjshf ${DataSingleton().fraxOptionTitle}');
+
+                                        if (DataSingleton().fraxOptionTitle == 'No') {
+                                          widget.onOptionSelectedNum(1234567890, widget._curr);
+                                          print('daldslfklcxfdfkdgkegkg');
+                                        } else if (DataSingleton().fraxOptionTitle == 'Yes') {
+                                          widget.onOptionSelectedNum(enteredValue!, widget._curr);
+                                          print('troyiroieoyieoyieoietoeitoeit');
+                                          DataSingleton().fraxAnswer10 = "$enteredValue";
                                           DataSingleton().fraxchilId = '1';
                                         }
 
-                                        if (DataSingleton().scale_id ==
-                                            'IBS.kribado') {
+                                        if (DataSingleton().scale_id == 'IBS.kribado') {
                                           addOrUpdateResult(
                                             questionId: currentQuestion['id'],
                                             score: enteredValue!.toDouble(),
                                             answer: '$enteredValue',
-                                            childId:
-                                            currentQuestion['childrens']
-                                            [_groupValue]['id'],
+                                            childId: currentQuestion['childrens'][_groupValue]['id'],
                                           );
                                         }
 
@@ -7281,172 +6585,42 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                         setState(() {});
                                       },
                                       decoration: InputDecoration(
-                                        labelText: DataSingleton().scale_id ==
-                                            'IBS.kribado'
+                                        labelText: DataSingleton().scale_id == 'IBS.kribado'
                                             ? 'Enter from 1 to 10'
                                             : 'Enter a number',
                                         border: OutlineInputBorder(),
-                                        errorText: DataSingleton().scale_id ==
-                                            'IBS.kribado'
+                                        errorText: DataSingleton().scale_id == 'IBS.kribado'
                                             ? _errorTextIBSkribado
                                             : null,
                                       ),
                                     ),
                                   ),
+
+
+
+
                                 ],
                               ),
                             ),
                           ),
-                        //For rdn scale
-                        if (DataSingleton().scale_id == 'rHTN.kribado' &&
-                            showChildText &&
-                            groupValuewithoutIndexInt != -1 &&
-                            currentQuestion['options']
-                            [groupValuewithoutIndexInt]['value']
-                                .toString() ==
-                                currentQuestion['childrens'][0]['answered']
-                                    .toString() &&
-                            currentQuestion['childrens'][0]['strategy'] ==
-                                '==' &&
-                            currentQuestion['childrens'][0]['type'] == 'SS')
-                          Expanded(
-                            child: Scrollbar(
-                              thumbVisibility: true,
-                              child: ListView.builder(
-                                itemCount: currentQuestion['childrens'][0]
-                                ['options']
-                                    .length +
-                                    1,
-                                itemBuilder: (context, index) {
-                                  if (index == 0) {
-                                    return Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          16, 16, 16, 8),
-                                      child: Text(
-                                        "${currentQuestion['childrens'][0]['title']}",
-                                        style: TextStyle(
-                                          fontSize: _fontSize,
-                                          color: Colors.black,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 10,
-                                      ),
-                                    );
-                                  }
 
-                                  final childOption =
-                                  currentQuestion['childrens'][0]['options']
-                                  [index - 1];
-                                  final isChildSelected =
-                                      selectedChildId == childOption['id'];
-
-                                  return GestureDetector(
-                                    onTap: () {
-                                      DataSingleton().childQuestion =
-                                      currentQuestion['childrens'][0]
-                                      ['title'];
-                                      DataSingleton().childGroupValue = 0;
-                                      setState(() {
-                                        selectedChildId = childOption['id'];
-                                        widget.onOptionSelected(
-                                            index - 1, widget._curr);
-                                        childAnswer = childOption['title'];
-                                      });
-                                      widget.updateChild(
-                                          "childAvailable",
-                                          childOption['score'],
-                                          childOption['title'],
-                                          childOption['id']);
-                                      DataSingleton().option_selected_logo =
-                                          childOption['b64data']
-                                              .split(',')
-                                              .last;
-                                    },
-                                    child: Container(
-                                      margin: const EdgeInsets.fromLTRB(
-                                          55, 10, 10, 10),
-                                      padding: EdgeInsets.all(12.0),
-                                      decoration: BoxDecoration(
-                                        color: isChildSelected
-                                            ? Theme.of(context).primaryColor
-                                            : Colors.white,
-                                        border: Border.all(
-                                          color: isChildSelected
-                                              ? Theme.of(context).primaryColor
-                                              : Colors.grey,
-                                        ),
-                                        borderRadius:
-                                        BorderRadius.circular(8.0),
-                                      ),
-                                      child: Row(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              childOption['title'],
-                                              style: TextStyle(
-                                                fontSize: _fontSize,
-                                                color: isChildSelected
-                                                    ? Colors.white
-                                                    : Colors.black,
-                                              ),
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 10,
-                                            ),
-                                          ),
-                                          if (childOption['b64data']
-                                              .isNotEmpty) ...[
-                                            SizedBox(width: 10),
-                                            Image.memory(
-                                              base64Decode(
-                                                  childOption['b64data']
-                                                      .split(',')
-                                                      .last),
-                                              height: 70,
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          )
                         // Second ListView for child options
-                        else if (
-                        DataSingleton().scale_id != 'rHTN.kribado' &&
-                            showChildText &&
-                            groupValuewithoutIndexInt != -1 &&
-                            currentQuestion['childrens'].length > _groupValue &&
-                            currentQuestion['childrens'][_groupValue]['type'] ==
-                                'SS')
+                        if (showChildText && groupValuewithoutIndexInt != -1 && currentQuestion['childrens'].length > _groupValue && currentQuestion['childrens'][_groupValue]['type'] == 'SS')
                           Expanded(
                             child: Scrollbar(
                               thumbVisibility: true,
                               child: ListView.builder(
-                                itemCount: currentQuestion['childrens'][_groupValue]['options'].length + 1,
+                                shrinkWrap: true,
+                                itemCount: currentQuestion['childrens'][_groupValue]['options'].length,
                                 itemBuilder: (context, index) {
-                                  if (index == 0) {
-                                    // First item is the question title
-                                    return Padding(
-                                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                                      child: Text(
-                                        "${currentQuestion['childrens'][_groupValue]['title']}",
-                                        style: TextStyle(
-                                          fontSize: _fontSize,
-                                          color: Colors.black,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 10,
-                                      ),
-                                    );
-                                  }
+                                  // Access child options
+                                  Map<String, dynamic> childOption = currentQuestion['childrens'][_groupValue]['options'][index];
 
-                                  // Remaining items are options
-                                  final childOption = currentQuestion['childrens'][_groupValue]['options'][index - 1];
-                                  final isChildSelected = selectedChildId == childOption['id'];
+                                  bool isChildSelected = selectedChildId == childOption['id']; // Use selectedChildId instead
+
+
+
+
 
                                   return GestureDetector(
                                     onTap: () {
@@ -7454,14 +6628,16 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                       DataSingleton().childGroupValue = _groupValue;
                                       setState(() {
                                         selectedChildId = childOption['id'];
-                                        widget.onOptionSelected(index - 1, widget._curr);
+                                        widget.onOptionSelected(index, widget._curr);
                                         childAnswer = childOption['title'];
                                       });
                                       widget.updateChild("childAvailable", childOption['score'], childOption['title'], childOption['id']);
-                                      DataSingleton().option_selected_logo = childOption['b64data'].split(',').last;
+                                      DataSingleton().option_selected_logo = childOption['b64data']
+                                          .split(',')
+                                          .last;
                                     },
                                     child: Container(
-                                      margin: const EdgeInsets.fromLTRB(55, 10, 10, 10),
+                                      margin: const EdgeInsets.fromLTRB(55,10,10,10),
                                       padding: EdgeInsets.all(12.0),
                                       decoration: BoxDecoration(
                                         color: isChildSelected ? Theme.of(context).primaryColor : Colors.white,
@@ -7484,13 +6660,13 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
                                               maxLines: 10,
                                             ),
                                           ),
-                                          if (childOption['b64data'].isNotEmpty) ...[
+                                          if (childOption['b64data'].isNotEmpty)
                                             SizedBox(width: 10),
+                                          if (childOption['b64data'].isNotEmpty)
                                             Image.memory(
                                               base64Decode(childOption['b64data'].split(',').last),
                                               height: 70,
                                             ),
-                                          ],
                                         ],
                                       ),
                                     ),
@@ -7613,3 +6789,4 @@ class _ScalesTestScreenState extends State<ScalesTestScreen> {
     );
   }
 }
+

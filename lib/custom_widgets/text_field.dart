@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kribadostore/constants/ColorConstants.dart';
-
-import '../DataSingleton.dart';
 //abhsihek edit
 
 class CustomTextField extends StatefulWidget {
@@ -189,8 +187,8 @@ class _CustomTextFieldState extends State<CustomTextField> {
                   ),
               ],
             )
-
           else if (widget.hintText == 'Gender')
+
             Card(
               color: ColorConstants.colorR8,
               clipBehavior: Clip.none,
@@ -244,77 +242,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
                 ),
               ),
             )
-
-
-
-          //Code for Select Doctor Speciality
-          else if (widget.hintText == 'Speciality' &&
-                DataSingleton().doctorSpecialtyDropDown != null &&
-                DataSingleton().doctorSpecialtyDropDown!.trim().isNotEmpty)
-              Card(
-                color: ColorConstants.colorR8,
-                clipBehavior: Clip.none,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
-                        child: Text(
-                          'Doctor Speciality',
-                          style: TextStyle(
-                            fontFamily: 'Quicksand-SemiBold',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                      DropdownButtonFormField<String>(
-                        decoration: InputDecoration(
-                          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                          errorText: widget.errorText,
-                          border: OutlineInputBorder(), // optional default
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue, width: 2.0),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue), // override red with blue
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.blue, width: 2.0), // for error+focus
-                          ),
-                        ),
-
-                        hint: Text('Select Doctor Speciality'),
-                        value: widget.controller.text.isNotEmpty ? widget.controller.text : null,
-                        items: DataSingleton()
-                            .doctorSpecialtyDropDown!
-                            .split(',')
-                            .map((speciality) => speciality.trim())
-                            .where((speciality) => speciality.isNotEmpty)
-                            .map((speciality) => DropdownMenuItem(
-                          value: speciality,
-                          child: Text(speciality),
-                        ))
-                            .toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            widget.controller.text = value!;
-                          });
-                        },
-                      ),
-                    ],
-
-                  ),
-                ),
-              )
-
-
-            else
+          else
             TextFormField(
               controller: widget.controller,
               obscureText: widget.obscureText,

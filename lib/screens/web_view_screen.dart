@@ -1,15 +1,22 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:kribadostore/Camp.dart';
 import 'package:kribadostore/DataSingleton.dart';
 import 'package:kribadostore/DatabaseHelper.dart';
+import 'package:kribadostore/helper/sharedpref_helper.dart';
 import 'package:kribadostore/screens/BrandsPrescription_screen.dart';
 import 'package:kribadostore/screens/patient_details_screen.dart';
+import 'package:kribadostore/screens/pdf/pdf_components.dart';
+import 'package:kribadostore/screens/print.dart';
+import 'package:kribadostore/screens/print/BluetoothPrinterService.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:print_bluetooth_thermal/print_bluetooth_thermal.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -24,8 +31,18 @@ class _WebViewPageState extends State<WebViewPage> {
   bool _isLoading = true;
   String _errorMessage = '';
   late final WebViewController _controller;
+  bool isLoading = true;
+  final BluetoothPrinterService printerService = BluetoothPrinterService();
+
+  List<BluetoothInfo> items = [];
+  String _msj = '';
+  int printcount = 0;
+
   DataSingleton dataSingleton = DataSingleton();
+
   late DatabaseHelper _databaseHelper;
+  bool _progress = false;
+
   String doctorName = "";
   List<Map<String, dynamic>> resources = [];
 
@@ -36,6 +53,8 @@ class _WebViewPageState extends State<WebViewPage> {
     'patientGender': DataSingleton().pat_gender ?? '',
     'meta': DataSingleton().meta ?? '',
   };
+
+
 
 
 
@@ -65,6 +84,16 @@ class _WebViewPageState extends State<WebViewPage> {
           setState(() {
             _errorMessage = 'WebView error: ${error.description}';
             _isLoading = false;
+
+            print("Data map before encoding: $dataMap");
+            var encoedData = jsonEncode(dataMap);
+            print("Data Map: $encoedData");
+            try {
+              _controller.runJavaScript('getDataFromApp($encoedData)');
+            } catch (e) {
+              print("Error in onPageFinished: $e");
+            }
+
           });
         },
       ));
@@ -85,6 +114,35 @@ class _WebViewPageState extends State<WebViewPage> {
       });
     }
   }
+
+  void showPrintingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10.0),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(width: 20),
+                Text(
+                  "Printing, please wait...",
+                  style: TextStyle(color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
 
 
   Future<void> _handleJavaScriptMessage(String message) async {
@@ -116,14 +174,14 @@ class _WebViewPageState extends State<WebViewPage> {
         payload = payloadRaw;
       }
 
-   /*   if (payload != null && payload['printConfig'] != null) {
+      if (payload != null && payload['printConfig'] != null) {
         final printConfig = payload['printConfig'];
         if (printConfig is String) {
           loadPrintingConfig(printConfig);
         } else if (printConfig is Map) {
           loadPrintingConfig(jsonEncode(printConfig));
         }
-      }*/
+      }
 
       if (payload != null &&
           payload['results'] != null &&
@@ -216,6 +274,78 @@ class _WebViewPageState extends State<WebViewPage> {
         case 'endcamp':
           Get.to(const BrandsPrescription());
           break;
+        case 'print':
+          try {
+            String? deviceName = await getDeviceName();
+            print("Device name: $deviceName");
+            print("Print Count $printcount");
+
+            if (["Alps Q1", "Alps JICAI Q1", "Q1", "JICAI Q2", "Z91"]
+                .contains(deviceName)) {
+              bool isBluetoothEnabled =
+              await PrintBluetoothThermal.bluetoothEnabled;
+              int batteryLevel = await PrintBluetoothThermal.batteryLevel;
+
+              if (!isBluetoothEnabled) {
+                Fluttertoast.showToast(msg: "Please Turn On Bluetooth");
+                return;
+              }
+              if (batteryLevel <= 15) {
+                lowbattery(context);
+                return;
+              }
+
+              if (items.isEmpty) {
+                await getBluetoots();
+              }
+
+              String? bluetoothmac =
+              await SharedprefHelper.getUserData("printer");
+              if (bluetoothmac == null || bluetoothmac.isEmpty) {
+                String printerType =
+                deviceName == "Z91" ? "bluetoothprint" : "iposprinter";
+                await handlePrinterSelection(context, printerType);
+              } else {
+                await handlePrinterConnection(context, bluetoothmac);
+              }
+            } else {
+              String? mac = await SharedprefHelper.getUserData("printer");
+              print("Mac address from shared preferences: $mac");
+              if (mac != null && mac.isNotEmpty) {
+                Get.to(PrintScreen(
+                  automaticprint: true,
+                ));
+              } else {
+                Get.to(PrintScreen(
+                  automaticprint: false,
+                ));
+              }
+            }
+          } catch (e) {
+            print("Error in print action: $e");
+            Fluttertoast.showToast(msg: "Error connecting to printer");
+          }
+          break;
+        case 'download':
+          print(
+              'download action received! DataSingleton().doc_name = ${DataSingleton().doc_name}');
+          print("Download action received with payload: $payload");
+          try {
+            PdfComponents pdfComponents = PdfComponents();
+            pdfComponents.downloadPdf(
+              context,
+              score ?? "",
+              (interpretation ?? "")
+                  .replaceAll(RegExp(r'<br\s*/?>|&nbsp;'), '\n')
+                  .replaceAll(RegExp(r'<[^>]*>'), '')
+                  .replaceAll(RegExp(r'\s+\n'), '\n')
+                  .replaceAll(RegExp(r'\n+'), '\n')
+                  .trim(),
+            );
+          } catch (e) {
+            print("Getting $e while performing pdf operation");
+          }
+          break;
         default:
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Unknown action: $action')),
@@ -225,6 +355,192 @@ class _WebViewPageState extends State<WebViewPage> {
       print('Error handling JavaScript message: $e');
     }
   }
+
+
+  Future<String?> getDeviceName() async {
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+
+    if (Platform.isAndroid) {
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      return androidInfo.model;
+    } else if (Platform.isIOS) {
+      IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+      return iosInfo.name;
+    }
+    return null;
+  }
+
+  Future<void> handlePrinterSelection(
+      BuildContext context, String printername) async {
+    try {
+      final BluetoothInfo targetPrinter = items.firstWhere(
+            (item) => item.name.toLowerCase() == printername,
+        orElse: () => throw Exception("Printer not found"),
+      );
+
+      await SharedprefHelper.saveUserData("printer", targetPrinter.macAdress);
+      String? mac = await SharedprefHelper.getUserData("printer");
+
+      if (mac != null && mac.isNotEmpty) {
+        await handlePrinterConnection(context, mac);
+      }
+    } catch (e) {
+      _showErrorDialog(context, e.toString());
+      print("Error finding printer: $e");
+    }
+  }
+
+  Future<void> _showErrorDialog(BuildContext context, String message) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(message),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> handlePrinterConnection(
+      BuildContext dialogContext, String mac) async {
+    showPrintingDialog(dialogContext);
+
+    bool status = await printerService.connect(mac);
+
+    if (status) {
+      await printerService.printTicket1();
+      Future.delayed(const Duration(seconds: 4), () {
+        Navigator.of(dialogContext).pop();
+      });
+    } else {
+      Fluttertoast.showToast(msg: "Unable to connect to printer");
+      Navigator.of(dialogContext).pop();
+    }
+  }
+
+  Future<dynamic> lowbattery(BuildContext context) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.battery_alert, color: Colors.red, size: 30),
+              SizedBox(width: 10),
+              Text('Low Battery Warning',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.asset('assets/batterylow.png', height: 70),
+              const SizedBox(height: 10),
+              const Text(
+                'Your battery level is below 15%. To continue using the printer, please ensure the battery level is greater than 15%.',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                ),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.green,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(
+                    10,
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
+                ),
+              ),
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> getBluetoots() async {
+    setState(() {
+      _progress = true;
+      items = [];
+    });
+    final List<BluetoothInfo> listResult =
+    await PrintBluetoothThermal.pairedBluetooths;
+
+    setState(() {
+      _progress = false;
+    });
+
+    if (listResult.isEmpty) {
+      _msj =
+      "There are no bluetooths linked, go to settings and link the printer";
+    } else {
+      _msj = "Touch an item in the list to connect";
+    }
+
+    setState(
+          () {
+        items = listResult;
+      },
+    );
+  }
+
+  void loadPrintingConfig(String jsonString) {
+    final Map<String, dynamic> config = json.decode(jsonString);
+
+    // Assigning to DataSingleton
+    if (config['headerSectionOrder'] != null) {
+      DataSingleton().headerSectionOrder =
+      Map<String, int>.from(config['headerSectionOrder']);
+    }
+    if (config['detailSectionOrder'] != null) {
+      DataSingleton().detailSectionOrder =
+      Map<String, int>.from(config['detailSectionOrder']);
+    }
+    if (config['questionAnsFormting'] != null) {
+      DataSingleton().questionAnsFormting =
+      Map<String, String>.from(config['questionAnsFormting']);
+    }
+  }
+
+
+
   Future<void> _insertData(double final_result) async {
     String pat_id = DataSingleton().pat_id ?? '';
     String camp_date = DataSingleton().camp_date ?? '';
@@ -302,7 +618,8 @@ class _WebViewPageState extends State<WebViewPage> {
       final filePath = '${dir.path}/$fileName';
       final file = File(filePath);
 
-      if (!await file.exists()) {
+
+     /* if (!await file.exists()) {
         final response = await http.get(Uri.parse(widget.url));
         if (response.statusCode == 200) {
           await file.writeAsString(response.body).then((_) async {
@@ -314,7 +631,7 @@ class _WebViewPageState extends State<WebViewPage> {
         } else {
           throw Exception('Failed to download HTML for $scaleId');
         }
-      }
+      }*/
 
       print('📄 Loading file: $filePath');
       await _controller.loadFile(file.path);

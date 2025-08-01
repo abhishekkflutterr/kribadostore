@@ -24,6 +24,7 @@ import 'package:kribadostore/screens/camp_list_screen.dart';
 import 'package:kribadostore/screens/login_screen.dart';
 import 'package:kribadostore/screens/userGuide.dart';
 import 'package:kribadostore/services/s3upload.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../DatabaseHelper.dart';
 import '../NetworkHelper.dart';
@@ -579,6 +580,7 @@ class LoginController extends GetxController {
 
         // Capture the division_int_id for use later
         divisionIntId = division['division_id_int'];
+        // print('isjkscnxkcndjund $divisionIntId');
 
         // Collect meta, scales, and brands
         metaList.addAll(division['meta'] ?? []);
@@ -588,6 +590,19 @@ class LoginController extends GetxController {
         // Add the formatted division to the map using division_int_id as the key
         formattedDivisions[divisionIntId.toString()] = formattedDivision;
       }
+
+      // --- Begin: Download and save all scale HTML files from scalesList ---
+      if (scalesList.isNotEmpty) {
+        for (final scale in scalesList) {
+          final scaleName = scale['name'] ?? '';
+          final scaleUrl = scale['s3_url'] ?? '';
+          if (scaleName is String && scaleUrl is String && scaleName.isNotEmpty && scaleUrl.isNotEmpty) {
+            print('qqqqqqqqqqqqqqqqqqqq1');
+            await _downloadAndSaveScaleHtml(scaleName, scaleUrl);
+          }
+        }
+      }
+      // --- End: Download and save all scale HTML files from scalesList ---
 
       Map<String, dynamic> formattedResponse = {
         'status': responseData['status'],
@@ -806,6 +821,19 @@ class LoginController extends GetxController {
         formattedDivisions[divisionIntId.toString()] = formattedDivision;
       }
 
+      // --- Begin: Download and save all scale HTML files from scalesList ---
+      // if (scalesList.isNotEmpty) {
+      //   for (final scale in scalesList) {
+      //     final scaleName = scale['name'] ?? '';
+      //     print('gjkdgjrkjekejktet $scaleName');
+      //     final scaleUrl = scale['s3_url'] ?? '';
+      //     if (scaleName is String && scaleUrl is String && scaleName.isNotEmpty && scaleUrl.isNotEmpty) {
+      //       await _downloadAndSaveScaleHtml(scaleName, scaleUrl);
+      //     }
+      //   }
+      // }
+      // --- End: Download and save all scale HTML files from scalesList ---
+
       Map<String, dynamic> formattedResponse = {
         'status': responseData['status'],
         'message': responseData['message'],
@@ -848,6 +876,62 @@ class LoginController extends GetxController {
 
       DataSingleton().userLoginOffline = response.body.toString();
 
+      // --- Begin: Download and save all scale HTML files ---
+    /*  List<Map<String, String>> scaleList = [
+        {
+          "name": "FSSG.kribado",
+          "display_name": "FSSG Scale",
+          "s3_url":
+              "https://s3.ap-south-1.amazonaws.com/kribado2.0/dev/scales/FSSG.kribado.json"
+        },
+        {
+          "name": "FSSG.Regional.kribado",
+          "display_name": "FSSG Regional Scale",
+          "s3_url":
+              "https://s3.ap-south-1.amazonaws.com/kribado2.0/dev/scales/FSSG.Regional.kribado.json"
+        },
+        {
+          "name": "ASCVD.Custom.kribado",
+          "display_name": "ASCVD Risk Score",
+          "s3_url":
+              "https://s3.ap-south-1.amazonaws.com/kribado2.0/dev/scales/ASCVD.Custom.kribado.json"
+        },
+        {
+          "name": "KOOS.kribado",
+          "display_name":
+              "Knee Injury And Osteoarthritis Outcome Score (KOOS)",
+          "s3_url":
+              "https://s3.ap-south-1.amazonaws.com/kribado2.0/dev/scales/KOOS.kribado.json"
+        },
+        {
+          "name": "Ludwig.Scales",
+          "display_name": "Ludwig Scale",
+          "s3_url":
+              "https://s3.ap-south-1.amazonaws.com/kribado2.0/dev/scales/Ludwig.Scales.json"
+        },
+        {
+          "name": "HDRS.kribado",
+          "display_name": "Hamilton Depression Rating Scale (HAM-D)",
+          "s3_url":
+              "https://s3.ap-south-1.amazonaws.com/kribado2.0/dev/scales/HDRS.kribado.json"
+        },
+        {
+          "name": "hamilton.kribado",
+          "display_name": "Hamilton Scale",
+          "s3_url":
+              "https://s3.ap-south-1.amazonaws.com/kribado2.0/dev/scales/hamilton.kribado.json"
+        }
+      ];
+
+      for (final scale in scaleList) {
+        final scaleName = scale['name'] ?? '';
+        final scaleUrl = scale['s3_url'] ?? '';
+        if (scaleName.isNotEmpty && scaleUrl.isNotEmpty) {
+          await _downloadAndSaveScaleHtml(scaleName, scaleUrl);
+        }
+      }*/
+      // --- End: Download and save all scale HTML files ---
+
       Get.off(const ScaffoldExample());
 
       setLoading(false);
@@ -856,6 +940,30 @@ class LoginController extends GetxController {
       showAlertDialog(context);
     } else {
       setLoading(false);
+    }
+  }
+
+  // Helper function to download and save HTML file for a scale
+  Future<void> _downloadAndSaveScaleHtml(String scaleId, String url) async {
+    try {
+      final dir = await getApplicationDocumentsDirectory();
+      final fileName = 'scale_$scaleId.html';
+      final filePath = '${dir.path}/$fileName';
+      final file = File(filePath);
+
+      if (!await file.exists()) {
+        final response = await http.get(Uri.parse(url));
+        if (response.statusCode == 200) {
+          await file.writeAsString(response.body);
+          print('✅ File saved for $scaleId');
+        } else {
+          print('❌ Failed to download HTML for $scaleId');
+        }
+      } else {
+        print('📄 File already exists for $scaleId');
+      }
+    } catch (e) {
+      print('❌ Error saving HTML for $scaleId: $e');
     }
   }
 

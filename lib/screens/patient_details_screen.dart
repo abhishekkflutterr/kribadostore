@@ -783,7 +783,12 @@ class _PatientsDetailsScreenState extends State<PatientsDetailsScreen> {
                                             //   }
                                             // });
 
-                                            Get.to(() =>  WebViewPage());
+                                            // Get.to(() =>  WebViewPage());
+                                            Get.to(WebViewPage(
+                                              url:
+                                              'https://scales5.kribado.com/?scale=${DataSingleton().scale_id}&mode=download',
+                                            ));
+
 
 
                                           } catch (e) {
@@ -956,7 +961,12 @@ class _PatientsDetailsScreenState extends State<PatientsDetailsScreen> {
                                 }
 
                                 DataSingleton().locale = "en";
-                                Get.to(() =>  WebViewPage());
+                                // Get.to(() =>  WebViewPage());
+                                Get.to(WebViewPage(
+                                  url:
+                                  'https://scales5.kribado.com/?scale=${DataSingleton().scale_id}&mode=download',
+                                ));
+
 
                                 print("Scale Json $scaleJson");
                               } catch (e) {

@@ -14,7 +14,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class WebViewPage extends StatefulWidget {
-  const WebViewPage({super.key});
+  final String url;
+  const WebViewPage({super.key, required this.url});
   @override
   State<WebViewPage> createState() => _WebViewPageState();
 }
@@ -290,26 +291,41 @@ class _WebViewPageState extends State<WebViewPage> {
   Future<void> _loadHtml() async {
     try {
       final dir = await getApplicationDocumentsDirectory();
-      final filePath = '${dir.path}/scale_FSSG.kribado.html';
+      final scaleId = DataSingleton().scale_id;
+      print('fkjsksjfksfj $scaleId');
+
+      if (scaleId == null || scaleId.isEmpty) {
+        throw Exception('scale_id is not set.');
+      }
+
+      final fileName = 'scale_$scaleId.html';
+      final filePath = '${dir.path}/$fileName';
       final file = File(filePath);
 
       if (!await file.exists()) {
-        final response = await http.get(Uri.parse(
-            'https://s3.ap-south-1.amazonaws.com/kribado2.0/dev/scales/FSSG.kribado&mode=download'));
+        final response = await http.get(Uri.parse(widget.url));
         if (response.statusCode == 200) {
-          await file.writeAsString(response.body);
+          await file.writeAsString(response.body).then((_) async {
+            print('✅ File saved. Now loading it...');
+            await _controller.loadFile(file.path);
+            setState(() => _isLoading = false);
+          });
+          return; // exit early so nothing runs below
         } else {
-          throw Exception('Download failed');
+          throw Exception('Failed to download HTML for $scaleId');
         }
       }
 
+      print('📄 Loading file: $filePath');
       await _controller.loadFile(file.path);
     } catch (e) {
       setState(() => _errorMessage = 'Error loading HTML: $e');
+      print('❌ $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
+
 
   Future<void> _onPageFinished() async {
     final jsonMap = {

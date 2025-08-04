@@ -374,32 +374,45 @@ class _DoctorSelectionScreenState extends State<DoctorSelectionScreen> with Widg
 
     // Structure data array with nested "answers" field
     final List<Map<String, dynamic>> dataArray = [];
+    print("campsData length: ${campsData.length}"); // <-- Ensure loop is running
     for (final doctor in campsData) {
-      final String answersString = doctor["answers"];
-      List<Map<String, dynamic>> answersList;
+      print("doctor keys: ${doctor.keys}"); // <-- Print doctor keys for debug
+      List<Map<String, dynamic>> answersList = [];
       try {
-        // Replace single quotes with double quotes and add double quotes around keys
-        final formattedString = answersString
-            .replaceAll("'", "\"")
-            .replaceAll("question_id", "\"question_id\"")
-            .replaceAll("score", "\"score\"")
-            .replaceAll("answer", "\"answer\"")
-            .replaceAll("child_id", "\"child_id\"")
-            .replaceAllMapped(
-            RegExp(r'"answer":\s*([^,}\]]+)', multiLine: true),
-                (match) => '"answer": "${match.group(1)}"');
+        var answersRaw = doctor["answers"];
+        print("answersRaw type: ${answersRaw.runtimeType}"); // <-- Print type every iteration
+        print("answersRaw value: ${answersRaw is String ? answersRaw : jsonEncode(answersRaw)}");
 
-        // Decode the formatted string
-        answersList =
-        List<Map<String, dynamic>>.from(json.decode(formattedString));
-      } catch (e) {
+        if (answersRaw is String) {
+          print("answersRaw string before decode: $answersRaw");
+          if (answersRaw.trim().startsWith('[') && answersRaw.trim().endsWith(']')) {
+            answersList = List<Map<String, dynamic>>.from(json.decode(answersRaw));
+            print("Decoded answersList: $answersList");
+          } else {
+            print("answersRaw string is not a valid JSON array.");
+            answersList = [];
+          }
+        } else if (answersRaw is List) {
+          print("answersRaw is a List, first element type: ${answersRaw.isNotEmpty ? answersRaw.first.runtimeType : 'empty'}");
+          if (answersRaw.isNotEmpty && answersRaw.first is Map<String, dynamic>) {
+            answersList = List<Map<String, dynamic>>.from(answersRaw);
+            print("Directly assigned answersList: $answersList");
+          } else if (answersRaw.isEmpty) {
+            answersList = [];
+            print("answersRaw is an empty list.");
+          } else {
+            answersList = answersRaw.map((e) => Map<String, dynamic>.from(e)).toList();
+            print("Casted answersList: $answersList");
+          }
+        } else {
+          print("answersRaw is neither String nor List.");
+          answersList = [];
+        }
+      } catch (e, stack) {
         print("Error decoding answersString: $e");
+        print("Stacktrace: $stack");
         answersList = [];
       }
-
-      // answersList = answersList ?? [];
-
-       // print('@@##Remove '+doctor["patient_meta"].replaceAll('/\/', ""));
 
       final Map<String, dynamic> doctorData = {
        /* "pat_age": doctor["pat_age"]==null:,

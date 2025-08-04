@@ -197,7 +197,7 @@ class _WebViewPageState extends State<WebViewPage> {
             'score': value['score']
           });
           formattedInputs.add({
-            'id': int.tryParse(value['question_id'].toString()) ?? 0,
+            'id': int.tryParse(value['question_id']) ?? 0,
             'title': value['title']
           });
         });
@@ -577,7 +577,7 @@ class _WebViewPageState extends State<WebViewPage> {
           pat_mobile: "NA",
           pat_name: pat_name.toString(),
           pat_id: pat_id.toString(),
-          answers: DataSingleton().resultDataformat.toString(),
+          answers: jsonEncode(DataSingleton().resultDataformat), // <-- encode to String
           division_id: divNumeric,
           subscriber_id: subscriber_id.toString(),
           doc_speciality: DataSingleton().doc_speciality.toString(),
@@ -665,7 +665,7 @@ class _WebViewPageState extends State<WebViewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('WebView Form')),
+      appBar: AppBar(title: const Text('Test')),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _errorMessage.isNotEmpty

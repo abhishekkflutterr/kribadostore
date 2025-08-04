@@ -33,7 +33,7 @@
     </queries>
 
     <application
-        android:label="kribadostore"
+        android:label="Kribado Webview"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
